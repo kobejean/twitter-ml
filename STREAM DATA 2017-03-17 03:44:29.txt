@@ -1,0 +1,6 @@
+hashtags,created_at,text
+%5B%27Informatique%27%5D,Fri%20Mar%2017%2009%3A44%3A04%20%2B0000%202017,%5B%23Informatique%5D%20-%20Dop%C3%A9%20au%20machine%20learning%2C%20Elastic%20%C3%A9tend%20aussi%20ses%20visualisations...%20-%20%C3%80%20lire%20sur%20https%3A//t.co/efIDVrn47H
+%5B%27IntelAtUoN%27%2C%20%27IntelAI%27%5D,Fri%20Mar%2017%2009%3A44%3A08%20%2B0000%202017,RT%20%40duncomosh%3A%20for%20all%20machine%20learning%20algorithim%20have%20the%20training%20and%20test%20data%0Dsupervised%20learning%0D%23IntelAtUoN%0D%23IntelAI%0D%40IntelAI
+%5B%27IntelAtUoN%27%2C%20%27IntelAI%27%5D,Fri%20Mar%2017%2009%3A44%3A19%20%2B0000%202017,RT%20%40duncomosh%3A%20what%20can%40tensorflow%20do%20for%20you%20with%20machine%20learning%20%0D%40IntelAI%20%0D%23IntelAtUoN%0D%23IntelAI%20https%3A//t.co/hewlp2ZtkW
+%5B%27IntelAtUoN%27%2C%20%27IntelAI%27%5D,Fri%20Mar%2017%2009%3A44%3A20%20%2B0000%202017,RT%20%40duncomosh%3A%20for%20better%20machine%20learning%20algorithms%20more%20data%20is%20better%20and%20more%20training%20is%20far%20much%20more%20better%0D%23IntelAtUoN%20%0D%23IntelAI%0D%40%E2%80%A6
+%5B%27intelatuon%27%2C%20%27intelai%27%5D,Fri%20Mar%2017%2009%3A44%3A29%20%2B0000%202017,RT%20%40samy_raps%3A%20Machine%20learning%20stuff%20-%20%23intelatuon%20%23intelai

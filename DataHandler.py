@@ -10,8 +10,9 @@
 #                                                                              #
 #   METHODS:                                                                   #
 #       read      - Reads data in a specified file.                            #
-#       clean     - Trims data by keeping key/value pairs with higher value.   #
-#       write     - Writes data sorted by value to a specified filepath.       #
+#       clean     - Trims data keeping key/value pairs with higher priority.   #
+#       write     - Writes data to a specified filepath as a CVS file.         #
+#       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
 import csv
 from urllib.parse import unquote, quote
@@ -45,16 +46,16 @@ class DataHandler(object):
 
         self.data = []
         for values in reader:
-            decode = lambda val, conv: conv(unquote(val)) if val else None
             entry = {}
-            for key, val, conv in zip(keys, values, conversions):
-                entry[key] = decode(val, conv)
+            for key, value, conversion in zip(keys, values, conversions):
+                if value != "":
+                    entry[key] = conversion(unquote(value))
             self.data.append(entry)
 
     ############################################################################
     #                             - Clean Method -                             #
     #                                                                          #
-    #   DESCRIPTION: Trims data by keeping key/value pairs with higher value.  #
+    #   DESCRIPTION: Trims data keeping key/value pairs with higher priority.  #
     #                                                                          #
     #   PARAMERTERS:                                                           #
     #       priority  - A function that takes an entry and returns a priority  #
@@ -63,25 +64,26 @@ class DataHandler(object):
     #       trim_size - The size of that the data should be trimmed down to.   #
     ############################################################################
     def clean(self, priority, trim_size):
+        """Trims data keeping key/value pairs with higher priority."""
         self.data = sorted(self.data, key=priority, reverse=True)[0:trim_size]
 
     ############################################################################
     #                             - Write Method -                             #
     #                                                                          #
-    #   DESCRIPTION: Writes data to a specified filepath.                      #
+    #   DESCRIPTION: Writes data to a specified filepath as a CVS file.        #
     #                                                                          #
     #   PARAPERTERS:                                                           #
     #       filepath   - The path to write the file.                           #
-    #       csv_format - The format as a string of keys separated by commas.   #
-    #                   for example if each entry looks something like:        #
-    #                       {"hashtag":"some value", "volume":20}              #
-    #                   and we want the CVS format to look something like:     #
-    #                       hashtag, volume                                    #
-    #                   our csv_order parameter should look like:              #
-    #                       "hashtag,volume"                                   #
+    #       csv_format - The cvs format as a list of keys. For example if each #
+    #                    entry looks something like:                           #
+    #                        {"hashtag":"some value", "volume":20}             #
+    #                    and we want the CVS format to look something like:    #
+    #                        hashtag, volume                                   #
+    #                    our csv_format parameter should look like:            #
+    #                        [hashtag,volume]                                  #
     ############################################################################
     def write(self, filepath, csv_format = None):
-        """Writes data to a specified filepath. """
+        """Writes data to a specified filepath as a CVS file. """
         file = open(filepath, "w")
         writer = csv.writer(file)
         keys = csv_format if csv_format else list(self.data.keys())
@@ -91,8 +93,12 @@ class DataHandler(object):
 
         # write data
         for entry in self.data:
-            convert = lambda e,k: quote(str(e[k])) if k in e else None
-            values = [convert(entry, key) for key in keys]
+            values = []
+            for key in keys:
+                value = entry.get(key,None)
+                if value != None:
+                    value = quote(str(value))
+                values.append(value)
             writer.writerow(values)
 
     ############################################################################
@@ -115,7 +121,6 @@ class DataHandler(object):
 # conversions = [int, str] # volume, hashtag
 # dat_hand.read("data.txt", conversions)
 #
-#
 # # adding data
 # entry = {}
 # entry["hashtag"] = "piday"
@@ -123,11 +128,11 @@ class DataHandler(object):
 # dat_hand.add(entry)
 #
 # # cleaning data
-# priority = lambda entry: entry["volume"]
+# priority = lambda entry: entry.get("volume",0)
 # max_size = 10000
 # trim_size = max_size - 1000
 # if len(dat_hand.data) >= max_size:
-#    dat_hand.clean(priority, trim_size)
+#     dat_hand.clean(priority, trim_size)
 #
 # # sort
 # dat_hand.data = sorted(dat_hand.data, key=priority, reverse=True)

@@ -21,29 +21,39 @@ import datetime
 #This is a basic listener that just prints received tweets to stdout.
 class _ApiListener(StreamListener):
     dat_hand = DataHandler()
-    tags = []
-    entry_count = 10000
-    period = 50
-    data_transform = lambda d: {t:d[t] if t in d else None for t in self.tags} # default data transform
+    tags = ["hashtags","created_at","text"]
+    entry_count = 15 # number of entries to collect
+    period = 5 # number of entries between writing files
 
-    #create tag, magnitude pairs directly here
+    # create tag, magnitude pairs directly here
     def on_data(self, data):
-        data = json.loads(data)
-        entry = data_transform(data)
+        data = json.loads(data) # convert to dictionary
+
+        # get entry
+        entry = {}
+        hashtags = data.get("entities",{}).get("hashtags",[])
+        entry["hashtags"] = [hashtag["text"] for hashtag in hashtags]
+        entry["created_at"] = data.get("created_at", None)
+        entry["text"] = data.get("text", None)
         self.dat_hand.add(entry)
 
-        print("on_data:"+str(len(self.dat_hand.data)))
+        print("ADDED: ENTRY #"+str(len(self.dat_hand.data)))
 
-        if len(self.dat_hand.data) % self.period == 0 :
+        def write():
             date_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.dat_hand.write("stream_data_"+date_string+".txt", self.tags)
+            filepath = "STREAM DATA "+ date_string +".txt"
+            print("WRITING TO: "+ filepath)
+            self.dat_hand.write(filepath, self.tags)
 
         # if we collected enough data entries
         if len(self.dat_hand.data) >= self.entry_count:
-            date_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.dat_hand.write("stream_data_"+date_string+".txt", self.tags)
-            print("stream stop")
+            write()
+            print("STREAM STOPPED")
             return False # stops stream
+
+        # periodic write
+        if len(self.dat_hand.data) % self.period == 0 :
+            write()
 
 class DataCollector(object):
 
@@ -99,12 +109,7 @@ class DataCollector(object):
     #       tags - The parts of the JSON encoded tweets that the user would like   #
     #              to include in the data                                          #
     ################################################################################
-    def stream(self, filters, tags, data_transform=None, entry_count=10):
-        apiListener = _ApiListener()
-        apiListener.tags = tags
-        apiListener.entry_count = entry_count
-        if data_transform:
-            apiListener.data_transform = data_transform
+    def stream(self, filters, apiListener):
         stream = Stream(auth=self.api.auth, listener=apiListener)
         stream.filter(track=[filters])
 
@@ -119,23 +124,12 @@ if __name__ == '__main__':
     collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
     collector.authenticate()
 
-    tags = ["hashtags","created_at","text"]
+    apiListener = _ApiListener()
 
-    # takes data from stream and returns a data entry dictionary
-    def data_transform(data):
-        entry = {}
-        # get hashtags
-        entry["hashtags"] = []
-        if "entities" in data:
-            if "hashtags" in data["entities"]:
-                for hashtag in data["entities"]["hashtags"]:
-                    entry["hashtags"].append(hashtag["text"])
-        # get other values
-        entry["created_at"] = data["created_at"] if "created_at" in data else None
-        entry["text"] = data["text"] if "text" in data else None
-        return entry
+    filter = "MACHINE LEARNING"
+    # filter = "HELLO WORLD"
+    # filter = "TRUMP"
+    # filter = "PYTHON"
 
-##    print("FILTER:trump")
-##    collector.stream('trump', tags, data_transform, 1000)
-    print("FILTER:python")
-    collector.stream('python', tags, data_transform, 500)
+    print("FILTER: " + filter.upper())
+    collector.stream(.upper(), apiListener)
