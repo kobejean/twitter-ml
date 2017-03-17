@@ -132,4 +132,4 @@ if __name__ == '__main__':
     # filter = "PYTHON"
 
     print("FILTER: " + filter.upper())
-    collector.stream(.upper(), apiListener)
+    collector.stream(filter, apiListener)
