@@ -1,14 +1,14 @@
-##################################################################################
-#                              - Data Collection -                               #
-#                                                                                #
-#   PROGRAMMED BY: Jake Jongewaard and Jean Flaherty                             #
-#   DATE: 03-18-2017                                                             #
-#   DESCRIPTION: Handles collecting data from the Twitter Stream API and         #
-#                passing it to the DataHandler class                             #
-#                                                                                #
-#   Classes:                                                                     #
-#       DataCollector: implements the _ApiListener class to take data collection #
-##################################################################################
+################################################################################
+#                              - Data Collector -                              #
+#                                                                              #
+#   PROGRAMMED BY: Jake Jongewaard and Jean Flaherty                           #
+#   DATE: 03-18-2017                                                           #
+#   DESCRIPTION: Handles collecting data from the Twitter Stream API and       #
+#                passing it to the DataHandler class                           #
+#                                                                              #
+#   Classes:                                                                   #
+#       DataCollector: collects useful formated data from various Twitter APIs #
+################################################################################
 import datetime
 import json
 import os.path
@@ -17,16 +17,16 @@ from tweepy import Stream, OAuthHandler, API
 
 from DataHandler import DataHandler
 
-##################################################################################
-#                           - DataCollector -                                    #
-#                                                                                #
-#   Description: This class collects useful formated data from various Twitter   #
-#                APIs                                                            #
-#                                                                                #
-#   Methods:                                                                     #
-#       -authenticate(self)                                                      #
-#       -trends(self, tags)                                                      #
-##################################################################################
+################################################################################
+#                           - DataCollector -                                  #
+#                                                                              #
+#   Description: This class collects useful formated data from various Twitter #
+#                APIs                                                          #
+#                                                                              #
+#   Methods:                                                                   #
+#       -authenticate(self)                                                    #
+#       -trends(self, tags)                                                    #
+################################################################################
 class DataCollector(object):
 
     def __init__(self, access_token, access_token_secret, consumer_key, consumer_secret):
