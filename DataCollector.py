@@ -21,39 +21,55 @@ import datetime
 #This is a basic listener that just prints received tweets to stdout.
 class _ApiListener(StreamListener):
     dat_hand = DataHandler()
-    tags = ["hashtags","created_at","text"]
-    entry_count = 15 # number of entries to collect
-    period = 5 # number of entries between writing files
+    keys = ["followers_count","hashtags","created_at","text"]
+    collect_count = 20  # number of entries to collect before stopping stream
+    threshold_size = 15 # the threshold of data size where the data is trimmed
+    period = 5          # number of entries between cleaning/writing files
+    trim_size = threshold_size - period
+    entry_count = 0     # keeping track of the muber of entries added
 
     # create tag, magnitude pairs directly here
     def on_data(self, data):
         data = json.loads(data) # convert to dictionary
+        # print("data: "+str(data))
 
         # get entry
         entry = {}
-        hashtags = data.get("entities",{}).get("hashtags",[])
+        entry["followers_count"] = data["user"]["followers_count"]
+        hashtags = data["entities"]["hashtags"]
         entry["hashtags"] = [hashtag["text"] for hashtag in hashtags]
-        entry["created_at"] = data.get("created_at", None)
-        entry["text"] = data.get("text", None)
+        entry["created_at"] = data["created_at"]
+        entry["text"] = data["text"]
+
         self.dat_hand.add(entry)
 
-        print("ADDED: ENTRY #"+str(len(self.dat_hand.data)))
-
-        def write():
-            date_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            filepath = "STREAM DATA "+ date_string +".txt"
-            print("WRITING TO: "+ filepath)
-            self.dat_hand.write(filepath, self.tags)
+        self.entry_count += 1
+        print("ADDED: ENTRY #" + str(self.entry_count))
 
         # if we collected enough data entries
-        if len(self.dat_hand.data) >= self.entry_count:
-            write()
+        if self.entry_count >= self.collect_count:
+            self.clean()
+            self.write()
             print("STREAM STOPPED")
             return False # stops stream
 
-        # periodic write
-        if len(self.dat_hand.data) % self.period == 0 :
-            write()
+        # periodic clean and write
+        if self.entry_count % self.period == 0 :
+            self.clean()
+            self.write()
+
+    def clean(self):
+        # prioritize entries with more hash tags
+        # priority = lambda entry: len(entry.get("hashtags",[]))
+        # prioritize entries with more followers
+        priority = lambda entry: entry.get("followers_count",0)
+        self.dat_hand.clean(priority, self.threshold_size, self.trim_size)
+
+    def write(self):
+        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        filepath = "STREAM DATA "+ date +".txt"
+        print("WRITING TO: "+ filepath)
+        self.dat_hand.write(filepath, self.keys)
 
 class DataCollector(object):
 
@@ -106,11 +122,10 @@ class DataCollector(object):
     #                                                                              #
     #   PARAMETERS:                                                                #
     #       filters - the types of tweet subjects the user would like the get      #
-    #       tags - The parts of the JSON encoded tweets that the user would like   #
-    #              to include in the data                                          #
+    #       streamListener - The delegate for StreamListener                       #
     ################################################################################
-    def stream(self, filters, apiListener):
-        stream = Stream(auth=self.api.auth, listener=apiListener)
+    def stream(self, filters, streamListener):
+        stream = Stream(auth=self.api.auth, listener=streamListener)
         stream.filter(track=[filters])
 
 
@@ -124,7 +139,7 @@ if __name__ == '__main__':
     collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
     collector.authenticate()
 
-    apiListener = _ApiListener()
+    streamListener = _ApiListener()
 
     filter = "MACHINE LEARNING"
     # filter = "HELLO WORLD"
@@ -132,4 +147,4 @@ if __name__ == '__main__':
     # filter = "PYTHON"
 
     print("FILTER: " + filter.upper())
-    collector.stream(filter, apiListener)
+    collector.stream(filter, streamListener)

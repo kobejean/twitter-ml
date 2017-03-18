@@ -2,7 +2,7 @@
 #                            - Data Handler Class -                            #
 #                                                                              #
 #   PROGRAMMED BY: Jean Flaherty                                               #
-#   DATE: 03-04-2017                                                           #
+#   DATE: 03-17-2017                                                           #
 #   DESCRIPTION: Handles reading/cleaning/writing our data.                    #
 #                                                                              #
 #   INSTANCE VARIABLES:                                                        #
@@ -15,7 +15,6 @@
 #       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
 import csv
-from urllib.parse import unquote, quote
 
 class DataHandler(object):
     data = []
@@ -49,7 +48,12 @@ class DataHandler(object):
             entry = {}
             for key, value, conversion in zip(keys, values, conversions):
                 if value != "":
-                    entry[key] = conversion(unquote(value))
+                    # unescape value
+                    value = value.encode('utf-8')\
+                            .decode("unicode_escape")\
+                            .encode('latin1')\
+                            .decode('utf-8')
+                    entry[key] = conversion(value)
             self.data.append(entry)
 
     ############################################################################
@@ -61,11 +65,15 @@ class DataHandler(object):
     #       priority  - A function that takes an entry and returns a priority  #
     #                   value. Higher values means that the entry has a higher #
     #                   priority and will less likely be deleted.              #
+    #       threshold_size - The threshold at which point the data is trimmed. #
     #       trim_size - The size of that the data should be trimmed down to.   #
     ############################################################################
-    def clean(self, priority, trim_size):
+    def clean(self, priority, threshold_size, trim_size):
         """Trims data keeping key/value pairs with higher priority."""
-        self.data = sorted(self.data, key=priority, reverse=True)[0:trim_size]
+        k = len(self.data)
+        if k >= threshold_size:
+            k = trim_size
+        self.data = sorted(self.data, key=priority, reverse=True)[0:k]
 
     ############################################################################
     #                             - Write Method -                             #
@@ -97,7 +105,9 @@ class DataHandler(object):
             for key in keys:
                 value = entry.get(key,None)
                 if value != None:
-                    value = quote(str(value))
+                    # escape value
+                    value = str(value).encode("utf-8")
+                    value = str(value)[2:-1]
                 values.append(value)
             writer.writerow(values)
 
@@ -114,7 +124,7 @@ class DataHandler(object):
         self.data.append(entry)
 
 
-# # EXAMPLE CODE
+# # # EXAMPLE CODE
 # dat_hand = DataHandler()
 #
 # # reading data
@@ -123,20 +133,18 @@ class DataHandler(object):
 #
 # # adding data
 # entry = {}
-# entry["hashtag"] = "piday"
-# entry["volume"] = 3
+# entry["hashtag"] = "フラハティ 仁"
+# entry["volume"] = 30
 # dat_hand.add(entry)
 #
 # # cleaning data
 # priority = lambda entry: entry.get("volume",0)
-# max_size = 10000
-# trim_size = max_size - 1000
-# if len(dat_hand.data) >= max_size:
-#     dat_hand.clean(priority, trim_size)
-#
-# # sort
-# dat_hand.data = sorted(dat_hand.data, key=priority, reverse=True)
+# threshold_size = 10
+# trim_size = threshold_size - 5
+# dat_hand.clean(priority, threshold_size, trim_size)
 #
 # # writing data to file in CSV format
 # cvs_format = ["volume", "hashtag"]
 # dat_hand.write("data_out.txt", cvs_format)
+# 
+# print(dat_hand.data)
