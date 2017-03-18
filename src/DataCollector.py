@@ -18,7 +18,7 @@ import json
 from tweepy import Stream, OAuthHandler, API
 from tweepy.streaming import StreamListener
 
-from src.DataHandler import DataHandler
+from DataHandler import DataHandler
 
 
 ##################################################################################
@@ -133,13 +133,8 @@ class DataCollector(object):
         buffer = []
         buffPos = 0
 
-<<<<<<< HEAD:DataCollector.py
         # iterate through each trend and fill the cooresponding position in the
         # buffer with the specified tags from that trend
-=======
-        #iterate through each trend and fill the corresponding position in the buffer
-        #with the specified tags from that trend
->>>>>>> master:src/DataCollector.py
         for trend in all_trends:
             for tag in tags:
                 buffer[buffPos] = {tag : all_trends[tag]}
