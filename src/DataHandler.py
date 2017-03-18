@@ -15,6 +15,7 @@
 #       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
 import csv
+import os.path
 
 class DataHandler(object):
     data = []
@@ -124,11 +125,13 @@ class DataHandler(object):
 
 
 # # EXAMPLE CODE
+# abspath = os.path.abspath(os.path.dirname(__file__))
+# docspath = os.path.join(abspath, "../docs/")
 # dat_hand = DataHandler()
 #
 # # reading data
 # conversions = [int, str] # volume, hashtag
-# dat_hand.read("./docs/data.txt", conversions)
+# dat_hand.read(docspath+"data.txt", conversions)
 #
 # # adding data
 # entry = {}
@@ -144,6 +147,6 @@ class DataHandler(object):
 #
 # # writing data to file in CSV format
 # cvs_format = ["volume", "hashtag"]
-# dat_hand.write("./docs/data_out.txt", cvs_format)
-#
+# dat_hand.write(docspath+"data_out.txt", cvs_format)
+
 # print(dat_hand.data)

@@ -14,6 +14,7 @@
 ##################################################################################
 import datetime
 import json
+import os.path
 
 from tweepy import Stream, OAuthHandler, API
 from tweepy.streaming import StreamListener
@@ -81,7 +82,9 @@ class _ApiListener(StreamListener):
 
     def write(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        filepath = "./docs/STREAM DATA "+ date +".txt"
+        abspath = os.path.abspath(os.path.dirname(__file__))
+        docspath = os.path.join(abspath, "../docs/")
+        filepath = docspath + "STREAM DATA "+ date +".txt"
         print("WRITING TO: "+ filepath)
         self.dat_hand.write(filepath, self.keys)
 
