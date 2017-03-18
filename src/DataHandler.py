@@ -131,7 +131,7 @@ class DataHandler(object):
 #
 # # reading data
 # conversions = [int, str] # volume, hashtag
-# dat_hand.read(docspath+"data.txt", conversions)
+# dat_hand.read(docspath+"test_data.txt", conversions)
 #
 # # adding data
 # entry = {}
@@ -147,6 +147,6 @@ class DataHandler(object):
 #
 # # writing data to file in CSV format
 # cvs_format = ["volume", "hashtag"]
-# dat_hand.write(docspath+"data_out.txt", cvs_format)
+# dat_hand.write(docspath+"test_data_out.txt", cvs_format)
 
 # print(dat_hand.data)
