@@ -15,6 +15,7 @@
 #       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
 import csv
+import os.path
 
 class DataHandler(object):
     data = []
@@ -95,7 +96,6 @@ class DataHandler(object):
         file = open(filepath, "w")
         writer = csv.writer(file)
         keys = csv_format if csv_format else list(self.data.keys())
-
         # write header
         writer.writerow(keys)
 
@@ -122,29 +122,3 @@ class DataHandler(object):
     """Adds a data entry (dictionary) to the data. """
     def add(self, entry):
         self.data.append(entry)
-
-
-# # # EXAMPLE CODE
-# dat_hand = DataHandler()
-#
-# # reading data
-# conversions = [int, str] # volume, hashtag
-# dat_hand.read("data.txt", conversions)
-#
-# # adding data
-# entry = {}
-# entry["hashtag"] = "フラハティ 仁"
-# entry["volume"] = 30
-# dat_hand.add(entry)
-#
-# # cleaning data
-# priority = lambda entry: entry.get("volume",0)
-# threshold_size = 10
-# trim_size = threshold_size - 5
-# dat_hand.clean(priority, threshold_size, trim_size)
-#
-# # writing data to file in CSV format
-# cvs_format = ["volume", "hashtag"]
-# dat_hand.write("data_out.txt", cvs_format)
-# 
-# print(dat_hand.data)
