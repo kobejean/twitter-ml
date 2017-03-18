@@ -1,5 +1,12 @@
-from src.collection.DataHandler import DataHandler
+import sys
 import os
+# let's us import from src/collection
+scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
+                os.path.expanduser(__file__))))
+collectionpath = os.path.join(scriptpath, "../src/collection")
+sys.path.append(os.path.normpath(collectionpath))
+
+from DataHandler import DataHandler
 
 # # EXAMPLE CODE
 abspath = os.path.abspath(os.path.dirname(__file__))
