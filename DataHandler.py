@@ -95,7 +95,6 @@ class DataHandler(object):
         file = open(filepath, "w")
         writer = csv.writer(file)
         keys = csv_format if csv_format else list(self.data.keys())
-
         # write header
         writer.writerow(keys)
 
@@ -146,5 +145,5 @@ class DataHandler(object):
 # # writing data to file in CSV format
 # cvs_format = ["volume", "hashtag"]
 # dat_hand.write("data_out.txt", cvs_format)
-# 
+#
 # print(dat_hand.data)

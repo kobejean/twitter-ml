@@ -80,14 +80,14 @@ class DataCollector(object):
         self.consumer_secret = consumer_secret
         self.api = None #lazy initialization?
 
-    ################################################################################
-    #                       - Authenticate Method -                                #
-    #                                                                              #
-    #   DESCRIPTION: Authenticates user with the Twitter Stream API.               #
-    #                                                                              #
-    #   PARAMETERS:                                                                #
-    #       none                                                                   #
-    ################################################################################
+    ############################################################################
+    #                       - Authenticate Method -                            #
+    #                                                                          #
+    #   DESCRIPTION: Authenticates user with the Twitter Stream API.           #
+    #                                                                          #
+    #   PARAMETERS:                                                            #
+    #       none                                                               #
+    ############################################################################
     def authenticate(self):
         # authenticate and connect to stream api
         auth = OAuthHandler(self.consumer_key, self.consumer_secret)
@@ -95,35 +95,35 @@ class DataCollector(object):
 
         self.api = API(auth)
 
-    ################################################################################
-    #                               - Trends Method -                              #
-    #                                                                              #
-    #   DESCRIPTION: Gets current top 50 trending twitter subjects                 #
-    #                                                                              #
-    #   PARAMETERS:                                                                #
-    #       tags - The parts of the JSON encoded tweets that the user would like   #
-    #              to include in the data                                          #
-    ################################################################################
+    ############################################################################
+    #                               - Trends Method -                          #
+    #                                                                          #
+    #   DESCRIPTION: Gets current top 50 trending twitter subjects             #
+    #                                                                          #
+    #   PARAMETERS:                                                            #
+    #       tags - The parts of the JSON encoded tweets that the user would    #
+    #              like to include in the data                                 #
+    ############################################################################
     def trends(self, tags):
         all_trends = self.api.trends_place(1)[0]['trends']
         buffer = []
         buffPos = 0
 
-        #iterate through each trend and fill the cooresponding position in the buffer
-        #with the specified tags from that trend
+        # iterate through each trend and fill the cooresponding position in the
+        # buffer with the specified tags from that trend
         for trend in all_trends:
             for tag in tags:
                 buffer[buffPos] = {tag : all_trends[tag]}
 
-    ################################################################################
-    #                               - Stream Method -                              #
-    #                                                                              #
-    #   DESCRIPTION: Gets recent tweets from the Twitter Stream API                #
-    #                                                                              #
-    #   PARAMETERS:                                                                #
-    #       filters - the types of tweet subjects the user would like the get      #
-    #       streamListener - The delegate for StreamListener                       #
-    ################################################################################
+    ############################################################################
+    #                               - Stream Method -                          #
+    #                                                                          #
+    #   DESCRIPTION: Gets recent tweets from the Twitter Stream API            #
+    #                                                                          #
+    #   PARAMETERS:                                                            #
+    #       filters - the types of tweet subjects the user would like the get  #
+    #       streamListener - The delegate for StreamListener                   #
+    ############################################################################
     def stream(self, filters, streamListener):
         stream = Stream(auth=self.api.auth, listener=streamListener)
         stream.filter(track=[filters])
