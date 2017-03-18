@@ -123,10 +123,9 @@ class DataHandler(object):
     def add(self, entry):
         self.data.append(entry)
 
-
-# # EXAMPLE CODE
+# # DATA HANDLER EXAMPLE CODE
 # abspath = os.path.abspath(os.path.dirname(__file__))
-# docspath = os.path.join(abspath, "../docs/")
+# docspath = os.path.join(abspath, "../../docs/")
 # dat_hand = DataHandler()
 #
 # # reading data
