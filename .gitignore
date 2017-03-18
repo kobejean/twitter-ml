@@ -4,3 +4,7 @@ src/run_terminal.command
 src/run.command
 
 *.pyc
+
+src/collection/run.command
+
+src/collection/run_terminal.command
