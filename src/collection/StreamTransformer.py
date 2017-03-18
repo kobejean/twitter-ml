@@ -24,7 +24,7 @@ class StreamTransformer(StreamListener):
     dat_hand = DataHandler()
     entry_count = 0   # for keeping track of the number of entries added
 
-    def __init__(self, keys=[], collect_count=20, threshold_size=15, period=5,\
+    def __init__(self, keys=[], collect_count=20, threshold_size=15, period=5,
                  trim_size=10, priority = lambda entry: 0,
                  filename = "STREAM"):
         self.keys = keys
