@@ -16,7 +16,7 @@ import os.path
 
 from tweepy import Stream, OAuthHandler, API
 
-from src.collection.DataHandler import DataHandler
+from DataHandler import DataHandler
 
 ################################################################################
 #                           - DataCollector -                                  #

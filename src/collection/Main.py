@@ -1,6 +1,6 @@
-from src.collection.DataHandler import DataHandler
-from src.collection.DataCollector import DataCollector
-from src.collection.StreamTransformer import *
+from DataHandler import DataHandler
+from DataCollector import DataCollector
+from StreamTransformer import *
 
 # store api access information
 access_token = "3911012232-MNWJkB5E5EnN8pNrqPu8TjOIJrXHs5TmsSVI6dW"

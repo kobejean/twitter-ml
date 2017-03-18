@@ -1,4 +1,4 @@
-from src.collection.DataHandler import DataHandler
+from DataHandler import DataHandler
 
 import datetime
 import json
@@ -66,7 +66,7 @@ class StreamTransformer(StreamListener):
     def write(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         abspath = os.path.abspath(os.path.dirname(__file__))
-        docspath = os.path.join(abspath, "../docs/")
+        docspath = os.path.join(abspath, "../../docs/")
         filepath = docspath + self.filename + " " + date +".txt"
         print("WRITING TO: "+ filepath)
         self.dat_hand.write(filepath, self.keys)

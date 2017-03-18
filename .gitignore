@@ -1,6 +1,6 @@
 
-src/run_terminal.command
+src/collection/run_terminal.command
 
-src/run.command
+src/collection/run.command
 
 *.pyc
