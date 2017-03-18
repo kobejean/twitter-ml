@@ -1,24 +1,39 @@
-################################################################################
-#                          - Data Collector Class -                            #
-#                                                                              #
-#   PROGRAMMED BY: Jake Jongewaard                                             #
-#   DATE: 03-06-2017                                                           #
-#   DESCRIPTION: Handles collecting data from the Twitter Stream API and       #
-#                passing it to the DataHandler class                           #
-#                                                                              #
-#   METHODS:                                                                   #
-#       authenticate    - Use api access credentials to authenticate user      #
-#       trends  - Get the current top 50 twitter trends                        #
-#       stream  - Get live data from Stream API                                #
-################################################################################
-from tweepy.streaming import StreamListener
-from tweepy import Stream, OAuthHandler, API
-from DataHandler import DataHandler
-import json
+##################################################################################
+#                          - Data Collection Classes -                           #
+#                                                                                #
+#   PROGRAMMED BY: Jake Jongewaard and Jean Flaherty                             #
+#   DATE: 03-06-2017                                                             #
+#   DESCRIPTION: Handles collecting data from the Twitter Stream API and         #
+#                passing it to the DataHandler class                             #
+#                                                                                #
+#   Classes:                                                                     #
+#       _ApiListener: sub-class of tweepy StreamListener that handles incoming   #
+#                     API data                                                   #
+#                                                                                #
+#       DataCollector: implements the _ApiListener class to take data collection #
+##################################################################################
 import datetime
+import json
+
+from tweepy import Stream, OAuthHandler, API
+from tweepy.streaming import StreamListener
+
+from src.DataHandler import DataHandler
 
 
-#This is a basic listener that just prints received tweets to stdout.
+##################################################################################
+#                           - _ApiListener -                                     #
+#                                                                                #
+#   Description: This class is used to define how to operate data on taken from  #
+#                the Twitter Stream API.  The DataHandler class is implemented   #
+#                here for data formating                                         #
+#                                                                                #
+#   Methods:                                                                     #
+#       -on_data(self, data):                                                    #
+#       -clean(self)                                                             #
+#       -write(self)                                                             #
+##################################################################################
+
 class _ApiListener(StreamListener):
     dat_hand = DataHandler()
     keys = ["followers_count","hashtags","created_at","text"]
@@ -26,9 +41,8 @@ class _ApiListener(StreamListener):
     threshold_size = 15 # the threshold of data size where the data is trimmed
     period = 5          # number of entries between cleaning/writing files
     trim_size = threshold_size - period
-    entry_count = 0     # keeping track of the muber of entries added
+    entry_count = 0     # keeping track of the number of entries added
 
-    # create tag, magnitude pairs directly here
     def on_data(self, data):
         data = json.loads(data) # convert to dictionary
         # print("data: "+str(data))
@@ -71,6 +85,16 @@ class _ApiListener(StreamListener):
         print("WRITING TO: "+ filepath)
         self.dat_hand.write(filepath, self.keys)
 
+##################################################################################
+#                           - DataCollector -                                    #
+#                                                                                #
+#   Description: This class collects useful formated data from various Twitter   #
+#                APIs                                                            #
+#                                                                                #
+#   Methods:                                                                     #
+#       -authenticate(self)                                                      #
+#       -trends(self, tags)                                                      #
+##################################################################################
 class DataCollector(object):
 
     def __init__(self, access_token, access_token_secret, consumer_key, consumer_secret):
@@ -78,7 +102,7 @@ class DataCollector(object):
         self.access_token_secret = access_token_secret
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
-        self.api = None #lazy initialization?
+        self.api = None
 
     ################################################################################
     #                       - Authenticate Method -                                #
@@ -109,7 +133,7 @@ class DataCollector(object):
         buffer = []
         buffPos = 0
 
-        #iterate through each trend and fill the cooresponding position in the buffer
+        #iterate through each trend and fill the corresponding position in the buffer
         #with the specified tags from that trend
         for trend in all_trends:
             for tag in tags:

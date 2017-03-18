@@ -1,0 +1,51 @@
+followers_count,hashtags,created_at,text
+506790,[],Fri Mar 17 23:50:56 +0000 2017,"RT @Miles_Brundage: ""Using Human Brain Activity to Guide Machine Learning,"" Fong et al.: https://t.co/6qDZZNzUap"
+11763,"['Cybercrime', 'machinelearning', 'AI', 'Fintech', 'CyberSecurity']",Fri Mar 17 23:54:14 +0000 2017,RT @reach2ratan: Can Machine Learning Fight #Cybercrime ? https://t.co/049WbDU9VY via @pcmag  #machinelearning #AI #Fintech #CyberSecurity\xe2\x80\xa6
+7323,"['SoftwareDevelopment', 'softwarehacks', 'google']",Fri Mar 17 23:49:05 +0000 2017,Google Machine Learning Made Simple(r) https://t.co/3MeFNsCGvw #SoftwareDevelopment #softwarehacks #google\xe2\x80\xa6 https://t.co/SeJdtPaNfo
+6129,[],Fri Mar 17 23:49:08 +0000 2017,RT @ProgrammingWrld: 8 Industries That Will Be Most Affected By Machine Learning https://t.co/Igjsj63Awl https://t.co/3hEBkYd39B
+5596,['datascience'],Fri Mar 17 23:48:32 +0000 2017,4 E-Books &amp; 5 Courses to Help You Perform Machine Learning Analytics &amp; Command High-Paying Jobs #datascience \n\nhttps://t.co/XNttQRoT7G
+2452,"['IBMWatson', 'IBMwatson', 'IBMinterconnect']",Fri Mar 17 23:56:26 +0000 2017,RT @evankirstel: Chintu is an #IBMWatson powered robot https://t.co/XIEhOJipXr #IBMwatson #IBMinterconnect https://t.co/b1ibL27aZO
+2158,[],Fri Mar 17 23:52:07 +0000 2017,RT @nicoletache1 : A short guide to interpreting machine learning models &amp; results by @jpat\xe2\x80\xa6 https://t.co/FNraejdkJJ https://t.co/itFfiM0h5C
+1888,"['learning', 'python']",Fri Mar 17 23:55:19 +0000 2017,Large Scale Machine Learning With Python here  https://t.co/GupRgMTNCb #learning #python @pythonbot_
+1888,"['machine', 'learning', 'python']",Fri Mar 17 23:55:19 +0000 2017,"Fluent Python: Clear, Concise, And Effective Programming here  https://t.co/EtL7PRhiHp #machine #learning #python @pythonbot_"
+1485,[],Fri Mar 17 23:56:18 +0000 2017,"The hashtag is dead, and machine learning killed it https://t.co/ENgrjlrizj"
+1376,"['BigData', 'MachineLearning', 'DataScience', 'AI']",Fri Mar 17 23:56:04 +0000 2017,RT @gp_pulipaka: Machine Learning Methods Behind Marketing Intelligence. #BigData #MachineLearning #DataScience #AI\xe2\x80\xa6 
+1333,"['algorithms', 'deeplearning', 'git', 'machinelearning', 'python']",Fri Mar 17 23:48:21 +0000 2017,Software Engineer - Machine Learning at Coinbase https://t.co/uaXvX40ir8 #algorithms #deeplearning #git #machinelearning #python
+1276,[],Fri Mar 17 23:55:39 +0000 2017,"Why machine learning benefits the rich, and everyone else is toast https://t.co/AdudRpGLGb"
+1252,"['podcast', 'a16z']",Fri Mar 17 23:56:27 +0000 2017,New #podcast from #a16z : a16z Podcast: The Edge in Machine Learning Startups https://t.co/kXgJM41Ywp
+1194,[],Fri Mar 17 23:53:48 +0000 2017,"I'm not technical enough to understand all the details, but this is intriguing https://t.co/uTYZfHFXKv"
+1068,[],Fri Mar 17 23:46:26 +0000 2017,How Microsoft is building a machine learning future https://t.co/LkO1x2pM6B
+1068,[],Fri Mar 17 23:46:57 +0000 2017,Quantum computing takes a massive step forward thanks to machine learning https://t.co/7w5rnCQjxX
+1060,['antifraud'],Fri Mar 17 23:45:57 +0000 2017,RT @software_daily: [podcast] @Stripe Machine Learning with Michael Manapat @mlmanapat #antifraud\xe2\x80\xa6 https://t.co/MEIvTJB7P1 https://t.co/5Pb\xe2\x80\xa6
+973,[],Fri Mar 17 23:54:02 +0000 2017,RT @Robots_and_AIs: RT @nicoletache1 : A short guide to interpreting machine learning models &amp; results by @jpat\xe2\x80\xa6 https://t.co/FNraejdkJJ ht\xe2\x80\xa6
+722,[],Fri Mar 17 23:46:33 +0000 2017,"RT @stilgherrian: Me at @zdnetaustralia Wed: ""Machine learning can also aid the cyber enemy: NSA research head\xe2\x80\x9d https://t.co/sWVEyJqH1o"
+702,"['SoftwareDevelopment', 'softwarehacks', 'google']",Fri Mar 17 23:49:44 +0000 2017,RT @pauljacobevans: Google Machine Learning Made Simple(r) https://t.co/3MeFNsCGvw #SoftwareDevelopment #softwarehacks #google\xe2\x80\xa6 
+653,[],Fri Mar 17 23:56:02 +0000 2017,CyclingNewz : RT ProgrammingWrld: 8 Industries That Will Be Most Affected By Machine Learn\xe2\x80\xa6 https://t.co/yh5OFnXzuL) https://t.co/R3T79E6Rvp
+616,[],Fri Mar 17 23:51:47 +0000 2017,RT @russpoldrack: Ideas on interpreting machine learning models - nice overview by @jpatrickhall et al. https://t.co/N851dRHuqw h/t @datael\xe2\x80\xa6
+579,[],Fri Mar 17 23:54:41 +0000 2017,RT @nicoletache1: A short guide to interpreting machine learning models &amp; results by @jpatrickhall &amp; team at @h2oai:\xe2\x80\xa6 
+561,"['HGData', 'MarchMadness']",Fri Mar 17 23:47:51 +0000 2017,RT @andymcbride: Applying Machine Learning To March Madness https://t.co/4LIPsY2th0 \xe2\x80\xa6 #HGData #MarchMadness https://t.co/LAj3ZhfhL3
+465,['datascience'],Fri Mar 17 23:55:38 +0000 2017,RT @RussSacks: 4 E-Books &amp; 5 Courses to Help You Perform Machine Learning Analytics &amp; Command High-Paying Jobs #datascience \n\nhttps://t.co/\xe2\x80\xa6
+418,[],Fri Mar 17 23:53:50 +0000 2017,RT @helengreiner: Machine Learning and Data Are Fueling a New Kind of Car - MIT Technology Review https://t.co/BHQ5ePcz5J
+417,"['strategy', 'machinelearning', 'AI', 'deeplearning', 'fintech', 'DL', 'ML', 'tech']",Fri Mar 17 23:54:29 +0000 2017,RT @DeepLearn007: Business #strategy &amp; #machinelearning in the Financial Industry #AI #deeplearning #fintech #DL #ML #tech\xe2\x80\xa6 
+412,"['marketing', 'business']",Fri Mar 17 23:53:45 +0000 2017,Michelle Huff of Act-On: Adaptive Journeys Leverage Machine Learning to Scale Personalization\xe2\x80\xa6 https://t.co/PSbz3td03i #marketing #business
+313,[],Fri Mar 17 23:56:40 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/nzcIVSdiL6 | @a16z
+281,[],Fri Mar 17 23:56:38 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/Hezyt5Iers | @a16z
+272,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/meNRqs1Ypk | @a16z
+251,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/XbXa2oQl6r | @a16z
+249,[],Fri Mar 17 23:47:55 +0000 2017,RT @griotspeak: wait. ML stands for 'Machine Learning' now?\n\nI\xe2\x80\xa6 did not expect to feel old in this way.
+249,[],Fri Mar 17 23:54:37 +0000 2017,"Beware, possible time sink. https://t.co/Y6RHEJrMnv"
+243,[],Fri Mar 17 23:56:40 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/9Jv8O5oPOI | @a16z
+229,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/QJwIUxAOrD | @a16z
+224,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/WLsij5iTUT | @a16z
+223,"['ai', 'ml', 'dl']",Fri Mar 17 23:50:07 +0000 2017,RT @AINewsFeed: Can Machine Learning and Crowdsourcing Fight the Flu? | EdTech Magazine https://t.co/63LI5e103m #ai #ml #dl
+223,"['ai', 'ml', 'dl']",Fri Mar 17 23:50:08 +0000 2017,RT @AINewsFeed: Can Machine Learning and Crowdsourcing Fight the Flu? | EdTech Magazine https://t.co/XGO0hw2s4R #ai #ml #dl
+205,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/xW4dlWGNs2 | @a16z
+203,[],Fri Mar 17 23:56:38 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/Kg6SktbNl6 | @a16z
+199,[],Fri Mar 17 23:56:38 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/Q9QpjFeAgG | @a16z
+189,[],Fri Mar 17 23:56:39 +0000 2017,a16z Podcast: The Edge in Machine Learning Startups: A lot of machine learning startups initially feel a\xe2\x80\xa6 https://t.co/jRrM34q79z | @a16z
+146,[],Fri Mar 17 23:53:49 +0000 2017,"So true in healthcare.\n""Opportunities for machine-learning startups: An investor perspective"" https://t.co/QDmifxeitd by @mkhandel"
+146,[],Fri Mar 17 23:56:15 +0000 2017,"Nvidia changing the world: machine learning/ AI, autonomous driving, cloud computing, augmented reality / VR to name a few; nxt Intel $NVDA"
+142,[],Fri Mar 17 23:46:05 +0000 2017,I liked a @YouTube video https://t.co/Rnm4h4rTrI Artificial Intelligence: Machine Learning Introduction
+138,[],Fri Mar 17 23:53:14 +0000 2017,"@AMP_SV ""If you want to do machine learning, dont be like Holmes, be like hercule poirot"""
+126,"['HGData', 'MarchMadness']",Fri Mar 17 23:47:23 +0000 2017,Applying Machine Learning To March Madness https://t.co/4LIPsY2th0 \xe2\x80\xa6 #HGData #MarchMadness https://t.co/LAj3ZhfhL3
+86,[],Fri Mar 17 23:49:56 +0000 2017,"RT @Miles_Brundage: ""Using Human Brain Activity to Guide Machine Learning,"" Fong et al.: https://t.co/6qDZZNzUap"
