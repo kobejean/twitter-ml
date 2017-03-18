@@ -2,3 +2,5 @@
 src/run_terminal.command
 
 src/run.command
+
+*.pyc
