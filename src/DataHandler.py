@@ -123,12 +123,12 @@ class DataHandler(object):
         self.data.append(entry)
 
 
-# # # EXAMPLE CODE
+# # EXAMPLE CODE
 # dat_hand = DataHandler()
 #
 # # reading data
 # conversions = [int, str] # volume, hashtag
-# dat_hand.read("data.txt", conversions)
+# dat_hand.read("./docs/data.txt", conversions)
 #
 # # adding data
 # entry = {}
@@ -144,6 +144,6 @@ class DataHandler(object):
 #
 # # writing data to file in CSV format
 # cvs_format = ["volume", "hashtag"]
-# dat_hand.write("data_out.txt", cvs_format)
+# dat_hand.write("./docs/data_out.txt", cvs_format)
 #
 # print(dat_hand.data)

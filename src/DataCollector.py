@@ -81,7 +81,7 @@ class _ApiListener(StreamListener):
 
     def write(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        filepath = "STREAM DATA "+ date +".txt"
+        filepath = "./docs/STREAM DATA "+ date +".txt"
         print("WRITING TO: "+ filepath)
         self.dat_hand.write(filepath, self.keys)
 
