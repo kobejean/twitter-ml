@@ -11,8 +11,8 @@ consumer_secret = "OSLHJZBOsu1nrCk476BAIDXiVCHEl7IbAwK8ZxjwMJWjOL4q3w"
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()
 
-streamListener = FHCTStreamTransformer()
-# streamListener = StreamTransformer(keys=["text"])
+streamTransformer = FHCTStreamTransformer()
+# streamTransformer = StreamTransformer(keys=["text"])
 
 filter = "MACHINE LEARNING"
 # filter = "HELLO WORLD"
@@ -20,4 +20,4 @@ filter = "MACHINE LEARNING"
 # filter = "PYTHON"
 
 print("FILTER: " + filter.upper())
-collector.stream(filter, streamListener)
+collector.stream(filter, streamTransformer)
