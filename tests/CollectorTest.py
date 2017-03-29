@@ -26,17 +26,17 @@ filter = "TRUMP" # very fast stream
 
 # quick tests for both stream transformers with very low settings
 streamTransformer1 = FHCTStreamTransformer()
-streamTransformer1.collect_count = 4 # number of entries to collect before stopping stream
-streamTransformer1.threshold_size = 2 # the threshold of data size where the data is trimmed
-streamTransformer1.period = 2 # number of entries between cleaning/writing files
-streamTransformer1.trim_size = 2
+streamTransformer1.filename = filter.upper() + " STREAM 1.csv"
+streamTransformer1.collect_count = 10 # number of entries to collect before stopping stream
+streamTransformer1.trim_size = 5 # the threshold of data size where the data is trimmed
+streamTransformer1.period = 5 # number of entries between cleaning/writing files
 print("FILTER: " + filter.upper())
-collector.stream(filter, streamTransformer1)
+collector.stream([filter], streamTransformer1)
 
 streamTransformer2 = StreamTransformer(keys=["text"])
-streamTransformer2.collect_count = 4 # number of entries to collect before stopping stream
-streamTransformer2.threshold_size = 2 # the threshold of data size where the data is trimmed
-streamTransformer2.period = 2 # number of entries between cleaning/writing files
-streamTransformer2.trim_size = 2
+streamTransformer2.filename = filter.upper() + " STREAM 2.csv"
+streamTransformer2.collect_count = 10 # number of entries to collect before stopping stream
+streamTransformer2.trim_size = 5 # the threshold of data size where the data is trimmed
+streamTransformer2.period = 5 # number of entries between cleaning/writing files
 print("FILTER: " + filter.upper())
-collector.stream(filter, streamTransformer2)
+collector.stream([filter], streamTransformer2)

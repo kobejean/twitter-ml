@@ -3,6 +3,7 @@ from DataHandler import DataHandler
 import datetime
 import json
 import os.path
+import os
 
 from tweepy.streaming import StreamListener
 
@@ -24,14 +25,12 @@ class StreamTransformer(StreamListener):
     dat_hand = DataHandler()
     entry_count = 0   # for keeping track of the number of entries added
 
-    def __init__(self, keys=[], collect_count=20, threshold_size=15, period=5,
-                 trim_size=10, priority = lambda entry: 0,
-                 filename = "STREAM"):
+    def __init__(self, filename = "STREAM", keys=[], collect_count=20,
+                 trim_size=10, period=5, priority = lambda entry: 0):
         self.keys = keys
         self.collect_count = collect_count # number of entries to collect before stopping stream
-        self.threshold_size = threshold_size # the threshold of data size where the data is trimmed
-        self.period = period # number of entries between cleaning/writing files
         self.trim_size = trim_size
+        self.period = period # number of entries between cleaning/writing files
         self.priority = priority
         self.filename = filename
 
@@ -44,7 +43,7 @@ class StreamTransformer(StreamListener):
         self.entry_count += 1
         print("ADDED: ENTRY #" + str(self.entry_count))
 
-        # clean & write if we've collected enough data entries
+        # sort & write if we've collected enough data entries
         if self.entry_count >= self.collect_count:
             self.clean()
             self.write()
@@ -61,15 +60,25 @@ class StreamTransformer(StreamListener):
 
     def clean(self):
         print("CLEANING DATA...")
-        self.dat_hand.clean(self.priority, self.threshold_size, self.trim_size)
+        self.dat_hand.clean(self.priority, self.trim_size)
 
     def write(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         abspath = os.path.abspath(os.path.dirname(__file__))
         docspath = os.path.join(abspath, "../../docs/")
-        filepath = docspath + self.filename + " " + date +".txt"
+        filepath = docspath + self.filename
+
+        # save previous write by renaming file with prefix TMP_
+        tmppath = docspath + "TMP_" + self.filename
+        if os.path.isfile(filepath):
+            os.rename(filepath, tmppath)
+
         print("WRITING TO: "+ filepath)
         self.dat_hand.write(filepath, self.keys)
+
+        # remove temporary file
+        if os.path.isfile(tmppath):
+            os.remove(tmppath)
 
 ################################################################################
 #                           - FHCTStreamTransformer -                          #
@@ -82,20 +91,19 @@ class StreamTransformer(StreamListener):
 ################################################################################
 
 class FHCTStreamTransformer(StreamTransformer):
-    def __init__(self):
+    def __init__(self, filename = "FHCTStream", collect_count=10, trim_size=5, period=5):
+        self.filename = filename
         self.keys = ["followers_count","hashtags","created_at","text"]
-        self.collect_count = 20
-        self.threshold_size = 15
-        self.period = 5
-        self.trim_size = self.threshold_size - self.period
+        self.collect_count = collect_count
+        self.trim_size = trim_size
+        self.period = period
         self.priority = lambda entry: entry.get("followers_count",0)
-        self.filename = "FHCTStream"
 
     def entry(self, data):
         entry = {}
-        entry["followers_count"] = data["user"]["followers_count"]
-        hashtags = data["entities"]["hashtags"]
-        entry["hashtags"] = [hashtag["text"] for hashtag in hashtags]
-        entry["created_at"] = data["created_at"]
-        entry["text"] = data["text"]
+        entry["followers_count"] = data.get("user",{}).get("followers_count",0)
+        hashtags = data.get("entities",{}).get("hashtags",[])
+        entry["hashtags"] = [hashtag.get("text", None) for hashtag in hashtags]
+        entry["created_at"] = data.get("created_at", None)
+        entry["text"] = data.get("text", None)
         return entry

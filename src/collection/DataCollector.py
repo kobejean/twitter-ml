@@ -83,4 +83,4 @@ class DataCollector(object):
     ############################################################################
     def stream(self, filters, streamListener):
         stream = Stream(auth=self.api.auth, listener=streamListener)
-        stream.filter(track=[filters])
+        stream.filter(track=filters)

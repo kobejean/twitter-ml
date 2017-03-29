@@ -66,15 +66,12 @@ class DataHandler(object):
     #       priority  - A function that takes an entry and returns a priority  #
     #                   value. Higher values means that the entry has a higher #
     #                   priority and will less likely be deleted.              #
-    #       threshold_size - The threshold at which point the data is trimmed. #
     #       trim_size - The size of that the data should be trimmed down to.   #
     ############################################################################
-    def clean(self, priority, threshold_size, trim_size):
+    def clean(self, priority, trim_size):
         """Trims data keeping key/value pairs with higher priority."""
-        k = len(self.data)
-        if k >= threshold_size:
-            k = trim_size
-        self.data = sorted(self.data, key=priority, reverse=True)[0:k]
+        self.data = sorted(self.data, key=priority, reverse=True)[0:trim_size]
+
 
     ############################################################################
     #                             - Write Method -                             #

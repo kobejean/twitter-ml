@@ -25,9 +25,9 @@ dat_hand.add(entry)
 
 # # cleaning data
 priority = lambda entry: entry.get("volume",0)
-threshold_size = 10
-trim_size = threshold_size - 5
-dat_hand.clean(priority, threshold_size, trim_size)
+max_size = 10
+trim_size = max_size - 5
+dat_hand.clean(priority, max_size, trim_size)
 
 # # writing data to file in CSV format
 cvs_format = ["volume", "hashtag"]
