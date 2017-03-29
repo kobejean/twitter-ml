@@ -5,4 +5,4 @@ src/collection/run.command
 
 *.pyc
 
-twitter_auth_kobejean.py
+twitter_auth.py
