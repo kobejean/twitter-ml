@@ -1,20 +1,17 @@
 import sys
 import os
-# let's us import from src/collection
+# lets us import from src/collection and main directory
 scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
                 os.path.expanduser(__file__))))
 collectionpath = os.path.join(scriptpath, "../src/collection")
+mainpath = os.path.join(scriptpath, "../")
 sys.path.append(os.path.normpath(collectionpath))
+sys.path.append(os.path.normpath(mainpath))
 
 from DataHandler import DataHandler
 from DataCollector import DataCollector
 from StreamTransformer import *
-
-# store api access information
-access_token = "3911012232-MNWJkB5E5EnN8pNrqPu8TjOIJrXHs5TmsSVI6dW"
-access_token_secret = "jjOsGntWGcxQdPZg3ZVamCdhmYjzNDOPZxMBa1zyn1Cic"
-consumer_key = "ToqLVlPLUsqrvHokKIitbi5ps"
-consumer_secret = "OSLHJZBOsu1nrCk476BAIDXiVCHEl7IbAwK8ZxjwMJWjOL4q3w"
+from twitter_auth import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()

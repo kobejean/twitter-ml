@@ -34,6 +34,14 @@ class StreamTransformer(StreamListener):
         self.priority = priority
         self.filename = filename
 
+    def on_status(self, status):
+        print("STATUS: "+str(status.text))
+
+    def on_error(self, status_code):
+        print("ERROR: "+str(status_code))
+        if status_code == 420:
+            return False
+
     def on_data(self, data):
         data = json.loads(data) # convert to dictionary
         # print("data: "+str(data))

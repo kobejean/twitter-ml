@@ -4,3 +4,5 @@ src/collection/run_terminal.command
 src/collection/run.command
 
 *.pyc
+
+twitter_auth_kobejean.py
