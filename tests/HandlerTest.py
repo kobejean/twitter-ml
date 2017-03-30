@@ -32,4 +32,4 @@ dat_hand.clean(priority, trim_size)
 cvs_format = ["volume", "hashtag"]
 dat_hand.write(docspath + "test_data_out.csv", cvs_format)
 
-# print(dat_hand.data)
+print(dat_hand.data)
