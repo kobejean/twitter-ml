@@ -1,9 +1,19 @@
+import sys
+import os
+# lets us import from utils
+scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
+                os.path.expanduser(__file__))))
+utilspath = os.path.join(scriptpath, "../../utils/")
+sys.path.append(os.path.normpath(utilspath))
+
 from DataHandler import DataHandler
 
 from datetime import datetime, timedelta
 import json
-# import os.path
 import os
+# import ast
+
+from ANSI import ANSI
 
 from tweepy.streaming import StreamListener
 
@@ -22,26 +32,37 @@ from tweepy.streaming import StreamListener
 ################################################################################
 
 class StreamTransformer(StreamListener):
-    dat_hand = DataHandler()
-    entry_count = 0   # for keeping track of the number of entries added
 
     def __init__(self, filename = "STREAM", keys = [], collect_count = 20,
                  duration = None, trim_size = 10, period = 5,
                  priority = lambda entry: 0):
-        self.keys = keys
+        self.dat_hand = DataHandler()
+        self.dat_hand.csv_format = keys
+        self.dat_hand.conversions = [str for _ in range(len(keys))]
+
+        self.entry_count = None
+        self.start_time = None
+
+        # self.keys = keys
+        # self.conversions = [str for _ in range(len(keys))]
         self.collect_count = collect_count
-        self.start_time = datetime.now()
         self.duration = duration
         self.trim_size = trim_size
         self.period = period # number of entries between cleaning/writing files
         self.priority = priority
         self.filename = filename
 
-    def on_status(self, status):
-        print("STATUS: " + str(status.text))
+    def on_connect(self):
+        print("CONNECTED...")
+        if not self.entry_count and not self.start_time:
+            self.entry_count = 0   # for keeping track of the number of entries added
+            self.start_time = datetime.now()
+
+    def on_disconnect(self, notice):
+        print("DISCONNECTED:", notice)
 
     def on_error(self, status_code):
-        print("ERROR: " + str(status_code))
+        print("ERROR: ", status_code)
         return False
 
     def on_data(self, data):
@@ -51,63 +72,76 @@ class StreamTransformer(StreamListener):
         entry = self.entry(data)
         self.dat_hand.add(entry)
         self.entry_count += 1
-        print("ADDED: ENTRY #" + str(self.entry_count))
+
+        print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count) + ANSI.ENDC)
         # print entry
-        for key in self.keys:
-            text = "    " + str(key).upper() + ": " + str(entry.get(key,None))
-            print(text)
+        self.dat_hand.display_entry(entry)
         # print(data)
 
         # check if time is up
         now = datetime.now()
-        time_is_up = self.duration and now >= self.start_time + self.duration
+        end_time = datetime.max if self.duration == None else self.start_time + self.duration
+        time_is_up = now > end_time
+        collected_all = self.entry_count >= self.collect_count
 
-        # clean & write if we've collected enough data entries
-        if self.entry_count >= self.collect_count or time_is_up:
-            self.clean()
-            self.write()
+        # clean & write when we are done
+        if collected_all or time_is_up:
+            self.clean_data()
+            self.write_data()
             print("STREAM STOPPED")
             return False # stops stream
 
         # periodic clean and write
         if self.entry_count % self.period == 0 :
-            self.clean()
-            self.write()
+            self.clean_data()
+            self.write_data()
+
+    def keep_alive(self):
+        """Called when a keep-alive arrived"""
+        print("KEEP ALIVE...")
+        return
+
+    def on_limit(self, track):
+        """Called when a limitation notice arrives"""
+        print(ANSI.WARNING + "LIMIT:", track, ANSI.ENDC)
+        return
+
+    def on_timeout(self):
+        """Called when stream connection times out"""
+        print(ANSI.WARNING + "TIMED OUT" + ANSI.ENDC)
+        return
+
+    def on_warning(self, notice):
+        """Called when a disconnection warning message arrives"""
+        print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
+        return
 
     def entry(self, data):
-        return { key : data.get(key,None) for key in self.keys }
+        return { key : data.get(key,None) for key in self.dat_hand.csv_format }
 
-    def clean(self):
-        print("CLEANING DATA...")
-        self.dat_hand.clean(self.priority, self.trim_size)
 
-    def read(self, conversions = None):
+    def filepath(self):
         abspath = os.path.abspath(os.path.dirname(__file__))
         docspath = os.path.join(abspath, "../../docs/")
-        filepath = docspath + self.filename
+        return docspath + self.filename
+
+    def read_data(self, filepath = None):
+        if not filepath:
+            filepath = self.filepath()
 
         if os.path.isfile(filepath):
-            print("READING FROM: " + filepath)
-            self.dat_hand.read(filepath, conversions)
+            print("CONTINUE FROM: " + filepath)
+            self.dat_hand.read(filepath)
         else:
             print("NO FILE AT: " + filepath)
 
-    def write(self):
-        abspath = os.path.abspath(os.path.dirname(__file__))
-        docspath = os.path.join(abspath, "../../docs/")
-        filepath = docspath + self.filename
+    def clean_data(self):
+        print("CLEANING DATA...")
+        self.dat_hand.clean(self.priority, self.trim_size)
 
-        # save previous write by renaming file with prefix TMP_
-        tmppath = docspath + "TMP_" + self.filename
-        if os.path.isfile(filepath):
-            os.rename(filepath, tmppath)
-
-        print("WRITING TO: "+ filepath)
-        self.dat_hand.write(filepath, self.keys)
-
-        # remove temporary file
-        if os.path.isfile(tmppath):
-            os.remove(tmppath)
+    def write_data(self):
+        print("WRITING TO: "+ self.filepath())
+        self.dat_hand.write(self.filepath())
 
 ################################################################################
 #                           - FHCTStreamTransformer -                          #
@@ -122,10 +156,13 @@ class StreamTransformer(StreamListener):
 class FHCTStreamTransformer(StreamTransformer):
     def __init__(self, filename = "FHCTStream", collect_count = 10,
                  duration = None, trim_size = 5, period = 5):
+        super(FHCTStreamTransformer, self).__init__()
+        self.dat_hand.csv_format = ["followers_count","hashtags","created_at","text"]
+        self.dat_hand.conversions = [int,eval,str,str]
+
+
         self.filename = filename
-        self.keys = ["followers_count","hashtags","created_at","text"]
         self.collect_count = collect_count
-        self.start_time = datetime.now()
         self.duration = duration
         self.trim_size = trim_size
         self.period = period
@@ -135,13 +172,11 @@ class FHCTStreamTransformer(StreamTransformer):
         entry = {}
         entry["followers_count"] = data.get("user",{}).get("followers_count",0)
         hashtags = data.get("entities",{}).get("hashtags",[])
-        entry["hashtags"] = [hashtag.get("text", None) for hashtag in hashtags]
+        if len(hashtags) > 0:
+            entry["hashtags"] = [hashtag.get("text", "") for hashtag in hashtags]
         entry["created_at"] = data.get("created_at", None)
         entry["text"] = data.get("text", None)
         return entry
-
-    def read(self):
-        super(FHCTStreamTransformer, self).read([int,str,str,str])
 
 
 ################################################################################
@@ -155,12 +190,14 @@ class FHCTStreamTransformer(StreamTransformer):
 ################################################################################
 
 class FUCTStreamTransformer(StreamTransformer):
-    def __init__(self, filename = "FHCTStream", collect_count = 10,
+    def __init__(self, filename = "FUCTStream", collect_count = 10,
                  duration = None, trim_size = 5, period = 5):
+        super(FUCTStreamTransformer, self).__init__()
+        self.dat_hand.csv_format = ["followers_count","urls","created_at","text"]
+        self.dat_hand.conversions = [int,eval,str,str]
+
         self.filename = filename
-        self.keys = ["followers_count","urls","created_at","text"]
         self.collect_count = collect_count
-        self.start_time = datetime.now()
         self.duration = duration
         self.trim_size = trim_size
         self.period = period
@@ -169,11 +206,9 @@ class FUCTStreamTransformer(StreamTransformer):
     def entry(self, data):
         entry = {}
         entry["followers_count"] = data.get("user",{}).get("followers_count",0)
-        urls = data.get("entities",{}).get("urls",[])
-        entry["urls"] = [url.get("expanded_url", None) for url in urls]
+        urls = data.get("entities", {}).get("urls", [])
+        if len(urls) > 0:
+            entry["urls"] = [url.get("expanded_url", None) for url in urls]
         entry["created_at"] = data.get("created_at", None)
         entry["text"] = data.get("text", None)
         return entry
-
-    def read(self):
-        super(FUCTStreamTransformer, self).read([int,str,str,str])

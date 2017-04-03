@@ -11,11 +11,14 @@ from DataHandler import DataHandler
 # EXAMPLE CODE
 abspath = os.path.abspath(os.path.dirname(__file__))
 docspath = os.path.join(abspath, "../docs/")
+
+# initialization
 dat_hand = DataHandler()
+dat_hand.csv_format = ["volume","hashtag"]
+dat_hand.conversions = [int, str] # volume, hashtag
 
 # reading data
-conversions = [int, str] # volume, hashtag
-dat_hand.read(docspath+"test_data.csv", conversions)
+dat_hand.read(docspath + "test_data.csv")
 
 # adding data
 entry = {}
@@ -29,7 +32,6 @@ trim_size = 5
 dat_hand.clean(priority, trim_size)
 
 # writing data to file in CSV format
-cvs_format = ["volume", "hashtag"]
-dat_hand.write(docspath + "test_data_out.csv", cvs_format)
+dat_hand.write(docspath + "test_data_out.csv")
 
-print(dat_hand.data)
+dat_hand.display()

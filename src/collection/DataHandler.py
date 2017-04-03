@@ -14,11 +14,24 @@
 #       write     - Writes data to a specified filepath as a CVS file.         #
 #       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
+import sys
+import os
+# lets us import from utils
+scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
+                os.path.expanduser(__file__))))
+utilspath = os.path.join(scriptpath, "../../utils/")
+sys.path.append(os.path.normpath(utilspath))
+
 import csv
-import os.path
+
+from ANSI import ANSI
 
 class DataHandler(object):
-    data = []
+
+    def __init__(self, data = [], csv_format = None, conversions = None):
+        self.data = data
+        self.csv_format = csv_format
+        self.conversions = conversions
 
     ############################################################################
     #                             - Read Method -                              #
@@ -34,17 +47,17 @@ class DataHandler(object):
     #                     then our conversions should be:                      #
     #                         [int, str]                                       #
     ############################################################################
-    def read(self, filepath, conversions = None):
+    def read(self, filepath):
         """Reads data in a specified file."""
         file = open(filepath, newline="")
         reader = csv.reader(file)
-        keys = next(reader) # first line has keys
+        keys = list(next(reader)) # first line has keys/format
+        if keys != self.csv_format:
+            print("csv_format does not match this file")
+            return
+        conversions = self.conversions if self.conversions else [str] * len(keys)
 
-        if not conversions:
-            # let them all be strings if not specified
-            conversions = [str for _ in range(len(keys))]
-
-        self.data = []
+        self.data = [] # reset data
         for values in reader:
             entry = {}
             for key, value, conversion in zip(keys, values, conversions):
@@ -88,11 +101,19 @@ class DataHandler(object):
     #                    our csv_format parameter should look like:            #
     #                        [hashtag,volume]                                  #
     ############################################################################
-    def write(self, filepath, csv_format = None):
+    def write(self, filepath):
         """Writes data to a specified filepath as a CVS file. """
+
+        # save previous write by renaming file with prefix TMP_
+        path, filename = os.path.split(filepath)
+        tmppath = os.path.join(path, "TMP_" + filename)
+        if os.path.isfile(filepath):
+            os.rename(filepath, tmppath)
+
         file = open(filepath, "w")
         writer = csv.writer(file)
-        keys = csv_format if csv_format else list(self.data.keys())
+        keys = self.csv_format if self.csv_format else list(self.data.keys())
+
         # write header
         writer.writerow(keys)
 
@@ -100,13 +121,18 @@ class DataHandler(object):
         for entry in self.data:
             values = []
             for key in keys:
-                value = entry.get(key,None)
+                value = entry.get(key, None)
                 if value != None:
                     # escape value
                     value = str(value).encode("utf-8")
-                    value = str(value)[2:-1]
+                    value = str(value)[2:-1] # b"\x00" remove b" and " w/ [2:-1]
+                    print(value)
                 values.append(value)
             writer.writerow(values)
+
+        # remove temporary file
+        if os.path.isfile(tmppath):
+            os.remove(tmppath)
 
     ############################################################################
     #                             - Add Method -                               #
@@ -119,3 +145,33 @@ class DataHandler(object):
     """Adds a data entry (dictionary) to the data. """
     def add(self, entry):
         self.data.append(entry)
+
+
+    def display(self):
+        print(ANSI.RED + "DATA:" + ANSI.ENDC)
+        for i, entry in enumerate(self.data):
+            print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
+            for key in self.csv_format:
+                key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
+                text = key_text + str(entry.get(key, None))
+                print(text)
+
+            # keys not included in csv_format
+            neglected_keys = entry.keys() - set(self.csv_format)
+            for key in neglected_keys:
+                key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
+                text = key_text + str(entry.get(key, None))
+                print(text)
+
+    def display_entry(self, entry):
+        for key in self.csv_format:
+            key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
+            text = key_text + str(entry.get(key, None))
+            print(text)
+
+        # keys not included in csv_format
+        neglected_keys = entry.keys() - set(self.csv_format)
+        for key in neglected_keys:
+            key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
+            text = key_text + str(entry.get(key, None))
+            print(text)
