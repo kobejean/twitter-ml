@@ -19,7 +19,7 @@ import os
 # lets us import from utils
 scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
                 os.path.expanduser(__file__))))
-utilspath = os.path.join(scriptpath, "../../utils/")
+utilspath = os.path.join(scriptpath, "../utils/")
 sys.path.append(os.path.normpath(utilspath))
 
 import csv
