@@ -8,3 +8,6 @@ install:
 script:
   - cd tests
   - python TestAll.py
+os:
+  - linux
+  - osx
