@@ -126,7 +126,6 @@ class DataHandler(object):
                     # escape value
                     value = str(value).encode("utf-8")
                     value = str(value)[2:-1] # b"\x00" remove b" and " w/ [2:-1]
-                    print(value)
                 values.append(value)
             writer.writerow(values)
 
