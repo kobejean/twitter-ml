@@ -1,16 +1,12 @@
 from datetime import datetime, timedelta
 import sys
 import os
-# lets us import from main directory
-scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
-                os.path.expanduser(__file__))))
-mainpath = os.path.join(scriptpath, "../../")
-sys.path.append(os.path.normpath(mainpath))
 
-from DataHandler import DataHandler
-from DataCollector import DataCollector
-from StreamTransformer import *
-from twitter_auth import * # where api access information is stored
+from context import ttrends
+from ttrends.collection.DataHandler import DataHandler
+from ttrends.collection.DataCollector import DataCollector
+from ttrends.collection.StreamTransformer import *
+from ttrends.collection.AuthInfo import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()
@@ -18,19 +14,26 @@ collector.authenticate()
 filters = input("ENTER FILTER: ")
 collect_count = int(input("ENTER COLLECT COUNT: "))
 hours = float(input("ENTER DURATION IN HOURS: "))
-trim_size = int(input("ENTER TRIM SIZE: "))
-period = int(input("ENTER PERIOD: "))
 
+# calculate duration
 d = int(hours / 24)
 h = int(hours % 24)
 m = int(hours % 1 * 60)
 s = int(hours * 60 % 1 * 60)
-print("DURATION:")
-print("d:", d, "h:", h, "m:", m, "s:", s)
+print("DURATION: d", d, "h", h, "m", m, "s", s)
 duration = timedelta(days=d, hours=h, minutes=m, seconds=s)
 
+trim_size = int(input("ENTER TRIM SIZE: "))
+period = int(input("ENTER PERIOD: "))
+
+abspath = os.path.abspath(os.path.dirname(__file__))
+datapath = os.path.join(abspath, "data")
+filename = filters.upper() + " STREAM.csv"
+filepath = os.path.join(datapath, filename)
+print("FILE PATH: " + filepath)
+
 stream_transformer = FUCTStreamTransformer()
-stream_transformer.filename = filters.upper() + " STREAM.csv"
+stream_transformer.filepath = filepath
 stream_transformer.collect_count = collect_count
 stream_transformer.duration = duration
 stream_transformer.trim_size = trim_size
