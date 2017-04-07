@@ -184,14 +184,31 @@ class FUCTStreamTransformer(StreamTransformer):
         self.duration = duration
         self.trim_size = trim_size
         self.period = period
-        self.priority = lambda entry: entry.get("followers_count",0)
+
+        # priorizes entries with higher follower count and at least one url
+        def priority(entry):
+            urls = entry.get("urls",[])
+            if len(urls):
+                return entry.get("followers_count",0)
+            else:
+                return 0
+
+        self.priority = priority
+        # self.priority = lambda entry: entry.get("followers_count",0)
 
     def entry(self, data):
         entry = {}
         entry["followers_count"] = data.get("user",{}).get("followers_count",0)
-        urls = data.get("entities", {}).get("urls", [])
-        if len(urls) > 0:
-            entry["urls"] = [url.get("expanded_url", None) for url in urls]
+
+        tmp_urls = data.get("entities", {}).get("urls", [])
+        urls = []
+        for url in tmp_urls:
+            expanded_url = url.get("expanded_url", None)
+            if expanded_url:
+                urls.append(expanded_url)
+
+        entry["urls"] = urls
+
         entry["created_at"] = data.get("created_at", None)
         entry["text"] = data.get("text", None)
         return entry
