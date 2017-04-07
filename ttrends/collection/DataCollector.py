@@ -1,4 +1,3 @@
-
 ################################################################################
 #                              - Data Collector -                              #
 #                                                                              #
@@ -12,11 +11,9 @@
 ################################################################################
 import datetime
 import json
-import os.path
+import os
 
 from tweepy import Stream, OAuthHandler, API
-
-from DataHandler import DataHandler
 
 ################################################################################
 #                           - DataCollector -                                  #

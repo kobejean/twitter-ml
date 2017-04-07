@@ -1,19 +1,13 @@
 import sys
 import os
-# lets us import from utils
-scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
-                os.path.expanduser(__file__))))
-utilspath = os.path.join(scriptpath, "../../utils/")
-sys.path.append(os.path.normpath(utilspath))
 
-from DataHandler import DataHandler
+from .DataHandler import DataHandler
 
 from datetime import datetime, timedelta
 import json
 import os
-# import ast
 
-from ANSI import ANSI
+from ..utils.ANSI import ANSI
 
 from tweepy.streaming import StreamListener
 
@@ -33,7 +27,7 @@ from tweepy.streaming import StreamListener
 
 class StreamTransformer(StreamListener):
 
-    def __init__(self, filename = "STREAM", keys = [], collect_count = 20,
+    def __init__(self, filepath = "STREAM.csv", keys = [], collect_count = 20,
                  duration = None, trim_size = 10, period = 5,
                  priority = lambda entry: 0):
         self.dat_hand = DataHandler()
@@ -43,14 +37,12 @@ class StreamTransformer(StreamListener):
         self.entry_count = None
         self.start_time = None
 
-        # self.keys = keys
-        # self.conversions = [str for _ in range(len(keys))]
         self.collect_count = collect_count
         self.duration = duration
         self.trim_size = trim_size
         self.period = period # number of entries between cleaning/writing files
         self.priority = priority
-        self.filename = filename
+        self.filepath = filepath
 
     def on_connect(self):
         print("CONNECTED...")
@@ -119,29 +111,21 @@ class StreamTransformer(StreamListener):
     def entry(self, data):
         return { key : data.get(key,None) for key in self.dat_hand.csv_format }
 
-
-    def filepath(self):
-        abspath = os.path.abspath(os.path.dirname(__file__))
-        docspath = os.path.join(abspath, "../../docs/")
-        return docspath + self.filename
-
-    def read_data(self, filepath = None):
-        if not filepath:
-            filepath = self.filepath()
-
-        if os.path.isfile(filepath):
-            print("CONTINUE FROM: " + filepath)
-            self.dat_hand.read(filepath)
+    def read_data(self):
+        filepath = self.filepath
+        if os.path.isfile(self.filepath):
+            print("CONTINUE FROM: " + self.filepath)
+            self.dat_hand.read(self.filepath)
         else:
-            print("NO FILE AT: " + filepath)
+            print("NO FILE AT: " + self.filepath)
 
     def clean_data(self):
         print("CLEANING DATA...")
         self.dat_hand.clean(self.priority, self.trim_size)
 
     def write_data(self):
-        print("WRITING TO: "+ self.filepath())
-        self.dat_hand.write(self.filepath())
+        print("WRITING TO: "+ self.filepath)
+        self.dat_hand.write(self.filepath)
 
 ################################################################################
 #                           - FHCTStreamTransformer -                          #
@@ -159,7 +143,6 @@ class FHCTStreamTransformer(StreamTransformer):
         super(FHCTStreamTransformer, self).__init__()
         self.dat_hand.csv_format = ["followers_count","hashtags","created_at","text"]
         self.dat_hand.conversions = [int,eval,str,str]
-
 
         self.filename = filename
         self.collect_count = collect_count
