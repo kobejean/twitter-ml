@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import sys
 import os
 
 from context import ttrends
@@ -45,4 +44,6 @@ filters = filters.split(",")
 print("FILTERS: " + str(filters))
 collector.stream(filters, stream_transformer)
 
-stream_transformer.dat_hand.display()
+show_data = input("WOULD YOU LIKE TO SEE THE DATA? (Y/N): ")
+if show_data.upper() == "Y":
+    stream_transformer.dat_hand.display()
