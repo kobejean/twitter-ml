@@ -7,6 +7,6 @@ install:
 # commands to run tests
 script:
   - cd tests
-  # - python tests/CollectorTest.py
-  # - python tests/HandlerTest.py
-  - python tests/TestAll.py
+  # - python CollectorTest.py
+  # - python HandlerTest.py
+  - python TestAll.py
