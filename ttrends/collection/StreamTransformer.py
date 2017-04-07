@@ -1,19 +1,13 @@
 import sys
 import os
-# lets us import from utils
-scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
-                os.path.expanduser(__file__))))
-utilspath = os.path.join(scriptpath, "../utils/")
-sys.path.append(os.path.normpath(utilspath))
 
-from DataHandler import DataHandler
+from .DataHandler import DataHandler
 
 from datetime import datetime, timedelta
 import json
 import os
-# import ast
 
-from TwitterPrediction.utils.ANSI import ANSI
+from ..utils.ANSI import ANSI
 
 from tweepy.streaming import StreamListener
 
@@ -33,7 +27,7 @@ from tweepy.streaming import StreamListener
 
 class StreamTransformer(StreamListener):
 
-    def __init__(self, filepath = "STREAM", keys = [], collect_count = 20,
+    def __init__(self, filepath = "STREAM.csv", keys = [], collect_count = 20,
                  duration = None, trim_size = 10, period = 5,
                  priority = lambda entry: 0):
         self.dat_hand = DataHandler()
@@ -48,7 +42,7 @@ class StreamTransformer(StreamListener):
         self.trim_size = trim_size
         self.period = period # number of entries between cleaning/writing files
         self.priority = priority
-        self.filename = filename
+        self.filepath = filepath
 
     def on_connect(self):
         print("CONNECTED...")
@@ -116,13 +110,6 @@ class StreamTransformer(StreamListener):
 
     def entry(self, data):
         return { key : data.get(key,None) for key in self.dat_hand.csv_format }
-
-    #
-    # def filepath(self):
-    #     # abspath = os.path.abspath(os.path.dirname(__file__))
-    #     # docspath = os.path.join(abspath, "/docs/")
-    #     # return docspath + self.filename
-    #     return os.path.join("data", filename)
 
     def read_data(self):
         filepath = self.filepath

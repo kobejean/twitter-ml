@@ -1,17 +1,8 @@
-# import sys
-# import os
-# lets us import from src/collection and main directory
-# scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
-#                 os.path.expanduser(__file__))))
-# collectionpath = os.path.join(scriptpath, "../src/collection")
-# mainpath = os.path.join(scriptpath, "../")
-# sys.path.append(os.path.normpath(collectionpath))
-# sys.path.append(os.path.normpath(mainpath))
-print("pak",__package__)
-from ..src.collection.DataHandler import DataHandler
-from ..src.collection.DataCollector import DataCollector
-from ..src.collection.StreamTransformer import *
-from ..src.collection.twitter_auth import * # where api access information is stored
+from context import ttrends
+from ttrends.collection.DataHandler import DataHandler
+from ttrends.collection.DataCollector import DataCollector
+from ttrends.collection.StreamTransformer import *
+from ttrends.collection.AuthInfo import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()
@@ -21,30 +12,40 @@ collector.authenticate()
 filter = "TRUMP" # very fast stream
 # filter = "PYTHON"
 
+abspath = os.path.abspath(os.path.dirname(__file__))
+datapath = os.path.join(abspath, "data")
+
 # quick tests for all stream transformers with very low settings
-streamTransformer1 = StreamTransformer(keys=["text"])
-streamTransformer1.filename = filter.upper() + " 1ST STREAM.csv"
-streamTransformer1.collect_count = 100 # number of entries to collect before stopping stream
-streamTransformer1.trim_size = 50 # the threshold of data size where the data is trimmed
-streamTransformer1.period = 10 # number of entries between cleaning/writing files
-streamTransformer1.read_data()
+stream_transformer1 = StreamTransformer(keys=["text"])
+filename1 =  filter.upper() + " 1ST STREAM.csv"
+stream_transformer1.filepath = os.path.join(datapath, filename1)
+stream_transformer1.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer1.trim_size = 50 # the threshold of data size where the data is trimmed
+stream_transformer1.period = 10 # number of entries between cleaning/writing files
+stream_transformer1.read_data() # continue from existing data
 print("FILTER: " + filter.upper())
-collector.stream([filter], streamTransformer1)
+collector.stream([filter], stream_transformer1)
 
-streamTransformer2 = FHCTStreamTransformer()
-streamTransformer2.filename = filter.upper() + " 2ND STREAM.csv"
-streamTransformer2.collect_count = 100 # number of entries to collect before stopping stream
-streamTransformer2.trim_size = 5 # the threshold of data size where the data is trimmed
-streamTransformer2.period = 10 # number of entries between cleaning/writing files
-streamTransformer2.read_data()
+stream_transformer2 = FHCTStreamTransformer()
+filename2 =  filter.upper() + " 2ND STREAM.csv"
+stream_transformer2.filepath = os.path.join(datapath, filename2)
+stream_transformer2.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer2.trim_size = 50 # the threshold of data size where the data is trimmed
+stream_transformer2.period = 10 # number of entries between cleaning/writing files
+stream_transformer2.read_data()
 print("FILTER: " + filter.upper())
-collector.stream([filter], streamTransformer2)
+collector.stream([filter], stream_transformer2)
 
-streamTransformer3 = FUCTStreamTransformer()
-streamTransformer3.filename = filter.upper() + " 3RD STREAM.csv"
-streamTransformer3.collect_count = 100 # number of entries to collect before stopping stream
-streamTransformer3.trim_size = 50 # the threshold of data size where the data is trimmed
-streamTransformer3.period = 10 # number of entries between cleaning/writing files
-streamTransformer3.read_data()
+stream_transformer3 = FUCTStreamTransformer()
+filename3 =  filter.upper() + " 3RD STREAM.csv"
+stream_transformer3.filepath = os.path.join(datapath, filename3)
+stream_transformer3.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer3.trim_size = 50 # the threshold of data size where the data is trimmed
+stream_transformer3.period = 10 # number of entries between cleaning/writing files
+stream_transformer3.read_data()
 print("FILTER: " + filter.upper())
-collector.stream([filter], streamTransformer3)
+collector.stream([filter], stream_transformer3)
+
+stream_transformer1.dat_hand.display()
+stream_transformer2.dat_hand.display()
+stream_transformer3.dat_hand.display()

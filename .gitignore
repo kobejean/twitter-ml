@@ -1,7 +1,6 @@
-docs/archive
-docs/test_data_out.csv
+scripts/data/archive
+test_data_out.csv
 *STREAM.csv
 __pycache__
-*.pyc
 twitter_auth.py
-twitter_auth_kobejean.py
+AuthInfo_kobejean.py

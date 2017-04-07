@@ -16,15 +16,10 @@
 ################################################################################
 import sys
 import os
-# lets us import from utils
-scriptpath = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(),
-                os.path.expanduser(__file__))))
-utilspath = os.path.join(scriptpath, "../utils/")
-sys.path.append(os.path.normpath(utilspath))
 
 import csv
 
-from ANSI import ANSI
+from ..utils.ANSI import ANSI
 
 class DataHandler(object):
 
@@ -141,12 +136,17 @@ class DataHandler(object):
     #   PARAPERTERS:                                                           #
     #       entry - a dictionary of key/values                                 #
     ############################################################################
-    """Adds a data entry (dictionary) to the data. """
     def add(self, entry):
+        """Adds a data entry (dictionary) to the data. """
         self.data.append(entry)
 
-
+    ############################################################################
+    #                          - Display Method -                              #
+    #                                                                          #
+    #   DESCRIPTION: Prints the data out with colors.                          #
+    ############################################################################
     def display(self):
+        """Prints the data out with colors. """
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
         for i, entry in enumerate(self.data):
             print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
@@ -162,7 +162,16 @@ class DataHandler(object):
                 text = key_text + str(entry.get(key, None))
                 print(text)
 
+    ############################################################################
+    #                        - Display Entry Method -                          #
+    #                                                                          #
+    #   DESCRIPTION: Prints an entry out with colors.                          #
+    #                                                                          #
+    #   PARAPERTERS:                                                           #
+    #       entry - a dictionary of key/values                                 #
+    ############################################################################
     def display_entry(self, entry):
+        """Prints an entry out with colors. """
         for key in self.csv_format:
             key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
             text = key_text + str(entry.get(key, None))
