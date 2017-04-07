@@ -188,10 +188,9 @@ class FUCTStreamTransformer(StreamTransformer):
         # priorizes entries with higher follower count and at least one url
         def priority(entry):
             urls = entry.get("urls",[])
-            if len(urls):
-                return entry.get("followers_count",0)
-            else:
-                return 0
+            at_least_1_url = len(urls) > 0
+            followers_count = entry.get("followers_count",0)
+            return (at_least_1_url, followers_count)
 
         self.priority = priority
         # self.priority = lambda entry: entry.get("followers_count",0)
