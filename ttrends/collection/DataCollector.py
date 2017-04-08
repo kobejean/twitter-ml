@@ -1,7 +1,7 @@
 ################################################################################
 #                              - Data Collector -                              #
 #                                                                              #
-#   PROGRAMMED BY: Jake Jongewaard and Jean Flaherty                           #
+#   PROGRAMMED BY: Jake Jongewaard                                             #
 #   DATE: 03-18-2017                                                           #
 #   DESCRIPTION: Handles collecting data from the Twitter Stream API and       #
 #                passing it to the DataHandler class                           #

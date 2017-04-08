@@ -2,8 +2,8 @@
 #                            - Data Handler Class -                            #
 #                                                                              #
 #   PROGRAMMED BY: Jean Flaherty                                               #
-#   DATE: 03-17-2017                                                           #
-#   DESCRIPTION: Handles reading/cleaning/writing our data.                    #
+#   DATE: 04-07-2017                                                           #
+#   DESCRIPTION: Handles reading, cleaning, writing and adding to our data.    #
 #                                                                              #
 #   INSTANCE VARIABLES:                                                        #
 #       data      - Our data in dictionary form.                               #
@@ -14,9 +14,7 @@
 #       write     - Writes data to a specified filepath as a CVS file.         #
 #       add       - Adds a data entry (dictionary) to the data.                #
 ################################################################################
-import sys
 import os
-
 import csv
 
 from ..utils.ANSI import ANSI
@@ -120,7 +118,8 @@ class DataHandler(object):
                 if value != None:
                     # escape value
                     value = str(value).encode("utf-8")
-                    value = str(value)[2:-1] # b"\x00" remove b" and " w/ [2:-1]
+                    # value looks like b"\x00" so remove the b" and " w/ [2:-1]
+                    value = str(value)[2:-1]
                 values.append(value)
             writer.writerow(values)
 
@@ -150,12 +149,13 @@ class DataHandler(object):
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
         for i, entry in enumerate(self.data):
             print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
+            # print in the order of csv_format
             for key in self.csv_format:
                 key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
                 text = key_text + str(entry.get(key, None))
                 print(text)
 
-            # keys not included in csv_format
+            # print key/value pairs not included in csv_format
             neglected_keys = entry.keys() - set(self.csv_format)
             for key in neglected_keys:
                 key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
@@ -172,14 +172,15 @@ class DataHandler(object):
     ############################################################################
     def display_entry(self, entry):
         """Prints an entry out with colors. """
+        # print in the order of csv_format
         for key in self.csv_format:
             key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
             text = key_text + str(entry.get(key, None))
             print(text)
 
-        # keys not included in csv_format
+        # print key/value pairs not included in csv_format
         neglected_keys = entry.keys() - set(self.csv_format)
         for key in neglected_keys:
-            key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
+            key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
             text = key_text + str(entry.get(key, None))
             print(text)
