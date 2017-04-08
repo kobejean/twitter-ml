@@ -1,15 +1,27 @@
-import sys
-import os
-
-from .DataHandler import DataHandler
-
+"""
+################################################################################
+#                            - Stream Transformer -                            #
+#                                                                              #
+#   PROGRAMMED BY: Jean Flaherty                                               #
+#   DATE: 04-07-2017                                                           #
+#   DESCRIPTION: Handles collecting data from the Twitter Stream API and       #
+#                passing it to the DataHandler class                           #
+#                                                                              #
+#   Classes:                                                                   #
+#       StreamTransformer: A general class that defines how to operate tweepy  #
+#           stream                                                             #
+#       FHCTStreamTransformer: A subclass of StreamTransformer that reads      #
+#           followers_count, hashtags, created_at, and text tags.              #
+#       FUCTStreamTransformer: Defines how to operate tweepy stream data taken #
+################################################################################
+"""
 from datetime import datetime, timedelta
 import json
 import os
-
-from ..utils.ANSI import ANSI
-
 from tweepy.streaming import StreamListener
+
+from .DataHandler import DataHandler
+from ..utils.ANSI import ANSI
 
 ################################################################################
 #                           - StreamTransformer -                              #
@@ -18,11 +30,21 @@ from tweepy.streaming import StreamListener
 #                data taken from the Twitter Stream API. The DataHandler class #
 #                is implemented here for data formating                        #
 #                                                                              #
+#   StreamListener Methods:                                                    #
+#       - on_connect(self):                                                    #
+#       - on_disconnect(self):                                                 #
+#       - on_error(self, status_code):                                         #
+#       - on_data(self, data):                                                 #
+#       - keep_alive(self):                                                    #
+#       - on_limit(self, track):                                               #
+#       - on_timeout(self):                                                    #
+#       - on_warning(self, notice):                                            #
+#                                                                              #
 #   Methods:                                                                   #
-#       -on_data(self, data):                                                  #
-#       -entry(self, data):                                                    #
-#       -clean(self)                                                           #
-#       -write(self)                                                           #
+#       - entry(self, data):                                                   #
+#       - clean_data(self)                                                     #
+#       - read_data(self)                                                      #
+#       - write_data(self)                                                     #
 ################################################################################
 
 class StreamTransformer(StreamListener):
@@ -39,22 +61,32 @@ class StreamTransformer(StreamListener):
         self.sample_size = sample_size
         self.duration = duration
         self.trim_size = trim_size
-        self.period = period # number of entries between cleaning/writing files
+        self.period = period
         self.priority = priority
         self.filepath = filepath
 
-    def on_connect(self):
-        print("CONNECTED...")
-        if not self.entry_count and not self.start_time:
-            self.entry_count = 0   # for keeping track of the number of entries added
-            self.start_time = datetime.now()
+    def entry(self, data):
+        """
+        A method that takes a dictionary of data and returns a dictionary
+        with the keys we are interested in.
+        """
+        return { key : data.get(key, None) for key in self.dat_hand.csv_format }
 
-    def on_disconnect(self, notice):
-        print("DISCONNECTED:", notice)
+    def clean_data(self):
+        print("CLEANING DATA...")
+        self.dat_hand.clean(self.priority, self.trim_size)
 
-    def on_error(self, status_code):
-        print("ERROR: ", status_code)
-        return False
+    def read_data(self):
+        filepath = self.filepath
+        if os.path.isfile(self.filepath):
+            print("CONTINUE FROM: " + self.filepath)
+            self.dat_hand.read(self.filepath)
+        else:
+            print("NO FILE AT: " + self.filepath)
+
+    def write_data(self):
+        print("WRITING TO: "+ self.filepath)
+        self.dat_hand.write(self.filepath)
 
     def on_data(self, data):
         data = json.loads(data) # convert to dictionary
@@ -64,8 +96,8 @@ class StreamTransformer(StreamListener):
         self.dat_hand.add(entry)
         self.entry_count += 1
 
-        print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count) + ANSI.ENDC)
         # print entry
+        print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count) + ANSI.ENDC)
         self.dat_hand.display_entry(entry)
         # print(data)
 
@@ -73,6 +105,8 @@ class StreamTransformer(StreamListener):
         now = datetime.now()
         end_time = datetime.max if self.duration == None else self.start_time + self.duration
         time_is_up = now > end_time
+
+        # check if collected all
         last_entry = float('inf') if self.sample_size == None else self.sample_size
         collected_all = self.entry_count >= last_entry
 
@@ -87,6 +121,19 @@ class StreamTransformer(StreamListener):
         if self.entry_count % self.period == 0 :
             self.clean_data()
             self.write_data()
+
+    def on_connect(self):
+        print("CONNECTED...")
+        if not self.entry_count and not self.start_time:
+            self.entry_count = 0   # for keeping track of the number of entries added
+            self.start_time = datetime.now()
+
+    def on_disconnect(self, notice):
+        print("DISCONNECTED:", notice)
+
+    def on_error(self, status_code):
+        print("ERROR: ", status_code)
+        return False
 
     def keep_alive(self):
         """Called when a keep-alive arrived"""
@@ -107,25 +154,6 @@ class StreamTransformer(StreamListener):
         """Called when a disconnection warning message arrives"""
         print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
         return
-
-    def entry(self, data):
-        return { key : data.get(key,None) for key in self.dat_hand.csv_format }
-
-    def read_data(self):
-        filepath = self.filepath
-        if os.path.isfile(self.filepath):
-            print("CONTINUE FROM: " + self.filepath)
-            self.dat_hand.read(self.filepath)
-        else:
-            print("NO FILE AT: " + self.filepath)
-
-    def clean_data(self):
-        print("CLEANING DATA...")
-        self.dat_hand.clean(self.priority, self.trim_size)
-
-    def write_data(self):
-        print("WRITING TO: "+ self.filepath)
-        self.dat_hand.write(self.filepath)
 
 ################################################################################
 #                           - FHCTStreamTransformer -                          #

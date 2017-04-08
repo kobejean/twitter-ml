@@ -19,7 +19,7 @@ d = int(hours / 24)
 h = int(hours % 24)
 m = int(hours % 1 * 60)
 s = int(hours * 60 % 1 * 60)
-print("DURATION: d", d, "h", h, "m", m, "s", s)
+print("DURATION: ", d, "days", h, "hours", m, "minutes", s, "seconds")
 duration = timedelta(days=d, hours=h, minutes=m, seconds=s)
 
 trim_size = int(input("ENTER TRIM SIZE: "))
