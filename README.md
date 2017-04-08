@@ -8,6 +8,8 @@ develop: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?b
 
 ###### DataHandler
 
+I will work on better documentation for `DataHandler` later.
+
     import os
     from ttrends.collection.DataHandler import DataHandler
 
