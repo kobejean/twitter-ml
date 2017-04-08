@@ -1,12 +1,6 @@
-
-src/collection/run_terminal.command
-
-src/collection/run.command
-
-*.pyc
-
+src/data/archive
+test_data_out.csv
 *STREAM.csv
-
-twitter_auth.py
-
-twitter_auth_kobejean.py
+__pycache__
+AuthInfo_kobejean.py
+AuthInfo.py
