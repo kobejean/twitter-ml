@@ -26,18 +26,17 @@ from tweepy.streaming import StreamListener
 ################################################################################
 
 class StreamTransformer(StreamListener):
+    entry_count = None
+    start_time = None
 
-    def __init__(self, filepath = "STREAM.csv", keys = [], collect_count = 20,
+    def __init__(self, tags, filepath = "STREAM.csv", sample_size = 20,
                  duration = None, trim_size = 10, period = 5,
                  priority = lambda entry: 0):
         self.dat_hand = DataHandler()
-        self.dat_hand.csv_format = keys
-        self.dat_hand.conversions = [str for _ in range(len(keys))]
+        self.dat_hand.csv_format = tags
+        self.dat_hand.conversions = len(tags) * [str]
 
-        self.entry_count = None
-        self.start_time = None
-
-        self.collect_count = collect_count
+        self.sample_size = sample_size
         self.duration = duration
         self.trim_size = trim_size
         self.period = period # number of entries between cleaning/writing files
@@ -74,7 +73,8 @@ class StreamTransformer(StreamListener):
         now = datetime.now()
         end_time = datetime.max if self.duration == None else self.start_time + self.duration
         time_is_up = now > end_time
-        collected_all = self.entry_count >= self.collect_count
+        last_entry = float('inf') if self.sample_size == None else self.sample_size
+        collected_all = self.entry_count >= last_entry
 
         # clean & write when we are done
         if collected_all or time_is_up:
@@ -138,14 +138,14 @@ class StreamTransformer(StreamListener):
 ################################################################################
 
 class FHCTStreamTransformer(StreamTransformer):
-    def __init__(self, filename = "FHCTStream", collect_count = 10,
+    def __init__(self, filename = "FHCTStream", sample_size = 10,
                  duration = None, trim_size = 5, period = 5):
-        super(FHCTStreamTransformer, self).__init__()
+        self.dat_hand = DataHandler()
         self.dat_hand.csv_format = ["followers_count","hashtags","created_at","text"]
         self.dat_hand.conversions = [int,eval,str,str]
 
         self.filename = filename
-        self.collect_count = collect_count
+        self.sample_size = sample_size
         self.duration = duration
         self.trim_size = trim_size
         self.period = period
@@ -173,14 +173,14 @@ class FHCTStreamTransformer(StreamTransformer):
 ################################################################################
 
 class FUCTStreamTransformer(StreamTransformer):
-    def __init__(self, filename = "FUCTStream", collect_count = 10,
+    def __init__(self, filename = "FUCTStream", sample_size = 10,
                  duration = None, trim_size = 5, period = 5):
-        super(FUCTStreamTransformer, self).__init__()
+        self.dat_hand = DataHandler()
         self.dat_hand.csv_format = ["followers_count","urls","created_at","text"]
         self.dat_hand.conversions = [int,eval,str,str]
 
         self.filename = filename
-        self.collect_count = collect_count
+        self.sample_size = sample_size
         self.duration = duration
         self.trim_size = trim_size
         self.period = period
@@ -199,6 +199,7 @@ class FUCTStreamTransformer(StreamTransformer):
         entry = {}
         entry["followers_count"] = data.get("user",{}).get("followers_count",0)
 
+        # urls
         tmp_urls = data.get("entities", {}).get("urls", [])
         urls = []
         for url in tmp_urls:

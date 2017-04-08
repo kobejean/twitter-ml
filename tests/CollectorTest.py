@@ -16,10 +16,10 @@ abspath = os.path.abspath(os.path.dirname(__file__))
 datapath = os.path.join(abspath, "data")
 
 # quick tests for all stream transformers with very low settings
-stream_transformer1 = StreamTransformer(keys=["text"])
+stream_transformer1 = StreamTransformer(tags=["text"])
 filename1 =  filter.upper() + " 1ST STREAM.csv"
 stream_transformer1.filepath = os.path.join(datapath, filename1)
-stream_transformer1.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer1.sample_size = 100 # number of entries to collect before stopping stream
 stream_transformer1.trim_size = 50 # the threshold of data size where the data is trimmed
 stream_transformer1.period = 10 # number of entries between cleaning/writing files
 stream_transformer1.read_data() # continue from existing data
@@ -29,7 +29,7 @@ collector.stream([filter], stream_transformer1)
 stream_transformer2 = FHCTStreamTransformer()
 filename2 =  filter.upper() + " 2ND STREAM.csv"
 stream_transformer2.filepath = os.path.join(datapath, filename2)
-stream_transformer2.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer2.sample_size = 100 # number of entries to collect before stopping stream
 stream_transformer2.trim_size = 50 # the threshold of data size where the data is trimmed
 stream_transformer2.period = 10 # number of entries between cleaning/writing files
 stream_transformer2.read_data()
@@ -39,7 +39,7 @@ collector.stream([filter], stream_transformer2)
 stream_transformer3 = FUCTStreamTransformer()
 filename3 =  filter.upper() + " 3RD STREAM.csv"
 stream_transformer3.filepath = os.path.join(datapath, filename3)
-stream_transformer3.collect_count = 100 # number of entries to collect before stopping stream
+stream_transformer3.sample_size = 100 # number of entries to collect before stopping stream
 stream_transformer3.trim_size = 50 # the threshold of data size where the data is trimmed
 stream_transformer3.period = 10 # number of entries between cleaning/writing files
 stream_transformer3.read_data()
