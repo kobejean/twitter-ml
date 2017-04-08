@@ -1,4 +1,4 @@
-scripts/data/archive
+src/data/archive
 test_data_out.csv
 *STREAM.csv
 __pycache__
