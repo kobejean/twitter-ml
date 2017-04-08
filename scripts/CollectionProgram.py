@@ -11,7 +11,7 @@ collector = DataCollector(access_token, access_token_secret, consumer_key, consu
 collector.authenticate()
 
 filters = input("ENTER FILTER: ")
-collect_count = int(input("ENTER COLLECT COUNT: "))
+sample_size = int(input("ENTER COLLECT COUNT: "))
 hours = float(input("ENTER DURATION IN HOURS: "))
 
 # calculate duration
@@ -33,7 +33,7 @@ print("FILE PATH: " + filepath)
 
 stream_transformer = FUCTStreamTransformer()
 stream_transformer.filepath = filepath
-stream_transformer.collect_count = collect_count
+stream_transformer.sample_size = sample_size
 stream_transformer.duration = duration
 stream_transformer.trim_size = trim_size
 stream_transformer.period = period
