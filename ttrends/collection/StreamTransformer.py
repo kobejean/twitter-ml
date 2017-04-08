@@ -31,14 +31,14 @@ from ..utils.ANSI import ANSI
 #                is implemented here for data formating                        #
 #                                                                              #
 #   StreamListener Methods:                                                    #
-#       - on_connect(self):                                                    #
-#       - on_disconnect(self):                                                 #
-#       - on_error(self, status_code):                                         #
 #       - on_data(self, data):                                                 #
-#       - keep_alive(self):                                                    #
-#       - on_limit(self, track):                                               #
-#       - on_timeout(self):                                                    #
-#       - on_warning(self, notice):                                            #
+#       - on_connect(self):                                                    #
+#       x on_disconnect(self):                                                 #
+#       x on_error(self, status_code):                                         #
+#       x keep_alive(self):                                                    #
+#       x on_limit(self, track):                                               #
+#       x on_timeout(self):                                                    #
+#       x on_warning(self, notice):                                            #
 #                                                                              #
 #   Methods:                                                                   #
 #       - entry(self, data):                                                   #
@@ -128,32 +128,32 @@ class StreamTransformer(StreamListener):
             self.entry_count = 0   # for keeping track of the number of entries added
             self.start_time = datetime.now()
 
-    def on_disconnect(self, notice):
-        print("DISCONNECTED:", notice)
-
-    def on_error(self, status_code):
-        print("ERROR: ", status_code)
-        return False
-
-    def keep_alive(self):
-        """Called when a keep-alive arrived"""
-        print("KEEP ALIVE...")
-        return
-
-    def on_limit(self, track):
-        """Called when a limitation notice arrives"""
-        print(ANSI.WARNING + "LIMIT:", track, ANSI.ENDC)
-        return
-
-    def on_timeout(self):
-        """Called when stream connection times out"""
-        print(ANSI.WARNING + "TIMED OUT" + ANSI.ENDC)
-        return
-
-    def on_warning(self, notice):
-        """Called when a disconnection warning message arrives"""
-        print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
-        return
+    # def on_disconnect(self, notice):
+    #     print("DISCONNECTED:", notice)
+    #
+    # def on_error(self, status_code):
+    #     print("ERROR: ", status_code)
+    #     return False
+    #
+    # def keep_alive(self):
+    #     """Called when a keep-alive arrived"""
+    #     print("KEEP ALIVE...")
+    #     return
+    #
+    # def on_limit(self, track):
+    #     """Called when a limitation notice arrives"""
+    #     print(ANSI.WARNING + "LIMIT:", track, ANSI.ENDC)
+    #     return
+    #
+    # def on_timeout(self):
+    #     """Called when stream connection times out"""
+    #     print(ANSI.WARNING + "TIMED OUT" + ANSI.ENDC)
+    #     return
+    #
+    # def on_warning(self, notice):
+    #     """Called when a disconnection warning message arrives"""
+    #     print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
+    #     return
 
 ################################################################################
 #                           - FHCTStreamTransformer -                          #
