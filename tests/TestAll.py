@@ -1,2 +1,0 @@
-import HandlerTest
-import CollectorTest
