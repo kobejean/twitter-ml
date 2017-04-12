@@ -1,2 +1,2 @@
-import HandlerTest
-import CollectorTest
+import handler_test
+import collector_test
