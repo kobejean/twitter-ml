@@ -11,7 +11,8 @@ develop: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?b
 I will work on better documentation for `DataHandler` later.
 
     import os
-    from ttrends.collection.DataHandler import DataHandler
+    from ttrends.collection.data_handler import DataHandler
+    from ttrends.collection.stream_transformer import StreamTransformer
 
     # EXAMPLE CODE
     abspath = os.path.abspath(os.path.dirname(__file__))

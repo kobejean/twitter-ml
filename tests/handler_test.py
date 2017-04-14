@@ -1,7 +1,7 @@
 import os
 
 from context import ttrends
-from ttrends.collection.DataHandler import DataHandler
+from ttrends.collection.data_handler import DataHandler
 
 # EXAMPLE CODE
 abspath = os.path.abspath(os.path.dirname(__file__))

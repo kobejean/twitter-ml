@@ -20,32 +20,32 @@ import json
 import os
 from tweepy.streaming import StreamListener
 
-from .DataHandler import DataHandler
-from ..utils.ANSI import ANSI
+from .data_handler import DataHandler
+from ..utils.ansi import ANSI
 
-################################################################################
-#                           - StreamTransformer -                              #
-#                                                                              #
-#   Description: This class is a general class used to define how to operate   #
-#                data taken from the Twitter Stream API. The DataHandler class #
-#                is implemented here for data formating                        #
-#                                                                              #
-#   StreamListener Methods:                                                    #
-#       - on_data(self, data):                                                 #
-#       - on_connect(self):                                                    #
-#       x on_disconnect(self):                                                 #
-#       x on_error(self, status_code):                                         #
-#       x keep_alive(self):                                                    #
-#       x on_limit(self, track):                                               #
-#       x on_timeout(self):                                                    #
-#       x on_warning(self, notice):                                            #
-#                                                                              #
-#   Methods:                                                                   #
-#       - entry(self, data):                                                   #
-#       - clean_data(self)                                                     #
-#       - read_data(self)                                                      #
-#       - write_data(self)                                                     #
-################################################################################
+"""
+#   - StreamTransformer -
+#
+#   Description: This class is a general class used to define how to operate
+#                data taken from the Twitter Stream API. The DataHandler class
+#                is implemented here for data formating
+#
+#   StreamListener Methods:
+#       - on_data(self, data):
+#       - on_connect(self):
+#       x on_disconnect(self):
+#       x on_error(self, status_code):
+#       x keep_alive(self):
+#       x on_limit(self, track):
+#       x on_timeout(self):
+#       x on_warning(self, notice):
+#
+#   Methods:
+#       - entry(self, data):
+#       - clean_data(self)
+#       - read_data(self)
+#       - write_data(self)
+"""
 
 class StreamTransformer(StreamListener):
     entry_count = None
@@ -155,16 +155,15 @@ class StreamTransformer(StreamListener):
     #     print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
     #     return
 
-################################################################################
-#                           - FHCTStreamTransformer -                          #
-#                                                                              #
-#   Description: This class is a more specific version of StreamTransformer    #
-#                that uses the followers_count, hashtags, created_at, and text #
-#                keys for the data collection. It also prioritizes entries     #
-#                with higher followers_count values.                           #
-#                                                                              #
-################################################################################
-
+"""
+#                           - FHCTStreamTransformer -
+#
+#   Description: This class is a more specific version of StreamTransformer
+#                that uses the followers_count, hashtags, created_at, and text
+#                keys for the data collection. It also prioritizes entries
+#                with higher followers_count values.
+#
+"""
 class FHCTStreamTransformer(StreamTransformer):
     def __init__(self, filename = "FHCTStream", sample_size = 10,
                  duration = None, trim_size = 5, period = 5):
@@ -190,16 +189,15 @@ class FHCTStreamTransformer(StreamTransformer):
         return entry
 
 
-################################################################################
-#                           - FHCTStreamTransformer -                          #
-#                                                                              #
-#   Description: This class is a more specific version of StreamTransformer    #
-#                that uses the followers_count, hashtags, created_at, and text #
-#                keys for the data collection. It also prioritizes entries     #
-#                with higher followers_count values.                           #
-#                                                                              #
-################################################################################
-
+"""
+#   - FHCTStreamTransformer -
+#
+#   Description: This class is a more specific version of StreamTransformer
+#                that uses the followers_count, hashtags, created_at, and text
+#                keys for the data collection. It also prioritizes entries
+#                with higher followers_count values.
+#
+"""
 class FUCTStreamTransformer(StreamTransformer):
     def __init__(self, filename = "FUCTStream", sample_size = 10,
                  duration = None, trim_size = 5, period = 5):

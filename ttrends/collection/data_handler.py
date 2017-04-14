@@ -17,7 +17,7 @@
 import os
 import csv
 
-from ..utils.ANSI import ANSI
+from ..utils.ansi import ANSI
 
 class DataHandler(object):
 
@@ -26,20 +26,20 @@ class DataHandler(object):
         self.csv_format = csv_format
         self.conversions = conversions
 
-    ############################################################################
-    #                             - Read Method -                              #
-    #                                                                          #
-    #   DESCRIPTION: Reads data in a specified file.                           #
-    #                                                                          #
-    #   PARAPERTERS:                                                           #
-    #       filepath    - The path of the file to read                         #
-    #       conversions - A list of functions that takes a string and returns  #
-    #                     a value. This is for converting each string value to #
-    #                     the correct type. For example if our CSV format is:  #
-    #                         volume, hashtag                                  #
-    #                     then our conversions should be:                      #
-    #                         [int, str]                                       #
-    ############################################################################
+    """
+    #   - Read Method -
+    #
+    #   DESCRIPTION: Reads data in a specified file.
+    #
+    #   PARAMETERS:
+    #       filepath    - The path of the file to read
+    #       conversions - A list of functions that takes a string and returns
+    #                     a value. This is for converting each string value to
+    #                     the correct type. For example if our CSV format is:
+    #                         volume, hashtag
+    #                     then our conversions should be:
+    #                         [int, str]
+    """
     def read(self, filepath):
         """Reads data in a specified file."""
         file = open(filepath, newline="")
@@ -63,37 +63,37 @@ class DataHandler(object):
                     entry[key] = conversion(value)
             self.data.append(entry)
 
-    ############################################################################
-    #                             - Clean Method -                             #
-    #                                                                          #
-    #   DESCRIPTION: Trims data keeping key/value pairs with higher priority.  #
-    #                                                                          #
-    #   PARAMERTERS:                                                           #
-    #       priority  - A function that takes an entry and returns a priority  #
-    #                   value. Higher values means that the entry has a higher #
-    #                   priority and will less likely be deleted.              #
-    #       trim_size - The size of that the data should be trimmed down to.   #
-    ############################################################################
+    """
+    #   - Clean Method -
+    #
+    #   DESCRIPTION: Trims data keeping key/value pairs with higher priority.
+    #
+    #   PARAMERTERS:
+    #       priority  - A function that takes an entry and returns a priority
+    #                   value. Higher values means that the entry has a higher
+    #                   priority and will less likely be deleted.
+    #       trim_size - The size of that the data should be trimmed down to.
+    """
     def clean(self, priority, trim_size):
         """Trims data keeping key/value pairs with higher priority."""
         self.data = sorted(self.data, key=priority, reverse=True)[0:trim_size]
 
 
-    ############################################################################
-    #                             - Write Method -                             #
-    #                                                                          #
-    #   DESCRIPTION: Writes data to a specified filepath as a CVS file.        #
-    #                                                                          #
-    #   PARAPERTERS:                                                           #
-    #       filepath   - The path to write the file.                           #
-    #       csv_format - The cvs format as a list of keys. For example if each #
-    #                    entry looks something like:                           #
-    #                        {"hashtag":"some value", "volume":20}             #
-    #                    and we want the CVS format to look something like:    #
-    #                        hashtag, volume                                   #
-    #                    our csv_format parameter should look like:            #
-    #                        [hashtag,volume]                                  #
-    ############################################################################
+    """"
+    #   - Write Method -
+    #
+    #   DESCRIPTION: Writes data to a specified filepath as a CVS file.
+    #
+    #   PARAPERTERS:
+    #       filepath   - The path to write the file.
+    #       csv_format - The cvs format as a list of keys. For example if each
+    #                    entry looks something like:
+    #                        {"hashtag":"some value", "volume":20}
+    #                    and we want the CVS format to look something like:
+    #                        hashtag, volume
+    #                    our csv_format parameter should look like:
+    #                        [hashtag,volume]
+    """
     def write(self, filepath):
         """Writes data to a specified filepath as a CVS file. """
 
@@ -127,23 +127,23 @@ class DataHandler(object):
         if os.path.isfile(tmppath):
             os.remove(tmppath)
 
-    ############################################################################
-    #                             - Add Method -                               #
-    #                                                                          #
-    #   DESCRIPTION: Adds a data entry (dictionary) to the data.               #
-    #                                                                          #
-    #   PARAPERTERS:                                                           #
-    #       entry - a dictionary of key/values                                 #
-    ############################################################################
+    """
+    #   - Add Method -
+    #
+    #   DESCRIPTION: Adds a data entry (dictionary) to the data.
+    #
+    #   PARAPERTERS:
+    #       entry - a dictionary of key/values
+    """
     def add(self, entry):
         """Adds a data entry (dictionary) to the data. """
         self.data.append(entry)
 
-    ############################################################################
-    #                          - Display Method -                              #
-    #                                                                          #
-    #   DESCRIPTION: Prints the data out with colors.                          #
-    ############################################################################
+    """
+    #                          - Display Method -
+    #
+    #   DESCRIPTION: Prints the data out with colors.
+    """
     def display(self):
         """Prints the data out with colors. """
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
@@ -162,14 +162,14 @@ class DataHandler(object):
                 text = key_text + str(entry.get(key, None))
                 print(text)
 
-    ############################################################################
-    #                        - Display Entry Method -                          #
-    #                                                                          #
-    #   DESCRIPTION: Prints an entry out with colors.                          #
-    #                                                                          #
-    #   PARAPERTERS:                                                           #
-    #       entry - a dictionary of key/values                                 #
-    ############################################################################
+    """
+    #                        - Display Entry Method -
+    #
+    #   DESCRIPTION: Prints an entry out with colors.
+    #
+    #   PARAPERTERS:
+    #       entry - a dictionary of key/values
+    """
     def display_entry(self, entry):
         """Prints an entry out with colors. """
         # print in the order of csv_format

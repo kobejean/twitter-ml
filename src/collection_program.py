@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 import os
 
 from context import ttrends
-from ttrends.collection.DataHandler import DataHandler
-from ttrends.collection.DataCollector import DataCollector
-from ttrends.collection.StreamTransformer import *
-from ttrends.collection.AuthInfo import * # where api access information is stored
+from ttrends.collection.data_handler import DataHandler
+from ttrends.collection.data_collector import DataCollector
+from ttrends.collection.stream_transformer import *
+from ttrends.collection.auth_info import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()
