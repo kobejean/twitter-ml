@@ -1,28 +1,21 @@
 from datetime import datetime, timedelta
+import random
 import os
 
 from context import ttrends
 from ttrends.collection.data_handler import DataHandler
-from ttrends.collection.data_collector import DataCollector
-from ttrends.collection.stream_transformer import *
-from ttrends.collection.auth_info import * # where api access information is stored
 
-import random
-import os
 
-# EXAMPLE CODE
-abspath = os.path.abspath(os.path.dirname(__file__))
-docspath = os.path.join(abspath, "data")
+# paths
+abs_path = os.path.abspath(os.path.dirname(__file__))
+data_path = os.path.join(abs_path, "data")
+read_path = os.path.join(data_path, "SPACEX STREAM.csv")
 
 # initialization
-dat_hand = DataHandler()
-dat_hand.csv_format = ["followers_count","urls","created_at","text"]
-
-# reading data
-readpath = os.path.join(docspath, "SPACEX STREAM.csv")
-dat_hand.read(readpath)
-
+dat_hand = DataHandler(file_path=read_path)
+# randomize order of entries
 random.shuffle(dat_hand.data)
+# print data
 dat_hand.display()
 
 batches = []
@@ -34,12 +27,9 @@ for i, entry in enumerate(dat_hand.data):
     batches[batch_num].append(entry)
 
 for i, batch in enumerate(batches):
-    # dat_hand.data = batch
-    writepath = os.path.join(docspath, "SPACEX TEXT " + str(i) + ".txt")
-    # dat_hand.write(writepath)
-
-    f = open(writepath, 'w')
+    write_path = os.path.join(data_path, "SPACEX TEXT " + str(i+1) + ".txt")
+    write_file = open(write_path, 'w')
     for entry in batch:
-        f.write(entry["text"])  # python will convert \n to os.linesep
+        write_file.write(entry.get("text","")) # python will convert \n to os.linesep
 
-    f.close()  # you can omit in most cases as the destructor will call it
+    write_file.close()

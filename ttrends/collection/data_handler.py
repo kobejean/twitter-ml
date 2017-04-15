@@ -21,11 +21,13 @@ from ..utils.ansi import ANSI
 
 class DataHandler(object):
 
-    def __init__(self, data = [], csv_format = None, conversions = None):
+    def __init__(self, file_path = None, data = [], csv_format = None,
+                 conversions = None):
         self.data = data
         self.csv_format = csv_format
         self.conversions = conversions
-
+        if file_path:
+            self.read(file_path)
     """
     #   - Read Method -
     #
@@ -40,11 +42,18 @@ class DataHandler(object):
     #                     then our conversions should be:
     #                         [int, str]
     """
-    def read(self, filepath):
+    def read(self, file_path):
         """Reads data in a specified file."""
-        file = open(filepath, newline="")
+        file = open(file_path, newline="")
         reader = csv.reader(file)
         keys = list(next(reader)) # first line has keys/format
+
+        if self.csv_format == None:
+            self.csv_format = keys
+        else:
+            keys = list(set(keys) & set(self.csv_format))
+
+
         if keys != self.csv_format:
             print("csv_format does not match this file")
             return
@@ -94,16 +103,16 @@ class DataHandler(object):
     #                    our csv_format parameter should look like:
     #                        [hashtag,volume]
     """
-    def write(self, filepath):
+    def write(self, file_path):
         """Writes data to a specified filepath as a CVS file. """
 
         # save previous write by renaming file with prefix TMP_
-        path, filename = os.path.split(filepath)
-        tmppath = os.path.join(path, "TMP_" + filename)
-        if os.path.isfile(filepath):
-            os.rename(filepath, tmppath)
+        path, file_name = os.path.split(file_path)
+        tmppath = os.path.join(path, "TMP_" + file_name)
+        if os.path.isfile(file_path):
+            os.rename(file_path, tmppath)
 
-        file = open(filepath, "w")
+        file = open(file_path, "w")
         writer = csv.writer(file)
         keys = self.csv_format if self.csv_format else list(self.data.keys())
 
