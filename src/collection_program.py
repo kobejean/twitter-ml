@@ -11,7 +11,7 @@ collector = DataCollector(access_token, access_token_secret, consumer_key, consu
 collector.authenticate()
 
 filters = input("ENTER FILTER: ")
-sample_size = int(input("ENTER COLLECT COUNT: "))
+sample_size = int(input("ENTER SAMPLE SIZE: "))
 hours = float(input("ENTER DURATION IN HOURS: "))
 
 # calculate duration
