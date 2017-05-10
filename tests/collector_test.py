@@ -1,14 +1,15 @@
 ############################################################################################
 # PROGRAMMED BY: Jean Flaherty                                                             #
 # DATE: 4-07-2017                                                                          #
-# DESCRIPTION: This script tests the data collection tools defined in the ttrends package  #
+# DESCRIPTION: This script tests the data collection tools defined in the tml package      #
 #                                                                                          #
 ############################################################################################
 
-from ttrends.collection.data_handler import DataHandler
-from ttrends.collection.data_collector import DataCollector
-from ttrends.collection.stream_transformer import *
-from ttrends.collection.auth_info import * # where api access information is stored
+from context import tml
+from tml.collection.data_handler import DataHandler
+from tml.collection.data_collector import DataCollector
+from tml.collection.stream_transformer import *
+from tml.collection.auth_info import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()

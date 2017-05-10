@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 import random
 import os
 
-from context import ttrends
-from ttrends.collection.data_handler import DataHandler
+from context import tml
+from tml.collection.data_handler import DataHandler
 
 
 # paths
