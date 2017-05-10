@@ -75,10 +75,8 @@ Hin = tf.placeholder(tf.float32, [None, INTERNALSIZE*NLAYERS], name='Hin')  # [ 
 
 # using a NLAYERS=3 layers of GRU cells, unrolled SEQLEN=30 times
 # dynamic_rnn infers SEQLEN from the size of the inputs Xo
-
-onecell = rnn.GRUCell(INTERNALSIZE)
-dropcell = rnn.DropoutWrapper(onecell, input_keep_prob=pkeep)
-multicell = rnn.MultiRNNCell([dropcell]*NLAYERS, state_is_tuple=False)
+gruCellsWithDropout = [rnn.DropoutWrapper(rnn.GRUCell(INTERNALSIZE), input_keep_prob=pkeep) for _ in range(NLAYERS)]
+multicell = rnn.MultiRNNCell(gruCellsWithDropout, state_is_tuple=False)
 multicell = rnn.DropoutWrapper(multicell, output_keep_prob=pkeep)
 Yr, H = tf.nn.dynamic_rnn(multicell, Xo, dtype=tf.float32, initial_state=Hin)
 # Yr: [ BATCHSIZE, SEQLEN, INTERNALSIZE ]
