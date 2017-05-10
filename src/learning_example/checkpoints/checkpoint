@@ -1,2 +1,2 @@
-model_checkpoint_path: "/Users/kobejean/Code/Git/TwitterPrediction/src/learning_example/checkpoints/rnn_train_1492276866-3000000"
-all_model_checkpoint_paths: "/Users/kobejean/Code/Git/TwitterPrediction/src/learning_example/checkpoints/rnn_train_1492276866-3000000"
+model_checkpoint_path: "/Users/kobejean/Code/Git/TwitterPrediction/src/learning_example/checkpoints/rnn_train_1492276866-7500000"
+all_model_checkpoint_paths: "/Users/kobejean/Code/Git/TwitterPrediction/src/learning_example/checkpoints/rnn_train_1492276866-7500000"
