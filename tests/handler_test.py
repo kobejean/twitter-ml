@@ -5,7 +5,7 @@ from tml.collection.data_handler import DataHandler
 
 # EXAMPLE CODE
 abspath = os.path.abspath(os.path.dirname(__file__))
-docspath = os.path.join(abspath, "data")
+datapath = os.path.join(abspath, "data")
 
 # initialization
 dat_hand = DataHandler()
@@ -13,7 +13,7 @@ dat_hand.csv_format = ["volume","hashtag"]
 dat_hand.conversions = [int, str] # volume, hashtag
 
 # reading data
-readpath = os.path.join(docspath, "test_data.csv")
+readpath = os.path.join(datapath, "test_data.csv")
 dat_hand.read(readpath)
 
 # adding data
@@ -28,7 +28,7 @@ trim_size = 5
 dat_hand.clean(priority, trim_size)
 
 # writing data to file in CSV format
-writepath = os.path.join(docspath, "test_data_out.csv")
+writepath = os.path.join(datapath, "test_data_out.csv")
 dat_hand.write(writepath)
 
 # print data
