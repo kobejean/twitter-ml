@@ -51,12 +51,9 @@ class DataHandler(object):
         if self.csv_format == None:
             self.csv_format = keys
         else:
-            keys = list(set(keys) & set(self.csv_format))
+            # include keys not includes in csv_format
+            keys = self.csv_format + list(set(keys) - set(self.csv_format))
 
-
-        if keys != self.csv_format:
-            print("csv_format does not match this file")
-            return
         conversions = self.conversions if self.conversions else [str] * len(keys)
 
         self.data = [] # reset data
