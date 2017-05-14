@@ -1,17 +1,18 @@
-# TwitterPrediction
+# TwitterML
 
 master: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?branch=master)](https://travis-ci.org/kobejean/TwitterPrediction)
 
 develop: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?branch=develop)](https://travis-ci.org/kobejean/TwitterPrediction)
 
-## Usage
+## Collection
 
 ###### DataHandler
 
 I will work on better documentation for `DataHandler` later.
 
     import os
-    from ttrends.collection.DataHandler import DataHandler
+    from tml.collection.data_handler import DataHandler
+    from tml.collection.stream_transformer import StreamTransformer
 
     # EXAMPLE CODE
     abspath = os.path.abspath(os.path.dirname(__file__))
