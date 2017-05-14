@@ -1,8 +1,13 @@
 # TwitterML
 
-master: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?branch=master)](https://travis-ci.org/kobejean/TwitterPrediction)
+master: [![Build Status](https://travis-ci.org/kobejean/TwitterML.svg?branch=master)](https://travis-ci.org/kobejean/TwitterML)
 
-develop: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?branch=develop)](https://travis-ci.org/kobejean/TwitterPrediction)
+develop: [![Build Status](https://travis-ci.org/kobejean/TwitterML.svg?branch=develop)](https://travis-ci.org/kobejean/TwitterML)
+
+## Running the program
+    cd src
+    ./collect_train.sh
+
 
 ## Collection
 
