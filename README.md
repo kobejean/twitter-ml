@@ -4,6 +4,11 @@ master: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?br
 
 develop: [![Build Status](https://travis-ci.org/kobejean/TwitterPrediction.svg?branch=develop)](https://travis-ci.org/kobejean/TwitterPrediction)
 
+## Running the program
+    cd src
+    ./collect_train.sh
+
+
 ## Collection
 
 ###### DataHandler
