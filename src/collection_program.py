@@ -1,17 +1,17 @@
 from datetime import datetime, timedelta
 import os
 
-from context import ttrends
-from ttrends.collection.data_handler import DataHandler
-from ttrends.collection.data_collector import DataCollector
-from ttrends.collection.stream_transformer import *
-from ttrends.collection.auth_info import * # where api access information is stored
+from context import tml
+from tml.collection.data_handler import DataHandler
+from tml.collection.data_collector import DataCollector
+from tml.collection.stream_transformer import *
+from tml.collection.auth_info import * # where api access information is stored
 
 collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
 collector.authenticate()
 
 filters = input("ENTER FILTER: ")
-sample_size = int(input("ENTER COLLECT COUNT: "))
+sample_size = int(input("ENTER SAMPLE SIZE: "))
 hours = float(input("ENTER DURATION IN HOURS: "))
 
 # calculate duration
