@@ -1,5 +1,6 @@
 test_data_out.csv
 tests/data/*STREAM.csv
+src/data/archive
 __pycache__
 AuthInfo_kobejean.py
 auth_info_kobejean.py
