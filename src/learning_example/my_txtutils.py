@@ -16,9 +16,10 @@
 import numpy as np
 import glob
 import sys
+import re
 
 # size of the alphabet that we work with
-ALPHASIZE = 98
+ALPHASIZE = 99
 
 
 # Specification of the supported alphabet (subset of ASCII-7)
@@ -39,6 +40,8 @@ def convert_from_alphabet(a):
         return 127 - 30  # LF
     elif 32 <= a <= 126:
         return a - 30
+    elif a == 165:
+        return 128 - 30 # ¥
     else:
         return 0  # unknown
 
@@ -59,6 +62,8 @@ def convert_to_alphabet(c, avoid_tab_and_lf=False):
         return 32 if avoid_tab_and_lf else 9  # space instead of TAB
     if c == 127 - 30:
         return 92 if avoid_tab_and_lf else 10  # \ instead of LF
+    if c == 128 - 30:
+        return 165 # ¥
     if 32 <= c + 30 <= 126:
         return c + 30
     else:
@@ -70,6 +75,8 @@ def encode_text(s):
     :param s: a text string
     :return: encoded list of code points
     """
+    # s = re.sub('¥', '', s, re.MULTILINE)
+    # s = re.sub('https\:\/\/t\.co\/.{10}', '¥', s, re.MULTILINE)
     return list(map(lambda a: convert_from_alphabet(ord(a)), s))
 
 
@@ -79,7 +86,10 @@ def decode_to_text(c, avoid_tab_and_lf=False):
     :param avoid_tab_and_lf: if True, tab and line feed characters are replaced by '\'
     :return:
     """
-    return "".join(map(lambda a: chr(convert_to_alphabet(a, avoid_tab_and_lf)), c))
+    s = "".join(map(lambda a: chr(convert_to_alphabet(a, avoid_tab_and_lf)), c))
+    if not avoid_tab_and_lf:
+        s = re.sub('¥', 'https://t.co/XXXXXXXXXX', s, re.MULTILINE)
+    return s
 
 
 def sample_from_probabilities(probabilities, topn=ALPHASIZE):

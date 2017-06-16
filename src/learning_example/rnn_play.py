@@ -27,18 +27,18 @@ meta_graph_path = latest_checkpoint_path + ".meta"
 # these must match what was saved !
 ALPHASIZE = my_txtutils.ALPHASIZE
 NLAYERS = 3
-INTERNALSIZE = 512
+INTERNALSIZE = 1024
 
 # use topn=10 for all but the last which works with topn=2 for Shakespeare and topn=3 for Python
 author = latest_checkpoint_path
 
-def play(count=1000000000, topn=2):
+def play(count=1000000000, topn=ALPHASIZE):
     ncnt = 0
     with tf.Session() as sess:
         # new_saver = tf.train.import_meta_graph('./rnn_test_minibatchseq_1477670023-174939000.meta')
         new_saver = tf.train.import_meta_graph(meta_graph_path)
         new_saver.restore(sess, author)
-        x = my_txtutils.convert_from_alphabet(ord("K"))
+        x = my_txtutils.convert_from_alphabet(ord("\n"))
         x = np.array([[x]])  # shape [BATCHSIZE, SEQLEN] with BATCHSIZE=1 and SEQLEN=1
 
         # initial values
@@ -62,9 +62,9 @@ def play(count=1000000000, topn=2):
                 ncnt = 0
             else:
                 ncnt += 1
-            if ncnt == 100:
-                print("")
-                ncnt = 0
+            # if ncnt == 100:
+            #     print("")
+            #     ncnt = 0
 
 if __name__ == "__main__":
-    play()
+    play(topn=ALPHASIZE)

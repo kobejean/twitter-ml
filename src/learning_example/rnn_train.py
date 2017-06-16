@@ -37,10 +37,10 @@ tf.set_random_seed(0)
 #         To see the curves drift apart ("overfitting") try to use an insufficient amount of
 #         training data (shakedir = "shakespeare/t*.txt" for example)
 #
-SEQLEN = 30
+SEQLEN = 60
 BATCHSIZE = 100
 ALPHASIZE = txt.ALPHASIZE
-INTERNALSIZE = 512
+INTERNALSIZE = 1024#512
 NLAYERS = 3
 learning_rate = 0.001  # fixed learning rate
 dropout_pkeep = 1.0    # no dropout
@@ -49,9 +49,9 @@ dropout_pkeep = 1.0    # no dropout
 abs_path = os.path.abspath(os.path.dirname(__file__))
 checkpoints_path = os.path.join(abs_path, "checkpoints")
 log_path = os.path.join(abs_path, "log")
-spacex_path = os.path.join(abs_path, "spacex")
-spacex_files = os.path.join(spacex_path, "*.txt")
-codetext, valitext, bookranges = txt.read_data_files(spacex_files, validation=True)
+text_path = os.path.join(abs_path, "the")
+text_files = os.path.join(text_path, "*.txt")
+codetext, valitext, bookranges = txt.read_data_files(text_files, validation=True)
 
 # display some stats on the data
 epoch_size = len(codetext) // (BATCHSIZE * SEQLEN)
@@ -170,7 +170,7 @@ for x, y_, epoch in txt.rnn_minibatch_sequencer(codetext, BATCHSIZE, SEQLEN, nb_
     # display a short text generated with the current weights and biases (every 150 batches)
     if step // 3 % _50_BATCHES == 0:
         txt.print_text_generation_header()
-        ry = np.array([[txt.convert_from_alphabet(ord("K"))]])
+        ry = np.array([[txt.convert_from_alphabet(ord("\n"))]])
         rh = np.zeros([1, INTERNALSIZE * NLAYERS])
         for k in range(1000):
             ryo, rh = sess.run([Yo, H], feed_dict={X: ry, pkeep: 1.0, Hin: rh, batchsize: 1})
