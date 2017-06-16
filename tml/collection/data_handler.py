@@ -176,7 +176,7 @@ class DataHandler(object):
     #   PARAPERTERS:
     #       entry - a dictionary of key/values
     """
-    def display_entry(self, entry):
+    def display_entry(self, entry, show_extras=True):
         """Prints an entry out with colors. """
         # print in the order of csv_format
         for key in self.csv_format:
@@ -184,9 +184,10 @@ class DataHandler(object):
             text = key_text + str(entry.get(key, None))
             print(text)
 
-        # print key/value pairs not included in csv_format
-        neglected_keys = entry.keys() - set(self.csv_format)
-        for key in neglected_keys:
-            key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
-            text = key_text + str(entry.get(key, None))
-            print(text)
+        if show_extras:
+            # print key/value pairs not included in csv_format
+            neglected_keys = entry.keys() - set(self.csv_format)
+            for key in neglected_keys:
+                key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
+                text = key_text + str(entry.get(key, None))
+                print(text)
