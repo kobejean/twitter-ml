@@ -7,12 +7,22 @@ from tml.collection.data_collector import DataCollector
 from tml.collection.stream_transformer import *
 from tml.collection.auth_info import * # where api access information is stored
 
-collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
-collector.authenticate()
+TEST_MODE = True
 
-filters = input("ENTER FILTER: ")
-sample_size = int(input("ENTER SAMPLE SIZE: "))
-hours = float(input("ENTER DURATION IN HOURS: "))
+st_types = [(0, FUCTStreamTransformer, "FUCTStreamTransformer"),
+            (1, FHCTStreamTransformer, "FHCTStreamTransformer"),
+            (2, EngTextStreamTransformer, "EngTextStreamTransformer")]
+
+# inputs
+print("PICK STREAM TRANSFORMER TYPE:")
+for num, _, name in st_types:
+    print("    ", num, name)
+st_num = int(input("ENTER CORRESPONDING NUMBER: ")) if not TEST_MODE else 2
+filters_str = input("ENTER FILTER: ")               if not TEST_MODE else "the"
+sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 500000
+hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 100
+# trim_size = int(input("ENTER TRIM SIZE: "))         if not TEST_MODE else 500000
+buffer_size = int(input("ENTER BUFFER SIZE: "))     if not TEST_MODE else 10000
 
 # calculate duration
 d = int(hours / 24)
@@ -21,29 +31,32 @@ m = int(hours % 1 * 60)
 s = int(hours * 60 % 1 * 60)
 print("DURATION: ", d, "days", h, "hours", m, "minutes", s, "seconds")
 duration = timedelta(days=d, hours=h, minutes=m, seconds=s)
-
-trim_size = int(input("ENTER TRIM SIZE: "))
-period = int(input("ENTER PERIOD: "))
-
+# get chosen stream transformer class
+ChosenStreamTransformer = st_types[st_num][1]
+# determine file path
 abspath = os.path.abspath(os.path.dirname(__file__))
 datapath = os.path.join(abspath, "data")
-filename = filters.upper() + " STREAM.csv"
-filepath = os.path.join(datapath, filename)
-print("FILE PATH: " + filepath)
-
-stream_transformer = FUCTStreamTransformer()
-stream_transformer.filepath = filepath
-stream_transformer.sample_size = sample_size
-stream_transformer.duration = duration
-stream_transformer.trim_size = trim_size
-stream_transformer.period = period
-stream_transformer.read_data()
-
+file_name = ("" if not TEST_MODE else "TEST ") + filters_str.upper() + " STREAM.csv"
+file_path = os.path.join(datapath, file_name)
+print("FILE PATH: " + file_path)
 # convert comma separated filters into list
-filters = filters.split(",")
+filters = filters_str.split(",")
 print("FILTERS: " + str(filters))
-collector.stream(filters, stream_transformer)
+
+# set up stream transformer
+st = ChosenStreamTransformer()
+st.file_path = file_path
+st.sample_size = sample_size
+st.duration = duration
+# st.trim_size = trim_size
+st.buffer_size = buffer_size
+st.read_data()
+
+# set up collector
+collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
+collector.authenticate()
+collector.stream(filters, st)
 
 show_data = input("WOULD YOU LIKE TO SEE THE DATA? (Y/N): ")
 if show_data.upper() == "Y":
-    stream_transformer.dat_hand.display()
+    st.display_data()
