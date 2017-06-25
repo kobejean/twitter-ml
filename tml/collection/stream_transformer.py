@@ -249,7 +249,7 @@ class StreamTransformer(StreamListener):
 
             # print entry
             print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
-            self.display_entry(entry, show_extras=False)
+            self.display_entry(entry, show_extras=True)
             # print(feed_data_dict)
 
             # check if time is up
@@ -259,7 +259,7 @@ class StreamTransformer(StreamListener):
 
             # check if collected all
             last_entry = float('inf') if self.sample_size == None else self.sample_size
-            collected_all = self.entry_count() >= last_entry
+            collected_all = len(self.data) >= last_entry
 
             def clean_write():
                 self.clean_data()
@@ -269,7 +269,9 @@ class StreamTransformer(StreamListener):
             if collected_all or time_is_up:
                 self.data += self.buffer_data
                 self.buffer_data = []
-                clean_write()
+                self.clean_data()
+                self.data = self.data[:last_entry]
+                self.write_data()
                 print("STREAM STOPPED")
                 return False # stops stream
 
@@ -466,7 +468,7 @@ class EngTextStreamTransformer(StreamTransformer):
             if mi and mi[0] >= tr[0] and mi[1] <= tr[1]:
                 replace_ranges.append((mi[0],mi[1],"¨"))
 
-        replace_ranges.sort()
+        # replace_ranges.sort()
 
         entry = None
         if lang == "en" and text:
@@ -493,7 +495,8 @@ class EngTextStreamTransformer(StreamTransformer):
         new_text = set([])
         for entry in self.data:
             orig_text = entry.get("text", None)
-            replace_ranges = entry.get("replace_ranges", None)
+            replace_ranges = entry.get("replace_ranges", [])
+            replace_ranges.sort()
             tr = entry.get("display_text_range", [0, len(orig_text)])
             should_add = True
             text = ""

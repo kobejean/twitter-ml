@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+import time
 
 from context import tml
 from tml.collection.data_handler import DataHandler
@@ -19,8 +20,8 @@ for num, _, name in st_types:
     print("    ", num, name)
 st_num = int(input("ENTER CORRESPONDING NUMBER: ")) if not TEST_MODE else 2
 filters_str = input("ENTER FILTER: ")               if not TEST_MODE else "the"
-sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 500000
-hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 100
+sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 2000000
+hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 24
 # trim_size = int(input("ENTER TRIM SIZE: "))         if not TEST_MODE else 500000
 buffer_size = int(input("ENTER BUFFER SIZE: "))     if not TEST_MODE else 10000
 
@@ -52,11 +53,32 @@ st.duration = duration
 st.buffer_size = buffer_size
 st.read_data()
 
-# set up collector
-collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
-collector.authenticate()
-collector.stream(filters, st)
+# def isTimeUp(st):
+#     # check if time is up
+#     now = datetime.now()
+#     end_time = datetime.max if st.duration == None else st.start_time + st.duration
+#     return now > end_time
+try_again = True
+while(try_again):
+    try:
+        # set up collector
+        collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
+        collector.authenticate()
+        collector.stream(filters, st)
+    except Exception as e:
+        print(e)
+        st.data += st.buffer_data
+        print("SAVING CURRENT BUFFER...")
+        st.clean_data()
+        st.write_data()
+        print("TRY AGAIN IN 1MIN...")
+        time.sleep(60)
+    else:
+        if not len(st.data) < st.sample_size:
+            try_again = False
+
+
 
 show_data = input("WOULD YOU LIKE TO SEE THE DATA? (Y/N): ")
-if show_data.upper() == "Y":
+if show_data.upper().strip() == "Y":
     st.display_data()
