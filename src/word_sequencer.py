@@ -7,7 +7,7 @@ from tml.utils.text_preprocessing import *
 TEST_MODE = False
 
 WORD_SIZE = 10000
-SEQ_SIZE = 11
+SEQ_SIZE = 5
 
 # paths
 file_name = "THE STREAM"                if not TEST_MODE else "TEST THE STREAM"

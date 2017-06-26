@@ -4,6 +4,7 @@ tests/data/*STREAM.csv
 *.index
 *.meta
 src/data/archive
+src/log
 src/learning_example/archive
 __pycache__
 AuthInfo_kobejean.py

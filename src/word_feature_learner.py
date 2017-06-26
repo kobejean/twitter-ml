@@ -8,16 +8,16 @@ from context import tml
 from tml.utils.ansi import ANSI
 from tml.utils.text_preprocessing import *
 
-TEST_MODE = True
+TEST_MODE = False
 
 
 BATCH_SIZE = 100
 WORD_SIZE = 10000
-SEQ_SIZE = 11
+SEQ_SIZE = 5
 H1_SIZE = 200
 H2_SIZE = 100#200 * SEQ_SIZE
 LR = 0.003 # learning rate
-VAL_PERIOD = 50
+VAL_PERIOD = 100
 CHECKPOINT_PERIOD = 100
 
 # paths
@@ -29,11 +29,12 @@ sequence_path = os.path.join(data_path, file_name + " SEQUENCE.csv")
 vocab_path = os.path.join(data_path, file_name + " VOCAB.csv")
 vocab_tsv_path = os.path.join(data_path, file_name + " VOCAB.tsv ")
 probs_path = os.path.join(data_path, file_name + " PROBS.csv")
-log_path = os.path.join(abs_path, "log/4/")
+log_path = os.path.join(abs_path, "log/1/")
 
 timestamp = str(math.trunc(time.time()))
 PREFIX = "bs_{}-lr_{}-ws_{}-h1_{}-h2_{}-seq_{}-{}"\
     .format(BATCH_SIZE,LR,WORD_SIZE,H1_SIZE,H2_SIZE,SEQ_SIZE, timestamp)
+
 
 # generates the batch given the sequence reader
 def batch_generator(seqs_reader, probs, n):
@@ -41,6 +42,8 @@ def batch_generator(seqs_reader, probs, n):
     while True:
         indices = np.array(list(islice(i, n)))
         size = indices.shape[0]
+        # indices = list(islice(i, n))
+        # size = len(indices)
         Y_ = [[1,0]] * size # all default true
         for j in range(size):
             if bool(random.getrandbits(1)):
@@ -51,6 +54,7 @@ def batch_generator(seqs_reader, probs, n):
         Y_ = np.array(Y_)
 
         if indices.size > 0:
+        # if len(indices) > 0:
             yield {"indices":indices, "Y_":Y_, "n":size}
         else: break
 
@@ -60,7 +64,6 @@ with open(sequence_path, "r") as file:
     seqs_reader = sequences_reader_from_file_reader(file)
     vocab = read_vocab(vocab_path)
     probs = read_probs(probs_path)
-    texts_reader = sequences_to_texts(seqs_reader, vocab)
     batch_gen = batch_generator(seqs_reader, probs, BATCH_SIZE)
 
 
@@ -104,18 +107,20 @@ with open(sequence_path, "r") as file:
         # [n,2]
         Y = tf.nn.softmax(Ylogits, name="Output")
 
-    # cross entropy (scalar)
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=Ylogits, labels=Y_)
-    cross_entropy = tf.reduce_mean(cross_entropy)
+    with tf.name_scope('Stats') as scope:
+        # cross entropy (scalar)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=Ylogits, labels=Y_, name="Cross_Entropy")
+        cross_entropy = tf.reduce_mean(cross_entropy, name="Ave_Cross_Entropy")
+        # accuracy of the trained model, between 0 (worst) and 1 (best)
+        correct_prediction = tf.equal(tf.argmax(Y, 1), tf.argmax(Y_, 1), name="Accuracy")
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name="Ave_Accuracy")
 
-    # training step
-    train_step = tf.train.AdamOptimizer(LR).minimize(cross_entropy)
-
-    # accuracy of the trained model, between 0 (worst) and 1 (best)
-    correct_prediction = tf.equal(tf.argmax(Y, 1), tf.argmax(Y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    with tf.name_scope('Training_Step') as scope:
+        # training step
+        train_step = tf.train.AdamOptimizer(LR).minimize(cross_entropy)
 
 
+    print("STARTING SESSION...")
     with tf.Session() as sess:
         # tensorboard stuff
         summary_writer = tf.summary.FileWriter(log_path + "{}-training".format(PREFIX))
@@ -165,29 +170,46 @@ with open(sequence_path, "r") as file:
 
         sess.run(init)
 
+        for epoch in range(1,1000):
+            for i, batch in enumerate(batch_gen):
+                batch_num = i+1
+                # validation
+                if batch_num % VAL_PERIOD == 0:
+                    feed_dict = {
+                        indices: validation_set["indices"],
+                        Y_: validation_set["Y_"],
+                        n: validation_set["n"]}
 
-        for i, batch in enumerate(batch_gen):
-            if i % VAL_PERIOD == 0:
+                    a, c, smm, y = sess.run([accuracy, cross_entropy, val_summaries, Y], feed_dict=feed_dict)
+                    validation_writer.add_summary(smm, epoch*i*BATCH_SIZE)
+
+                    print("OUTPUT SAMPLE:")
+                    for j in range(min(validation_set["n"], 50)):
+                        sub_seq = [validation_set["indices"].tolist()[j]]
+                        true_value = validation_set["Y_"].tolist()[j]
+                        text = [t for t in sequences_to_texts(sub_seq, vocab)][0]
+                        print_message = "TEXT: {0:40s} TRUE VAL: {1} GUESS: {2}"\
+                            .format(text, true_value, y[j])
+                        print(print_message)
+
+                    print("VALIDATION:{0:5d} ACCURACY:{1:7.4f} LOSS:{2:7.4f}"\
+                            .format((epoch*batch_num)//VAL_PERIOD,a,c))
+
+
+                # forward pass
                 feed_dict = {
-                    indices: validation_set["indices"],
-                    Y_: validation_set["Y_"],
-                    n: validation_set["n"]}
+                    indices: batch["indices"],
+                    Y_: batch["Y_"],
+                    n: batch["n"]}
 
-                a, c, smm, y = sess.run([accuracy, cross_entropy, val_summaries, Y], feed_dict=feed_dict)
-                validation_writer.add_summary(smm, i * BATCH_SIZE)
-                print("VALIDATION #" + str(i//VAL_PERIOD) + ": accuracy:" + str(a) + " loss: " + str(c))
-                print("OUTPUT:" + str(y))
+                a, c, smm = sess.run([accuracy, cross_entropy, summaries], feed_dict=feed_dict)
+                summary_writer.add_summary(smm, epoch*i*BATCH_SIZE + batch["n"])
+                print("EPOCH:{0:3d} BATCH:{1:7d} ACCURACY:{2:8.4f} LOSS:{3:8.4f}"\
+                    .format(epoch, batch_num, a, c))
 
-            feed_dict = {
-                indices: batch["indices"],
-                Y_: batch["Y_"],
-                n: batch["n"]}
+                # backprop
+                sess.run(train_step, feed_dict=feed_dict)
 
-            a, c, smm = sess.run([accuracy, cross_entropy, summaries], feed_dict=feed_dict)
-            summary_writer.add_summary(smm, i * BATCH_SIZE + batch["n"])
-            print("BATCH #" + str(i) + ": accuracy:" + str(a) + " loss: " + str(c))
-
-            sess.run(train_step, feed_dict=feed_dict)
-
-            if i % CHECKPOINT_PERIOD == 0:
-                save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX))
+                # save checkpoint
+                if i % CHECKPOINT_PERIOD == 0:
+                    save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX))
