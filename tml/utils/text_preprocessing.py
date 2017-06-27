@@ -41,6 +41,9 @@ def sequences_reader_from_file_reader(file_reader):
 def sequences_to_texts(seqs, vocab):
     return (" ".join([vocab[i] for i in seq]) for seq in seqs)
 
+# def sequence_to_words(seq, vocab):
+#     return [vocab[i] for i in seq]
+
 def write_probs(probs, filepath):
     with open(filepath, "w") as file:
         for index, prob in list(probs.items()):

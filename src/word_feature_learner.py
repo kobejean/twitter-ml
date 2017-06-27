@@ -17,8 +17,8 @@ SEQ_SIZE = 5
 H1_SIZE = 200
 H2_SIZE = 100#200 * SEQ_SIZE
 LR = 0.003 # learning rate
-VAL_PERIOD = 100
-CHECKPOINT_PERIOD = 100
+VAL_PERIOD = 200
+CHECKPOINT_PERIOD = 1000
 
 # paths
 file_name = "THE STREAM"                #if not TEST_MODE else "TEST THE STREAM"
@@ -32,7 +32,7 @@ probs_path = os.path.join(data_path, file_name + " PROBS.csv")
 log_path = os.path.join(abs_path, "log/1/")
 
 timestamp = str(math.trunc(time.time()))
-PREFIX = "bs_{}-lr_{}-ws_{}-h1_{}-h2_{}-seq_{}-{}"\
+PREFIX = "b_{}-l_{}-w_{}-h1_{}-h2_{}-s_{}-{}"\
     .format(BATCH_SIZE,LR,WORD_SIZE,H1_SIZE,H2_SIZE,SEQ_SIZE, timestamp)
 
 
@@ -61,10 +61,8 @@ def batch_generator(seqs_reader, probs, n):
 
 # read sequence and print text
 with open(sequence_path, "r") as file:
-    seqs_reader = sequences_reader_from_file_reader(file)
     vocab = read_vocab(vocab_path)
     probs = read_probs(probs_path)
-    batch_gen = batch_generator(seqs_reader, probs, BATCH_SIZE)
 
 
     with tf.name_scope('Input_Layer') as scope:
@@ -83,9 +81,10 @@ with open(sequence_path, "r") as file:
         # [WORD_SIZE, H1_SIZE]
         W1 = tf.Variable(tf.truncated_normal([WORD_SIZE, H1_SIZE], stddev=0.1), name="H1_Weights")
         # [H1_SIZE]
-        B1 = tf.Variable(tf.zeros([H1_SIZE]), name="H1_Bias")
+        # B1 = tf.Variable(tf.zeros([H1_SIZE]), name="H1_Bias")
         # [n * SEQ_SIZE, H1_SIZE]
-        YY1 = tf.nn.relu(tf.matmul(XX, W1) + B1, name="H1_Activations")
+        # YY1 = tf.nn.sigmoid(tf.matmul(XX, W1) + B1, name="H1_Activations")
+        YY1 = tf.matmul(XX, W1)
         # [n, SEQ_SIZE * H1_SIZE]
         Y1 = tf.reshape(YY1, shape=[n, SEQ_SIZE * H1_SIZE], name="Reshaped_H1_Activations")
 
@@ -119,6 +118,12 @@ with open(sequence_path, "r") as file:
         # training step
         train_step = tf.train.AdamOptimizer(LR).minimize(cross_entropy)
 
+    # with tf.name_scope("AAA") as scope: # Named AAA so that it would show at the top
+    #     # ones = tf.ones([WORD_SIZE,WORD_SIZE], dtype=tf.float32)
+    #     word_activations = tf.nn.relu(W1 + B1, name="Word_Activations")
+    #     word_embedding = tf.Variable(tf.zeros([WORD_SIZE,H1_SIZE]), name="Word_Embedding")
+    #     assign_word_embedding = tf.assign(word_embedding, word_activations)
+
 
     print("STARTING SESSION...")
     with tf.Session() as sess:
@@ -127,30 +132,20 @@ with open(sequence_path, "r") as file:
         validation_writer = tf.summary.FileWriter(log_path + "{}-validation".format(PREFIX), sess.graph)
 
         W1_summary = tf.summary.histogram("W1", W1)
-        B1_summary = tf.summary.histogram("B1", B1)
+        # B1_summary = tf.summary.histogram("B1", B1)
         W2_summary = tf.summary.histogram("W2", W2)
         B2_summary = tf.summary.histogram("B2", B2)
         W3_summary = tf.summary.histogram("W3", W3)
         B3_summary = tf.summary.histogram("B3", B3)
-        XX_summary = tf.summary.histogram("XX", XX)
-        YY1_summary = tf.summary.histogram("YY1", YY1)
+        # XX_summary = tf.summary.histogram("XX", XX)
+        # YY1_summary = tf.summary.histogram("YY1", YY1)
 
         loss_summary = tf.summary.scalar("batch_loss", cross_entropy)
         acc_summary = tf.summary.scalar("batch_accuracy", accuracy)
         summaries = tf.summary.merge([loss_summary, acc_summary])
         val_summaries = tf.summary.merge([
-            loss_summary, acc_summary, W1_summary, B1_summary, W2_summary, B2_summary,
-            W3_summary, B3_summary, XX_summary, YY1_summary])
-
-        # create test and validation sets
-        test_set = [next(batch_gen) for i in range(100)]
-        test_set = {"indices": np.vstack([b["indices"] for b in test_set]),
-                    "Y_": np.vstack([b["Y_"] for b in test_set]),
-                    "n": sum([b["n"] for b in test_set])}
-        validation_set = [next(batch_gen) for i in range(50)]
-        validation_set = {  "indices": np.vstack([b["indices"] for b in validation_set]),
-                            "Y_": np.vstack([b["Y_"] for b in validation_set]),
-                            "n": sum([b["n"] for b in validation_set])}
+            loss_summary, acc_summary, W1_summary, W2_summary, B2_summary,
+            W3_summary, B3_summary])#, XX_summary, YY1_summary])
 
         init = tf.global_variables_initializer()
 
@@ -164,6 +159,7 @@ with open(sequence_path, "r") as file:
 
         # The next line writes a projector_config.pbtxt in the LOG_DIR. TensorBoard will
         # read this file during startup.
+        projector.visualize_embeddings(summary_writer, config)
         projector.visualize_embeddings(validation_writer, config)
 
         saver = tf.train.Saver()
@@ -171,6 +167,18 @@ with open(sequence_path, "r") as file:
         sess.run(init)
 
         for epoch in range(1,1000):
+            seqs_reader = sequences_reader_from_file_reader(file)
+            batch_gen = batch_generator(seqs_reader, probs, BATCH_SIZE)
+            # create test and validation sets
+            test_set = [next(batch_gen) for i in range(100)]
+            test_set = {"indices": np.vstack([b["indices"] for b in test_set]),
+                        "Y_": np.vstack([b["Y_"] for b in test_set]),
+                        "n": sum([b["n"] for b in test_set])}
+            validation_set = [next(batch_gen) for i in range(50)]
+            validation_set = {  "indices": np.vstack([b["indices"] for b in validation_set]),
+                                "Y_": np.vstack([b["Y_"] for b in validation_set]),
+                                "n": sum([b["n"] for b in validation_set])}
+
             for i, batch in enumerate(batch_gen):
                 batch_num = i+1
                 # validation
@@ -185,11 +193,21 @@ with open(sequence_path, "r") as file:
 
                     print("OUTPUT SAMPLE:")
                     for j in range(min(validation_set["n"], 50)):
-                        sub_seq = [validation_set["indices"].tolist()[j]]
-                        true_value = validation_set["Y_"].tolist()[j]
-                        text = [t for t in sequences_to_texts(sub_seq, vocab)][0]
-                        print_message = "TEXT: {0:40s} TRUE VAL: {1} GUESS: {2}"\
-                            .format(text, true_value, y[j])
+                        seq = validation_set["indices"].tolist()[j]
+                        actual_value = validation_set["Y_"].tolist()[j]
+                        actual_value = (bool(actual_value[0]) and not bool(actual_value[1])) # T:[1,0] F:[0,1]
+                        guess = [round(g) for g in y[j]]
+                        guess = (bool(guess[0]) and not bool(guess[1])) # T:[1,0] F:[0,1]
+                        confidence = (float(y[j][0]) if guess else float(y[j][1])) * 100
+                        text = ""
+                        for k, l in enumerate(seq):
+                            text += " " if k > 0 else ""
+                            if k == SEQ_SIZE//2:
+                                text += (ANSI.GREEN if actual_value else ANSI.RED) + vocab[l] + ANSI.ENDC
+                            else:
+                                text += vocab[l]
+                        print_message = "TEXT: {0:50s} ACTUAL VALUE: {1:6s} GUESS: {2:6s} CONFIDENCE: {3:3.2f}%"\
+                            .format(text, str(actual_value), str(guess), confidence)
                         print(print_message)
 
                     print("VALIDATION:{0:5d} ACCURACY:{1:7.4f} LOSS:{2:7.4f}"\
@@ -212,4 +230,5 @@ with open(sequence_path, "r") as file:
 
                 # save checkpoint
                 if i % CHECKPOINT_PERIOD == 0:
+                    # sess.run(assign_word_embedding)
                     save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX))
