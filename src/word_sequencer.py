@@ -42,10 +42,10 @@ tk = Tokenizer(
 tk.fit_on_texts(texts)
 
 # create dicts
-vocab = dict([(v,k) for k,v in tk.word_index.items()])
+vocab = dict([(v-1,k) for k,v in tk.word_index.items()])
 # for normalizing probability distribution so they add up to 1
 word_count_sum = sum(sorted([v for k,v in tk.word_counts.items()], reverse=True)[:WORD_SIZE])
-probs = dict(sorted([(tk.word_index[k], float(v) / float(word_count_sum)) \
+probs = dict(sorted([(tk.word_index[k]-1, float(v) / float(word_count_sum)) \
                 for k,v in tk.word_counts.items()])[:WORD_SIZE])
 
 ################################################################################

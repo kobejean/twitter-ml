@@ -18,7 +18,7 @@ H1_SIZE = 200
 H2_SIZE = 100#200 * SEQ_SIZE
 LR = 0.003 # learning rate
 VAL_PERIOD = 200
-CHECKPOINT_PERIOD = 5000
+CHECKPOINT_PERIOD = 500
 RESTORE_SESSION = False
 
 # paths
@@ -31,8 +31,8 @@ vocab_path = os.path.join(data_path, file_name + " VOCAB.csv")
 vocab_tsv_path = os.path.join(data_path, file_name + " VOCAB.tsv ")
 probs_path = os.path.join(data_path, file_name + " PROBS.csv")
 log_path = os.path.join(abs_path, "log/1/")
-meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt.meta")
-# meta_graph_path = tf.train.latest_checkpoint(log_path)
+# meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt")
+meta_graph_path = tf.train.latest_checkpoint(log_path)
 
 timestamp = str(math.trunc(time.time()))
 PREFIX = "b_{}-l_{}-w_{}-h1_{}-h2_{}-s_{}-{}"\
@@ -66,24 +66,25 @@ with tf.name_scope('Input_Layer') as scope:
     n = tf.placeholder(tf.int32) # current batch size
     indices = tf.placeholder(tf.int32, shape=[None, SEQ_SIZE],
         name="Indices")                        # [n, SEQ_SIZE]
-    Xo = tf.one_hot(indices, WORD_SIZE, dtype=tf.float32,
-        name="Inputs")                         # [n, SEQ_SIZE, WORD_SIZE]
+    # Xo = tf.one_hot(indices, WORD_SIZE, dtype=tf.float32,
+    #     name="Inputs")                         # [n, SEQ_SIZE, WORD_SIZE]
 
     # correct answers will go here
     Y_ = tf.placeholder(tf.float32, [None, 2]) # [n, 2] 2 classifications T/F
 
-    XX = tf.reshape(Xo, shape=[n * SEQ_SIZE, WORD_SIZE], name="Reshaped_Input") # [n * SEQ_SIZE, WORD_SIZE]
+    flat_indices = tf.reshape(indices, shape=[n * SEQ_SIZE], name="Reshaped_Indices") # [n * SEQ_SIZE, WORD_SIZE]
 
 with tf.name_scope('H1_Layer') as scope:
     # [WORD_SIZE, H1_SIZE]
-    W1 = tf.Variable(tf.truncated_normal([WORD_SIZE, H1_SIZE], stddev=0.1), name="H1_Weights")
+    word_embeddings = tf.Variable(tf.random_uniform([WORD_SIZE, H1_SIZE], -1.0, 1.0), name="H1_Word_Embeddings")
     # [H1_SIZE]
     # B1 = tf.Variable(tf.zeros([H1_SIZE]), name="H1_Bias")
     # [n * SEQ_SIZE, H1_SIZE]
     # YY1 = tf.nn.sigmoid(tf.matmul(XX, W1) + B1, name="H1_Activations")
-    YY1 = tf.matmul(XX, W1)
+    # YY1 = tf.matmul(XX, W1)
     # [n, SEQ_SIZE * H1_SIZE]
-    Y1 = tf.reshape(YY1, shape=[n, SEQ_SIZE * H1_SIZE], name="Reshaped_H1_Activations")
+    Y1 = tf.nn.embedding_lookup(word_embeddings, flat_indices, name="H1_Activations")
+    Y1 = tf.reshape(Y1, shape=[n, SEQ_SIZE * H1_SIZE], name="Reshaped_H1_Activations")
 
 with tf.name_scope('H2_Layer') as scope:
     # [SEQ_SIZE * H1_SIZE, H2_SIZE]
@@ -129,7 +130,7 @@ with tf.Session() as sess:
     summary_writer = tf.summary.FileWriter(log_path + "{}-training".format(PREFIX))
     validation_writer = tf.summary.FileWriter(log_path + "{}-validation".format(PREFIX), sess.graph)
 
-    W1_summary = tf.summary.histogram("W1", W1)
+    word_embeddings_summary = tf.summary.histogram("word_embeddings", word_embeddings)
     # B1_summary = tf.summary.histogram("B1", B1)
     W2_summary = tf.summary.histogram("W2", W2)
     B2_summary = tf.summary.histogram("B2", B2)
@@ -142,7 +143,7 @@ with tf.Session() as sess:
     acc_summary = tf.summary.scalar("batch_accuracy", accuracy)
     summaries = tf.summary.merge([loss_summary, acc_summary])
     val_summaries = tf.summary.merge([
-        loss_summary, acc_summary, W1_summary, W2_summary, B2_summary,
+        loss_summary, acc_summary, word_embeddings_summary, W2_summary, B2_summary,
         W3_summary, B3_summary])#, XX_summary, YY1_summary])
 
     init = tf.global_variables_initializer()
@@ -152,7 +153,7 @@ with tf.Session() as sess:
 
     # You can add multiple embeddings. Here we add only one.
     embedding = config.embeddings.add()
-    embedding.tensor_name = W1.name
+    embedding.tensor_name = word_embeddings.name
     # Link this tensor to its metadata file (e.g. labels).
     embedding.metadata_path = vocab_tsv_path
 
@@ -172,7 +173,7 @@ with tf.Session() as sess:
 
     global_step = 0
 
-    for epoch in range(1,1000):
+    for epoch in range(1000):
         with open(sequence_path, "r") as file:
             vocab = read_vocab(vocab_path)
             probs = read_probs(probs_path)
@@ -190,9 +191,8 @@ with tf.Session() as sess:
 
             for i, batch in enumerate(batch_gen):
                 global_step += batch["n"]
-                batch_num = i+1
                 # validation
-                if batch_num % VAL_PERIOD == 0:
+                if (i+1) % VAL_PERIOD == 0:
                     feed_dict = {
                         indices: validation_set["indices"],
                         Y_: validation_set["Y_"],
@@ -220,8 +220,8 @@ with tf.Session() as sess:
                             .format(text, str(actual_value), str(guess), confidence)
                         print(print_message)
 
-                    print("VALIDATION:{0:5d} ACCURACY:{1:7.4f} LOSS:{2:7.4f}"\
-                            .format((epoch*batch_num)//VAL_PERIOD,a,c))
+                    print("VALIDATION: ACCURACY:{0:7.4f} LOSS:{1:7.4f}"\
+                            .format(a,c))
 
 
                 # forward pass
@@ -233,13 +233,13 @@ with tf.Session() as sess:
                 a, c, smm = sess.run([accuracy, cross_entropy, summaries], feed_dict=feed_dict)
                 summary_writer.add_summary(smm, global_step)
                 print("EPOCH:{0:3d} BATCH:{1:7d} ACCURACY:{2:8.4f} LOSS:{3:8.4f}"\
-                    .format(epoch, batch_num, a, c))
+                    .format(epoch, i, a, c))
 
                 # backprop
                 sess.run(train_step, feed_dict=feed_dict)
 
                 # save checkpoint
-                if i % CHECKPOINT_PERIOD == 0:
+                if (i+1) % CHECKPOINT_PERIOD == 0:
                     # sess.run(assign_word_embedding)
-                    save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX), global_step=global_step)
+                    save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX))#, global_step=global_step)
                     print(save_path)
