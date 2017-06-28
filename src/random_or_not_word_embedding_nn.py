@@ -45,8 +45,6 @@ def batch_generator(seqs_reader, probs, n):
     while True:
         indices = np.array(list(islice(i, n)))
         size = indices.shape[0]
-        # indices = list(islice(i, n))
-        # size = len(indices)
         Y_ = [[1,0]] * size # all default true
         for j in range(size):
             if bool(random.getrandbits(1)):
@@ -57,7 +55,6 @@ def batch_generator(seqs_reader, probs, n):
         Y_ = np.array(Y_)
 
         if indices.size > 0:
-        # if len(indices) > 0:
             yield {"indices":indices, "Y_":Y_, "n":size}
         else: break
 
@@ -66,8 +63,6 @@ with tf.name_scope('Input_Layer') as scope:
     n = tf.placeholder(tf.int32) # current batch size
     indices = tf.placeholder(tf.int32, shape=[None, SEQ_SIZE],
         name="Indices")                        # [n, SEQ_SIZE]
-    # Xo = tf.one_hot(indices, WORD_SIZE, dtype=tf.float32,
-    #     name="Inputs")                         # [n, SEQ_SIZE, WORD_SIZE]
 
     # correct answers will go here
     Y_ = tf.placeholder(tf.float32, [None, 2]) # [n, 2] 2 classifications T/F
@@ -77,11 +72,6 @@ with tf.name_scope('Input_Layer') as scope:
 with tf.name_scope('H1_Layer') as scope:
     # [WORD_SIZE, H1_SIZE]
     word_embeddings = tf.Variable(tf.random_uniform([WORD_SIZE, H1_SIZE], -1.0, 1.0), name="H1_Word_Embeddings")
-    # [H1_SIZE]
-    # B1 = tf.Variable(tf.zeros([H1_SIZE]), name="H1_Bias")
-    # [n * SEQ_SIZE, H1_SIZE]
-    # YY1 = tf.nn.sigmoid(tf.matmul(XX, W1) + B1, name="H1_Activations")
-    # YY1 = tf.matmul(XX, W1)
     # [n, SEQ_SIZE * H1_SIZE]
     Y1 = tf.nn.embedding_lookup(word_embeddings, flat_indices, name="H1_Activations")
     Y1 = tf.reshape(Y1, shape=[n, SEQ_SIZE * H1_SIZE], name="Reshaped_H1_Activations")
@@ -116,13 +106,6 @@ with tf.name_scope('Training_Step') as scope:
     # training step
     train_step = tf.train.AdamOptimizer(LR).minimize(cross_entropy)
 
-# with tf.name_scope("AAA") as scope: # Named AAA so that it would show at the top
-#     # ones = tf.ones([WORD_SIZE,WORD_SIZE], dtype=tf.float32)
-#     word_activations = tf.nn.relu(W1 + B1, name="Word_Activations")
-#     word_embedding = tf.Variable(tf.zeros([WORD_SIZE,H1_SIZE]), name="Word_Embedding")
-#     assign_word_embedding = tf.assign(word_embedding, word_activations)
-
-# read sequence and print text
 
 print("STARTING SESSION...")
 with tf.Session() as sess:
@@ -131,20 +114,17 @@ with tf.Session() as sess:
     validation_writer = tf.summary.FileWriter(log_path + "{}-validation".format(PREFIX), sess.graph)
 
     word_embeddings_summary = tf.summary.histogram("word_embeddings", word_embeddings)
-    # B1_summary = tf.summary.histogram("B1", B1)
     W2_summary = tf.summary.histogram("W2", W2)
     B2_summary = tf.summary.histogram("B2", B2)
     W3_summary = tf.summary.histogram("W3", W3)
     B3_summary = tf.summary.histogram("B3", B3)
-    # XX_summary = tf.summary.histogram("XX", XX)
-    # YY1_summary = tf.summary.histogram("YY1", YY1)
 
     loss_summary = tf.summary.scalar("batch_loss", cross_entropy)
     acc_summary = tf.summary.scalar("batch_accuracy", accuracy)
     summaries = tf.summary.merge([loss_summary, acc_summary])
     val_summaries = tf.summary.merge([
         loss_summary, acc_summary, word_embeddings_summary, W2_summary, B2_summary,
-        W3_summary, B3_summary])#, XX_summary, YY1_summary])
+        W3_summary, B3_summary])
 
     init = tf.global_variables_initializer()
 
@@ -167,7 +147,6 @@ with tf.Session() as sess:
         # saver = tf.train.import_meta_graph(meta_graph_path)
         saver.restore(sess,meta_graph_path)
         print("RESTORED:",meta_graph_path)
-
     else:
         sess.run(init)
 
@@ -222,7 +201,6 @@ with tf.Session() as sess:
 
                     print("VALIDATION: ACCURACY:{0:7.4f} LOSS:{1:7.4f}"\
                             .format(a,c))
-
 
                 # forward pass
                 feed_dict = {
