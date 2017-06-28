@@ -8,7 +8,7 @@ from tml.collection.data_collector import DataCollector
 from tml.collection.stream_transformer import *
 from tml.collection.auth_info import * # where api access information is stored
 
-TEST_MODE = True
+TEST_MODE = False
 
 st_types = [(0, FUCTStreamTransformer, "FUCTStreamTransformer"),
             (1, FHCTStreamTransformer, "FHCTStreamTransformer"),
@@ -20,8 +20,8 @@ for num, _, name in st_types:
     print("    ", num, name)
 st_num = int(input("ENTER CORRESPONDING NUMBER: ")) if not TEST_MODE else 2
 filters_str = input("ENTER FILTER: ")               if not TEST_MODE else "the"
-sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 2000000
-hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 24
+sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 50000000
+hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 24*30
 # trim_size = int(input("ENTER TRIM SIZE: "))         if not TEST_MODE else 500000
 buffer_size = int(input("ENTER BUFFER SIZE: "))     if not TEST_MODE else 10000
 

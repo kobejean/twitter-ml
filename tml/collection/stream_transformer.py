@@ -247,9 +247,10 @@ class StreamTransformer(StreamListener):
         if entry:
             self.buffer_data.append(entry)
 
+            print(ANSI.C_UP*2)
             # print entry
             print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
-            self.display_entry(entry, show_extras=True)
+            # self.display_entry(entry, show_extras=True)
             # print(feed_data_dict)
 
             # check if time is up
@@ -285,6 +286,7 @@ class StreamTransformer(StreamListener):
 
     def on_connect(self):
         print("CONNECTED...")
+        print()
         if not self.start_time:
             self.start_time = datetime.now()
 
@@ -411,7 +413,11 @@ class FUCTStreamTransformer(StreamTransformer):
 #                with higher followers_count values.
 #
 """
-class EngTextStreamTransformer(StreamTransformer):
+class EngTextStreamTransformer(StreamListener):
+    _entry_count = 0
+    start_time = None
+    data = []
+    buffer_data = []
     def __init__(self, file_path = "EngTextStream.csv", sample_size = 10,
                  duration = None, # trim_size = 5,
                  buffer_size = 5):
@@ -426,6 +432,52 @@ class EngTextStreamTransformer(StreamTransformer):
         self.buffer_size = buffer_size
         self.priority = lambda entry: 0#len(entry.get("text",0))
 
+    def on_data(self, feed_data):
+        feed_data_dict = json.loads(feed_data) # convert to dictionary
+
+        # add entry
+        entry = self.entry(feed_data_dict)
+        if entry:
+            self.buffer_data.append(entry)
+
+            # print entry
+            print(ANSI.CURSOR_UP+ANSI.CLEAR_LINE+ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
+            # self.display_entry(entry, show_extras=True)
+            # print(feed_data_dict)
+
+            # check if time is up
+            now = datetime.now()
+            end_time = datetime.max if self.duration == None else self.start_time + self.duration
+            time_is_up = now > end_time
+
+            # check if collected all
+            last_entry = float('inf') if self.sample_size == None else self.sample_size
+            collected_all = self._entry_count >= last_entry
+
+            def clean_write():
+                self.clean_data()
+                self.write_data()
+
+            # clean & write when we are done
+            if collected_all or time_is_up:
+                self.data += self.buffer_data
+                self.buffer_data = []
+                self.clean_data()
+                self.data = self.data[:last_entry]
+                self.write_data()
+                print("STREAM STOPPED")
+                return False # stops stream
+
+            # periodic clean and write
+            if len(self.buffer_data) >= self.buffer_size:
+                self.data += self.buffer_data
+                self.buffer_data = []
+                thread = Thread(target=clean_write)
+                thread.setDaemon(True)
+                thread.start()
+
+    def entry_count(self):
+        return self._entry_count + len(self.buffer_data) + len(self.data)
 
     def entry(self, feed_dict):
 
@@ -482,7 +534,7 @@ class EngTextStreamTransformer(StreamTransformer):
 
     def clean_data(self):
         """Trims data keeping key/value pairs with higher priority."""
-        print("CLEANING DATA...")
+        # print("CLEANING DATA...")
 
         def check_char(c):
             a = ord(c)
@@ -552,8 +604,12 @@ class EngTextStreamTransformer(StreamTransformer):
         if os.path.isfile(self.file_path):
             print("CONTINUE FROM: " + self.file_path)
             with open(self.file_path, "r") as file:
-                lines = file.readlines()
-                self.data = [{"text" : line.rstrip('\n')} for line in lines]
+                # lines = file.readlines()
+                self._entry_count = 0
+                self.data = []
+                for _ in file:
+                    self._entry_count += 1
+                # self.data = [{"text" : line.rstrip('\n')} for line in lines]
         else:
             print("NO FILE AT: " + self.file_path)
 
@@ -561,19 +617,55 @@ class EngTextStreamTransformer(StreamTransformer):
     def write_data(self):
         """Writes data to file_path as a CVS file. """
         print("WRITING TO: "+ self.file_path)
+        print()
         # save previous write by renaming file with prefix TMP_
-        path, file_name = os.path.split(self.file_path)
-        tmppath = os.path.join(path, "TMP_" + file_name)
-        if os.path.isfile(self.file_path):
-            os.rename(self.file_path, tmppath)
+        # path, file_name = os.path.split(self.file_path)
+        # tmppath = os.path.join(path, "TMP_" + file_name)
+        # if os.path.isfile(self.file_path):
+        #     os.rename(self.file_path, tmppath)
 
-        with open(self.file_path, "w") as file:
+        with open(self.file_path, "a") as wfile:
             # write data
             for entry in self.data:
                 text = entry.get("text", None)
                 if text:
-                    file.write(text + "\n")
-
+                    self._entry_count += 1
+                    wfile.write(text + "\n")
+            self.data = []
         # remove temporary file
-        if os.path.isfile(tmppath):
-            os.remove(tmppath)
+        # if os.path.isfile(tmppath):
+        #     os.remove(tmppath)
+
+    def on_connect(self):
+        print("CONNECTED...")
+        print()
+        if not self.start_time:
+            self.start_time = datetime.now()
+
+
+    def on_disconnect(self, notice):
+        print("DISCONNECTED:", notice)
+
+    def on_error(self, status_code):
+        print("ERROR: ", status_code)
+        return False
+
+    def keep_alive(self):
+        """Called when a keep-alive arrived"""
+        print("KEEP ALIVE...")
+        return
+
+    def on_limit(self, track):
+        """Called when a limitation notice arrives"""
+        print(ANSI.WARNING + "LIMIT:", track, ANSI.ENDC)
+        return
+
+    def on_timeout(self):
+        """Called when stream connection times out"""
+        print(ANSI.WARNING + "TIMED OUT" + ANSI.ENDC)
+        return
+
+    def on_warning(self, notice):
+        """Called when a disconnection warning message arrives"""
+        print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
+        return
