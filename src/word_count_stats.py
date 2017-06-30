@@ -1,6 +1,6 @@
 import os
 from context import tml
-from tml.learning.word_stats import *
+from tml.utils.word_stats import *
 from tml.utils.ansi import ANSI
 
 TEST_MODE = False

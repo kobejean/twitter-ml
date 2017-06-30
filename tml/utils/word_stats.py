@@ -24,12 +24,7 @@ def get_tokenizer_from_file(file_path, num_words):
     tk.fit_on_texts(texts)
     return tk
 
-def get_tokenizer_from_text(text, num_words):
-    texts = []
-    with open(file_path, "r") as file:
-        lines = file.readlines()
-        texts = [line.rstrip('\n') for line in lines]
-
+def get_tokenizer_from_texts(texts, num_words):
     tk = Tokenizer(
         num_words=num_words,
         filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
