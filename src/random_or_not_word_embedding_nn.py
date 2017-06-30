@@ -15,7 +15,7 @@ data_package_path = os.path.join(data_path, package_name)
 
 log_path = os.path.join(abs_path, "log/1/")
 # meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt")
-meta_graph_path = tf.train.latest_checkpoint(log_path)
-# meta_graph_path = None
+# meta_graph_path = tf.train.latest_checkpoint(log_path)
+meta_graph_path = None
 
 run_random_or_not_nn(data_package_path, log_path, meta_graph_path)
