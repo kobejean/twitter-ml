@@ -52,7 +52,7 @@ from ..utils.ansi import ANSI
 class StreamTransformer(StreamListener):
     start_time = None
     data = []
-    buffer_data = []
+    collect_buffer = []
 
     def __init__(self, tags, file_path = "STREAM.csv", sample_size = 20,
                  duration = None, # trim_size = 10,
@@ -229,7 +229,7 @@ class StreamTransformer(StreamListener):
                 print(text)
 
     def entry_count(self):
-        return len(self.data) + len(self.buffer_data)
+        return len(self.data) + len(self.collect_buffer)
 
     def entry(self, feed_data_dict):
         """
@@ -245,7 +245,7 @@ class StreamTransformer(StreamListener):
         # add entry
         entry = self.entry(feed_data_dict)
         if entry:
-            self.buffer_data.append(entry)
+            self.collect_buffer.append(entry)
 
             # print entry
             print(ANSI.CURSOR_UP+ANSI.CLEAR_LINE+ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
@@ -260,7 +260,7 @@ class StreamTransformer(StreamListener):
 
             # check if collected all
             last_entry = float('inf') if self.sample_size == None else self.sample_size
-            collected_all = len(self.data) >= last_entry
+            collected_all = self.entry_count() >= last_entry
 
             def clean_write():
                 self.clean_data()
@@ -268,8 +268,8 @@ class StreamTransformer(StreamListener):
 
             # clean & write when we are done
             if collected_all or time_is_up:
-                self.data += self.buffer_data
-                self.buffer_data = []
+                self.data += self.collect_buffer
+                self.collect_buffer = []
                 self.clean_data()
                 self.data = self.data[:last_entry]
                 self.write_data()
@@ -277,9 +277,9 @@ class StreamTransformer(StreamListener):
                 return False # stops stream
 
             # periodic clean and write
-            if len(self.buffer_data) >= self.buffer_size:
-                self.data += self.buffer_data
-                self.buffer_data = []
+            if len(self.collect_buffer) >= self.buffer_size:
+                self.data += self.collect_buffer
+                self.collect_buffer = []
                 thread = Thread(target=clean_write)
                 thread.setDaemon(True)
                 thread.start()
@@ -414,6 +414,7 @@ class FUCTStreamTransformer(StreamTransformer):
 """
 class EngTextStreamTransformer(StreamTransformer):
     _entry_count = 0
+    write_buffer = []
 
     def __init__(self, file_path = "EngTextStream.csv", sample_size = 10,
                  duration = None, # trim_size = 5,
@@ -431,7 +432,7 @@ class EngTextStreamTransformer(StreamTransformer):
 
 
     def entry_count(self):
-        return self._entry_count + len(self.buffer_data)
+        return self._entry_count #+ len(self.collect_buffer)
 
     def entry(self, feed_dict):
 
@@ -550,8 +551,8 @@ class EngTextStreamTransformer(StreamTransformer):
                     new_text.add(orig_text)
 
         new_data = [{"text" : text} for text in new_text]
-        # self.data = new_data
-        self.data = sorted(new_data, key=self.priority, reverse=True)#[0:self.trim_size]
+        # self.write_buffer = new_data
+        self.write_buffer = sorted(new_data, key=self.priority, reverse=True)#[0:self.trim_size]
 
     def read_data(self):
         """Reads data in file at file_path."""
@@ -560,10 +561,10 @@ class EngTextStreamTransformer(StreamTransformer):
             with open(self.file_path, "r") as file:
                 # lines = file.readlines()
                 self._entry_count = 0
-                self.data = []
+                self.write_buffer = []
                 for _ in file:
                     self._entry_count += 1
-                # self.data = [{"text" : line.rstrip('\n')} for line in lines]
+                # self.write_buffer = [{"text" : line.rstrip('\n')} for line in lines]
         else:
             print("NO FILE AT: " + self.file_path)
 
@@ -578,14 +579,15 @@ class EngTextStreamTransformer(StreamTransformer):
         # if os.path.isfile(self.file_path):
         #     os.rename(self.file_path, tmppath)
 
-        with open(self.file_path, "a") as wfile:
+        with open(self.file_path, "a") as file:
             # write data
-            for entry in self.data:
+            while self.write_buffer:
+                entry = self.write_buffer.pop()
                 text = entry.get("text", None)
                 if text:
                     self._entry_count += 1
-                    wfile.write(text + "\n")
-            self.data = []
+                    file.write(text + "\n")
+            # self.write_buffer = []
         # remove temporary file
         # if os.path.isfile(tmppath):
         #     os.remove(tmppath)

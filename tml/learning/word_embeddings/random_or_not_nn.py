@@ -1,12 +1,11 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.contrib.tensorboard.plugins import projector
-
 import os, random, time, math
 from itertools import islice
-from context import tml
-from tml.utils.ansi import ANSI
-from tml.utils.text_preprocessing import *
+
+from ...utils.ansi import ANSI
+from ...utils.word_preprocessing import *
 
 def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
     BATCH_SIZE = 100
@@ -25,16 +24,16 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
     # file_name = "THE STREAM"
     # abs_path = os.path.abspath(os.path.dirname(__file__))
     # data_path = os.path.join(abs_path, "data")
-    sequence_path = os.path.join(data_package_path, "SEQUENCE.tsv")
-    vocab_path = os.path.join(data_package_path, "VOCAB.tsv")
-    vocab_meta_path = os.path.join(data_package_path, "VOCAB META.tsv")
-    probs_path = os.path.join(data_package_path, "PROBS.tsv")
+    # sequence_path = os.path.join(data_package_path, "SEQUENCE.tsv")
+    vocab_path = os.path.join(data_package_path, VOCABULARY_FILENAME)
+    # vocab_path = os.path.join(data_package_path, "VOCAB META.tsv")
+    # probs_path = os.path.join(data_package_path, "PROBS.tsv")
     # log_path = os.path.join(abs_path, "log/1/")
     # meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt")
     # meta_graph_path = tf.train.latest_checkpoint(log_path)
 
-    vocab = read_vocab(vocab_path)
-    probs = read_probs(probs_path)
+    # vocab = read_vocab(vocab_path)
+    # probs = read_probs(probs_path)
 
     timestamp = str(math.trunc(time.time()))
     PREFIX = "b_{}-l_{}-w_{}-h1_{}-h2_{}-s_{}-{}"\
@@ -43,7 +42,6 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
 
     # generates the batch given the sequence reader
     def batch_generator(seqs_reader, probs, n):
-
         def sub_seqs_gen(seqs):
             for seq in seqs:
                 # make sure the sequence is long enough to make a sub sequence of size SEQ_SIZE
@@ -150,7 +148,7 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
         embedding = config.embeddings.add()
         embedding.tensor_name = word_embeddings.name
         # Link this tensor to its metadata file (e.g. labels).
-        embedding.metadata_path = vocab_meta_path
+        embedding.metadata_path = vocab_path
 
         # The next line writes a projector_config.pbtxt in the LOG_DIR. TensorBoard will
         # read this file during startup.
@@ -168,8 +166,8 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
         global_step = 0
 
         for epoch in range(1000):
-            with open(sequence_path, "r") as file:
-                seqs_reader = sequences_reader_from_file_reader(file)
+            with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
+                # seqs_reader = sequences_reader_from_file_reader(file)
                 batch_gen = batch_generator(seqs_reader, probs, BATCH_SIZE)
                 # create test and validation sets
                 test_set = [next(batch_gen) for i in range(TEST_SET_NUM_BATCHES)]
@@ -243,10 +241,6 @@ if __name__ == "__main__":
     abs_path = os.path.abspath(os.path.dirname(__file__))
     data_path = os.path.join(abs_path, "data")
     data_package_path = os.path.join(data_path, package_name)
-    # sequence_path = os.path.join(data_package_path, "SEQUENCE.tsv")
-    # vocab_path = os.path.join(data_package_path, "VOCAB.tsv")
-    # vocab_meta_path = os.path.join(data_package_path, "VOCAB META.tsv")
-    # probs_path = os.path.join(data_package_path, "PROBS.tsv")
 
     log_path = os.path.join(abs_path, "log/1/")
     # meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt")
