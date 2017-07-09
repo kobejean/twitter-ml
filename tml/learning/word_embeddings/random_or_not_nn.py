@@ -5,82 +5,50 @@ import os, random, time, math
 from itertools import islice
 
 from ...utils.ansi import ANSI
-from ...utils.word_preprocessing import *
+from ...utils.word_preprocessing import read_data_package, random_word_index, VOCABULARY_FILENAME
+
+BATCH_SIZE = 100
+TEST_SET_NUM_BATCHES = 100
+VAL_SET_NUM_BATCHES = 50
+WORD_SIZE = 10000
+SEQ_SIZE = 5
+H1_SIZE = 200
+H2_SIZE = 100
+LR = 0.003 # learning rate
+VAL_PERIOD = 200
+CHECKPOINT_PERIOD = 500
 
 def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
-    BATCH_SIZE = 100
-    TEST_SET_NUM_BATCHES = 100
-    VAL_SET_NUM_BATCHES = 50
-    WORD_SIZE = 10000
-    SEQ_SIZE = 5
-    H1_SIZE = 200
-    H2_SIZE = 100
-    LR = 0.003 # learning rate
-    VAL_PERIOD = 200
-    CHECKPOINT_PERIOD = 500
+    """
+    description: generates sub sequences given the sequence reader
+    args:
+        seqs_reader: a generator that produces sequences of word indices
+    """
     RESTORE_SESSION = (meta_graph_path != None)
 
     # paths
-    # file_name = "THE STREAM"
-    # abs_path = os.path.abspath(os.path.dirname(__file__))
-    # data_path = os.path.join(abs_path, "data")
-    # sequence_path = os.path.join(data_package_path, "SEQUENCE.tsv")
     vocab_path = os.path.join(data_package_path, VOCABULARY_FILENAME)
-    # vocab_path = os.path.join(data_package_path, "VOCAB META.tsv")
-    # probs_path = os.path.join(data_package_path, "PROBS.tsv")
-    # log_path = os.path.join(abs_path, "log/1/")
-    # meta_graph_path = os.path.join(log_path, "b_100-l_0.003-w_10000-h1_200-h2_100-s_5-1498537758.ckpt")
-    # meta_graph_path = tf.train.latest_checkpoint(log_path)
-
-    # vocab = read_vocab(vocab_path)
-    # probs = read_probs(probs_path)
 
     timestamp = str(math.trunc(time.time()))
     PREFIX = "b_{}-l_{}-w_{}-h1_{}-h2_{}-s_{}-{}"\
         .format(BATCH_SIZE,LR,WORD_SIZE,H1_SIZE,H2_SIZE,SEQ_SIZE, timestamp)
 
-
-    # generates the batch given the sequence reader
-    def batch_generator(seqs_reader, probs, n):
-        def sub_seqs_gen(seqs):
-            for seq in seqs:
-                # make sure the sequence is long enough to make a sub sequence of size SEQ_SIZE
-                if len(seq) >= SEQ_SIZE:
-                    # loop through sub sequences
-                    for i in range(len(seq) - SEQ_SIZE + 1):
-                        sub_seq = seq[i : i + SEQ_SIZE]
-                        assert len(sub_seq) == SEQ_SIZE, "not len(sub_seq) == SEQ_SIZE"
-                        # make sure all words are in vocabulary of size WORD_SIZE before appending
-                        if all([wi < WORD_SIZE for wi in sub_seq]):
-                            yield sub_seq
-
-        i = iter(sub_seqs_gen(seqs_reader))
-        while True:
-            indices = np.array(list(islice(i, n)))
-            size = indices.shape[0]
-            Y_ = [[1,0]] * size # all default true
-            for j in range(size):
-                if bool(random.getrandbits(1)):
-                    Y_[j] = [0,1] # set y to false
-                    # replace middle index with random index
-                    rand_i = random_word_index(probs, indices[j][SEQ_SIZE//2])
-                    indices[j][SEQ_SIZE//2] = rand_i
-            Y_ = np.array(Y_)
-
-            if indices.size > 0:
-                yield {"indices":indices, "Y_":Y_, "n":size}
-            else: break
+################################################################################
+#                                                                              #
+#                         NEURAL NET CODE STARTS HERE                          #
+#                                                                              #
+################################################################################
 
 
     with tf.name_scope('Input_Layer') as scope:
-        n = tf.placeholder(tf.int32) # current batch size
-        indices = tf.placeholder(tf.int32, shape=[None, SEQ_SIZE],
-            name="Indices")                        # [n, SEQ_SIZE]
-
-        # correct answers will go here
-        Y_ = tf.placeholder(tf.float32, [None, 2]) # [n, 2] 2 classifications T/F
-
-        flat_indices = tf.reshape(indices, shape=[n * SEQ_SIZE], name="Reshaped_Indices") # [n * SEQ_SIZE, WORD_SIZE]
+        # current batch size
+        n = tf.placeholder(tf.int32)
+        # [n, SEQ_SIZE]
+        indices = tf.placeholder(tf.int32, shape=[None, SEQ_SIZE], name="Indices")
+        # [n, 2] correct answers will go here. 2 classifications T/F
+        Y_ = tf.placeholder(tf.float32, [None, 2])
+        # [n * SEQ_SIZE, WORD_SIZE]
+        flat_indices = tf.reshape(indices, shape=[n * SEQ_SIZE], name="Reshaped_Indices")
 
     with tf.name_scope('H1_Layer') as scope:
         # [WORD_SIZE, H1_SIZE]
@@ -165,7 +133,7 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
 
         global_step = 0
 
-        for epoch in range(1000):
+        for epoch in range(1000000000):
             with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
                 # seqs_reader = sequences_reader_from_file_reader(file)
                 batch_gen = batch_generator(seqs_reader, probs, BATCH_SIZE)
@@ -233,6 +201,49 @@ def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
                         save_path = saver.save(sess, log_path + "{}.ckpt".format(PREFIX))#, global_step=global_step)
                         print(save_path)
 
+
+def batch_generator(seqs_reader, probs, n):
+    """
+    description: generates the batch given the sequence reader
+    args:
+        seqs_reader: a generator that produces sequences of word indices
+        probs: a dictionary of probabilities of ocurance associated with word indices
+        n: the desired size of the subsequences
+    """
+
+    i = iter(sub_seqs_gen(seqs_reader))
+    while True:
+        indices = np.array(list(islice(i, n)))
+        size = indices.shape[0]
+        Y_ = [[1,0]] * size # set all true by default
+        for j in range(size):
+            if bool(random.getrandbits(1)):
+                Y_[j] = [0,1] # set y to false
+                # replace middle index with random index
+                rand_i = random_word_index(probs, indices[j][SEQ_SIZE//2])
+                indices[j][SEQ_SIZE//2] = rand_i
+        Y_ = np.array(Y_)
+
+        if indices.size > 0:
+            yield {"indices":indices, "Y_":Y_, "n":size}
+        else: break
+
+def sub_seqs_gen(seqs_reader):
+    """
+    description: generates sub sequences given the sequence reader
+    args:
+        seqs_reader: a generator that produces sequences of word indices
+    """
+    for seq in seqs_reader:
+        # make sure the sequence is long enough to make a sub sequence of size SEQ_SIZE
+        if len(seq) >= SEQ_SIZE:
+            # loop through sub sequences
+            for i in range(len(seq) - SEQ_SIZE + 1):
+                sub_seq = seq[i : i + SEQ_SIZE]
+                assert len(sub_seq) == SEQ_SIZE, "not len(sub_seq) == SEQ_SIZE"
+                # make sure all words are in vocabulary of size WORD_SIZE before appending
+                if all([wi < WORD_SIZE for wi in sub_seq]):
+                    yield sub_seq
 
 if __name__ == "__main__":
     TEST_MODE = False

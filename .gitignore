@@ -1,17 +1,11 @@
 test_data_out.csv
 tests/data/*STREAM.csv
-*.data-00000-of-00001
-*.index
-*.meta
-src/data/archive
-src/log
-src/learning_example/archive
 __pycache__
-AuthInfo_kobejean.py
 auth_info_kobejean.py
 auth_info.py
 src/learning_example/log/*
 private*
-* STREAM.csv
-*SEQUENCE.tsv
-src/data/
+src/**/data
+src/**/log
+src/**/checkpoints
+src/shared_data

@@ -432,7 +432,7 @@ class EngTextStreamTransformer(StreamTransformer):
 
 
     def entry_count(self):
-        return self._entry_count #+ len(self.collect_buffer)
+        return self._entry_count + len(self.collect_buffer)
 
     def entry(self, feed_dict):
 
@@ -561,7 +561,7 @@ class EngTextStreamTransformer(StreamTransformer):
             with open(self.file_path, "r") as file:
                 # lines = file.readlines()
                 self._entry_count = 0
-                self.write_buffer = []
+                # self.write_buffer = []
                 for _ in file:
                     self._entry_count += 1
                 # self.write_buffer = [{"text" : line.rstrip('\n')} for line in lines]
@@ -571,7 +571,7 @@ class EngTextStreamTransformer(StreamTransformer):
 
     def write_data(self):
         """Writes data to file_path as a CVS file. """
-        print("WRITING TO: "+ self.file_path)
+        print("WRITING TO: " + self.file_path)
         print()
         # save previous write by renaming file with prefix TMP_
         # path, file_name = os.path.split(self.file_path)

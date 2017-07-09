@@ -11,6 +11,15 @@ SEQUENCE_FILENAME = "SEQUENCES.tsv"
 VOCABULARY_FILENAME = "VOCABULARY.tsv"
 PROBABILITIES_FILENAME = "PROBABILITIES.tsv"
 
+def printGenerator(label="value:", gen=()):
+    try:
+        while True:
+            value = next(gen)
+            print(label, "{0: <40}".format(str(value).rstrip("\n"))[:40], end="\r")
+            yield value
+    finally:
+        print()
+
 def write_vocabulary(vocab, filepath, num_words=-1):
     with open(filepath, "w") as file:
         header = ["index","word"]
@@ -83,6 +92,7 @@ def create_data_package(text_path, package_path, vocabulary_size=10000, show_pro
     # read txt file
     with open(text_path, "r") as file:
         texts = (line.rstrip('\n') for line in file)
+        texts = printGenerator("TEXT:", texts)
 
         ################################################################################
         # if TEST_MODE:
@@ -102,7 +112,7 @@ def create_data_package(text_path, package_path, vocabulary_size=10000, show_pro
 
     with open(text_path, "r") as file:
         texts = (line.rstrip('\n') for line in file)
-
+        texts = printGenerator("TEXT:", texts)
         ################################################################################
         # if TEST_MODE:
         #     # limit size for testing to save time
@@ -110,7 +120,7 @@ def create_data_package(text_path, package_path, vocabulary_size=10000, show_pro
         ################################################################################
         print("CREATING VOCABULARY...")
         # create dicts
-        vocab = dict([(v-1,k) for k,v in tk.word_index.items()])
+        vocab = {v-1: k for k,v in tk.word_index.items()}
         # for normalizing probability distribution so they add up to 1
         print("CREATING PROBABILITIES...")
         word_count_sum = sum(sorted([v for k,v in tk.word_counts.items()], reverse=True)[:vocabulary_size])
@@ -128,7 +138,7 @@ def create_data_package(text_path, package_path, vocabulary_size=10000, show_pro
         ################################################################################
         print("CREATING SEQUENCES...")
         # i - 1 so that index z
-        text_seq = ([i-1 for i in seq] for seq in tk.texts_to_sequences(texts))
+        text_seq = printGenerator("SEQUENCE:", ([i-1 for i in seq] for seq in tk.texts_to_sequences(texts)))
 
         # write files
         print("WRITING SEQUENCES...")

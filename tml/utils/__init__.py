@@ -1,1 +1,1 @@
-__all__ = ["ansi"]
+__all__ = ["ansi", "character_preprocessing", "word_preprocessing"]
