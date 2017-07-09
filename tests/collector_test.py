@@ -7,7 +7,6 @@
 
 import time
 from context import tml
-from tml.collection.data_handler import DataHandler
 from tml.collection.data_collector import DataCollector
 from tml.collection.stream_transformer import *
 from tml.collection.auth_info import * # where api access information is stored

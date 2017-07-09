@@ -107,7 +107,7 @@ def sample_from_probabilities(probabilities, topn=ALPHASIZE):
     return np.random.choice(ALPHASIZE, 1, p=p)[0]
 
 
-def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs):
+def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs, nb_batches):
     """
     Divides the data into batches of sequences so that all the sequences in one batch
     continue in the next batch. This is a generator that will keep returning batches
@@ -387,7 +387,7 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
     valipaths = [d["path"] for d in bookranges[-nb_books:]]
     textpaths = [d["path"] for d in bookranges[:-nb_books]]
     valitext = [code for code in codetext_gen(valipaths, 1)]
-    codetext = [code for code in codetext_gen(textpaths, epoch_size)]
+    codetext = [code for code in codetext_gen(textpaths, 1)]
     return codecount, codetext, valitext, bookranges
 
 

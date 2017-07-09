@@ -1,2 +1,1 @@
-import handler_test
 import collector_test
