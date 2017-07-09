@@ -22,7 +22,6 @@ import csv
 from tweepy.streaming import StreamListener
 from threading import Thread
 
-from .data_handler import DataHandler
 from ..utils.ansi import ANSI
 
 """
