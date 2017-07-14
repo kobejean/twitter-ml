@@ -34,18 +34,17 @@ from ..utils.ansi import ANSI
 #   StreamListener Methods:
 #       - on_data(self, data):
 #       - on_connect(self):
-#       x on_disconnect(self):
-#       x on_error(self, status_code):
-#       x keep_alive(self):
-#       x on_limit(self, track):
-#       x on_timeout(self):
-#       x on_warning(self, notice):
+#       - on_disconnect(self):
+#       - on_error(self, status_code):
+#       - keep_alive(self):
+#       - on_limit(self, track):
+#       - on_timeout(self):
+#       - on_warning(self, notice):
 #
 #   Methods:
 #       - entry(self, data):
-#       - clean_data(self)
-#       - scan_file(self)
-#       - write_data(self)
+#       - scan_file(self):
+#       - write_data(self):
 """
 
 class StreamTransformer(StreamListener):
@@ -147,7 +146,7 @@ class StreamTransformer(StreamListener):
                     values.append(value)
                 writer.writerow(values)
                 self._entry_count += 1
-            del write_buffer[:] # don't need reference after write
+            del self.write_buffer[:] # don't need reference after write
 
 
     def display_data(self):
@@ -500,4 +499,5 @@ class EngTextStreamTransformer(StreamTransformer):
                     self._entry_count += 1
                     file.write(text + "\n")
 
-            self.write_buffer = []
+
+            del self.write_buffer[:] # don't need reference after write
