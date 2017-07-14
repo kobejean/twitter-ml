@@ -23,6 +23,8 @@ sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 100000
 hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 24*30
 # trim_size = int(input("ENTER TRIM SIZE: "))         if not TEST_MODE else 500000
 buffer_size = int(input("ENTER BUFFER SIZE: "))     if not TEST_MODE else 10000
+should_print_entry = bool(int(input("SHOULD PRINT ENTRY (0 or 1): ")))\
+                                                    if not TEST_MODE else False
 
 # calculate duration
 d = int(hours / 24)
@@ -50,7 +52,7 @@ st.file_path = file_path
 st.sample_size = sample_size
 st.duration = duration
 st.buffer_size = buffer_size
-st.should_print_entry = False
+st.should_print_entry = should_print_entry
 st.scan_file()
 
 try_again = True

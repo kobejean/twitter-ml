@@ -147,7 +147,7 @@ class StreamTransformer(StreamListener):
                     values.append(value)
                 writer.writerow(values)
                 self._entry_count += 1
-            self.write_buffer = []
+            del write_buffer[:] # don't need reference after write
 
 
     def display_data(self):
