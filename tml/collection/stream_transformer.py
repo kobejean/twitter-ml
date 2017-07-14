@@ -44,30 +44,29 @@ from ..utils.ansi import ANSI
 #   Methods:
 #       - entry(self, data):
 #       - clean_data(self)
-#       - read_data(self)
+#       - scan_file(self)
 #       - write_data(self)
 """
 
 class StreamTransformer(StreamListener):
     start_time = None
-    data = []
     collect_buffer = []
+    write_buffer = []
+    _entry_count = 0
 
     def __init__(self, tags, file_path = "STREAM.csv", sample_size = 20,
-                 duration = None, # trim_size = 10,
-                 buffer_size = 5, priority = lambda entry: 0):
+                 duration = None, buffer_size = 5, should_print_entry = True):
         self.csv_format = tags
         self.conversions = len(tags) * [str]
 
         self.sample_size = sample_size
         self.duration = duration
-        # self.trim_size = trim_size
         self.buffer_size = buffer_size
-        self.priority = priority
         self.file_path = file_path
+        self.should_print_entry = should_print_entry
 
         if self.file_path:
-            self.read_data()
+            self.scan_file()
 
     """
     #   - Read Method -
@@ -83,53 +82,19 @@ class StreamTransformer(StreamListener):
     #                     then our conversions should be:
     #                         [int, str]
     """
-    def read_data(self):
+    def scan_file(self):
         """Reads data in file at file_path."""
         if os.path.isfile(self.file_path):
             print("CONTINUE FROM: " + self.file_path)
-            with open(self.file_path, newline="") as file:
-                reader = csv.reader(file)
-                keys = list(next(reader)) # first line has keys/format
-
-                if self.csv_format == None:
-                    self.csv_format = keys
-                else:
-                    # include keys not includes in csv_format
-                    keys = self.csv_format + list(set(keys) - set(self.csv_format))
-
-                conversions = self.conversions if self.conversions else [str] * len(keys)
-
-                self.data = [] # reset data
-                for values in reader:
-                    entry = {}
-                    for key, value, conversion in zip(keys, values, conversions):
-                        if value != "":
-                            # unescape value
-                            value = value.encode('utf-8')\
-                                    .decode("unicode_escape")\
-                                    .encode('latin1')\
-                                    .decode('utf-8')
-                            entry[key] = conversion(value)
-                    self.data.append(entry)
+            with open(self.file_path, "r") as file:
+                self._entry_count = 0
+                for _ in file:
+                    if self._entry_count % 10000 == 0: # printing every single one slows it down
+                        print(ANSI.CLEAR_LINE + "SCANNING ENTRY NUMBER: {}".format(self._entry_count), end='\r')
+                    self._entry_count += 1
+                print(ANSI.CLEAR_LINE + "SCANNED {} ENTRIES".format(self._entry_count))
         else:
             print("NO FILE AT: " + self.file_path)
-
-
-    """
-    #   - Clean Method -
-    #
-    #   DESCRIPTION: Trims data keeping key/value pairs with higher priority.
-    #
-    #   PARAMERTERS:
-    #       priority  - A function that takes an entry and returns a priority
-    #                   value. Higher values means that the entry has a higher
-    #                   priority and will less likely be deleted.
-    #       trim_size - The size of that the data should be trimmed down to.
-    """
-    def clean_data(self):
-        """Trims data keeping key/value pairs with higher priority."""
-        print("CLEANING DATA...")
-        self.data = sorted(self.data, key=self.priority, reverse=True)#[0:self.trim_size]
 
 
     """"
@@ -147,24 +112,30 @@ class StreamTransformer(StreamListener):
     #                    our csv_format parameter should look like:
     #                        [hashtag,volume]
     """
-    def write_data(self):
-        """Writes data to file_path as a CVS file. """
-        print("WRITING TO: "+ self.file_path)
-        # save previous write by renaming file with prefix TMP_
-        path, file_name = os.path.split(self.file_path)
-        tmppath = os.path.join(path, "TMP_" + file_name)
-        if os.path.isfile(self.file_path):
-            os.rename(self.file_path, tmppath)
+    def write_data(self, async=False):
+        """Writes buffer to file_path as a CVS file. """
+        self.write_buffer += self.collect_buffer
+        self.collect_buffer = []
 
-        with open(self.file_path, "w") as file:
+        print("WRITING TO: " + self.file_path)
+        if async:
+            thread = Thread(target=self.write_process)
+            thread.setDaemon(True)
+            thread.start()
+        else:
+            self.write_process()
+
+
+    def write_process(self):
+        with open(self.file_path, "a") as file:
             writer = csv.writer(file)
-            keys = self.csv_format if self.csv_format else list(self.data[0].keys())
+            keys = self.csv_format if self.csv_format else list(self.write_buffer[0].keys())
 
             # write header
             writer.writerow(keys)
 
             # write data
-            for entry in self.data:
+            for entry in self.write_buffer:
                 values = []
                 for key in keys:
                     value = entry.get(key, None)
@@ -175,44 +146,40 @@ class StreamTransformer(StreamListener):
                         value = str(value)[2:-1]
                     values.append(value)
                 writer.writerow(values)
+                self._entry_count += 1
+            self.write_buffer = []
 
-        # remove temporary file
-        if os.path.isfile(tmppath):
-            os.remove(tmppath)
 
-    """
-    #                          - Display Method -
-    #
-    #   DESCRIPTION: Prints the data out with colors.
-    """
     def display_data(self):
-        """Prints the data out with colors. """
+        """
+        DESCRIPTION:
+            Prints the data out with colors.
+        """
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
-        for i, entry in enumerate(self.data):
-            print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
-            # print in the order of csv_format
-            for key in self.csv_format:
-                key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
-                text = key_text + str(entry.get(key, None))
-                print(text)
+        # for i, entry in enumerate(self.collect_buffer):
+        #     print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
+        #     # print in the order of csv_format
+        #     for key in self.csv_format:
+        #         key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
+        #         text = key_text + str(entry.get(key, None))
+        #         print(text)
+        #
+        #     # print key/value pairs not included in csv_format
+        #     neglected_keys = entry.keys() - set(self.csv_format)
+        #     for key in neglected_keys:
+        #         key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
+        #         text = key_text + str(entry.get(key, None))
+        #         print(text)
 
-            # print key/value pairs not included in csv_format
-            neglected_keys = entry.keys() - set(self.csv_format)
-            for key in neglected_keys:
-                key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
-                text = key_text + str(entry.get(key, None))
-                print(text)
 
-    """
-    #                        - Display Entry Method -
-    #
-    #   DESCRIPTION: Prints an entry out with colors.
-    #
-    #   PARAPERTERS:
-    #       entry - a dictionary of key/values
-    """
     def display_entry(self, entry, show_extras=True):
-        """Prints an entry out with colors. """
+        """
+        DESCRIPTION:
+            Prints an entry out with colors.
+
+        ARGS:
+            entry - a dictionary of key/values
+        """
         # print in the order of csv_format
         for key in self.csv_format:
             key_text = ANSI.PURPLE + str(key).upper() + ": " + ANSI.ENDC
@@ -228,29 +195,31 @@ class StreamTransformer(StreamListener):
                 print(text)
 
     def entry_count(self):
-        return len(self.data) + len(self.collect_buffer)
+        return self._entry_count + len(self.collect_buffer)
 
-    def entry(self, feed_data_dict):
+    def entry(self, feed_dict):
         """
         A method that takes a dictionary of data and returns a dictionary
         with the keys we are interested in.
         """
-        return { key : feed_data_dict.get(key, None) for key in self.csv_format }
+        return { key : feed_dict.get(key, None) for key in self.csv_format }
 
 
     def on_data(self, feed_data):
-        feed_data_dict = json.loads(feed_data) # convert to dictionary
+        feed_dict = json.loads(feed_data) # convert to dictionary
 
         # add entry
-        entry = self.entry(feed_data_dict)
+        entry = self.entry(feed_dict)
         if entry:
             self.collect_buffer.append(entry)
 
             # print entry
-            print(ANSI.CURSOR_UP+ANSI.CLEAR_LINE+ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
-
-            # self.display_entry(entry, show_extras=True)
-            # print(feed_data_dict)
+            if self.should_print_entry:
+                print(ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC)
+                self.display_entry(entry, show_extras=True)
+            else:
+                print(ANSI.CLEAR_LINE+ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC, end='\r')
+            # print(feed_dict)
 
             # check if time is up
             now = datetime.now()
@@ -261,27 +230,15 @@ class StreamTransformer(StreamListener):
             last_entry = float('inf') if self.sample_size == None else self.sample_size
             collected_all = self.entry_count() >= last_entry
 
-            def clean_write():
-                self.clean_data()
-                self.write_data()
-
             # clean & write when we are done
             if collected_all or time_is_up:
-                self.data += self.collect_buffer
-                self.collect_buffer = []
-                self.clean_data()
-                self.data = self.data[:last_entry]
-                self.write_data()
+                self.write_data(async=False)
                 print("STREAM STOPPED")
                 return False # stops stream
 
             # periodic clean and write
             if len(self.collect_buffer) >= self.buffer_size:
-                self.data += self.collect_buffer
-                self.collect_buffer = []
-                thread = Thread(target=clean_write)
-                thread.setDaemon(True)
-                thread.start()
+                self.write_data(async=True)
 
     def on_connect(self):
         print("CONNECTED...")
@@ -328,7 +285,7 @@ class StreamTransformer(StreamListener):
 class FHCTStreamTransformer(StreamTransformer):
     def __init__(self, file_path = "FHCTStream.csv", sample_size = 10,
                  duration = None, # trim_size = 5,
-                 buffer_size = 5):
+                 buffer_size = 5, should_print_entry = True):
 
         self.csv_format = ["followers_count","hashtags","created_at","text"]
         self.conversions = [int,eval,str,str]
@@ -336,18 +293,17 @@ class FHCTStreamTransformer(StreamTransformer):
         self.file_path = file_path
         self.sample_size = sample_size
         self.duration = duration
-        # self.trim_size = trim_size
         self.buffer_size = buffer_size
-        self.priority = lambda entry: entry.get("followers_count",0)
+        self.should_print_entry = should_print_entry
 
-    def entry(self, feed_data_dict):
+    def entry(self, feed_dict):
         entry = {}
-        entry["followers_count"] = feed_data_dict.get("user",{}).get("followers_count",0)
-        hashtags = feed_data_dict.get("entities",{}).get("hashtags",[])
+        entry["followers_count"] = feed_dict.get("user",{}).get("followers_count",0)
+        hashtags = feed_dict.get("entities",{}).get("hashtags",[])
         if len(hashtags) > 0:
             entry["hashtags"] = [hashtag.get("text", "") for hashtag in hashtags]
-        entry["created_at"] = feed_data_dict.get("created_at", None)
-        entry["text"] = feed_data_dict.get("text", None)
+        entry["created_at"] = feed_dict.get("created_at", None)
+        entry["text"] = feed_dict.get("text", None)
         return entry
 
 
@@ -362,8 +318,7 @@ class FHCTStreamTransformer(StreamTransformer):
 """
 class FUCTStreamTransformer(StreamTransformer):
     def __init__(self, file_path = "FUCTStream.csv", sample_size = 10,
-                 duration = None, # trim_size = 5,
-                 buffer_size = 5):
+                 duration = None, buffer_size = 5, should_print_entry = True):
 
         self.csv_format = ["followers_count","urls","created_at","text"]
         self.conversions = [int,eval,str,str]
@@ -371,18 +326,8 @@ class FUCTStreamTransformer(StreamTransformer):
         self.file_path = file_path
         self.sample_size = sample_size
         self.duration = duration
-        # self.trim_size = trim_size
         self.buffer_size = buffer_size
-
-        # priorizes entries with higher follower count and at least one url
-        def priority(entry):
-            urls = entry.get("urls",[])
-            at_least_1_url = len(urls) > 0
-            followers_count = entry.get("followers_count",0)
-            return (at_least_1_url, followers_count)
-
-        self.priority = priority
-        # self.priority = lambda entry: entry.get("followers_count",0)
+        self.should_print_entry = should_print_entry
 
     def entry(self, feed_dict):
         entry = {}
@@ -415,9 +360,8 @@ class EngTextStreamTransformer(StreamTransformer):
     _entry_count = 0
     write_buffer = []
 
-    def __init__(self, file_path = "EngTextStream.csv", sample_size = 10,
-                 duration = None, # trim_size = 5,
-                 buffer_size = 5):
+    def __init__(self, file_path = "EngTextStream.csv", sample_size = 1000,
+                 duration = None, buffer_size = 100, should_print_entry = False):
 
         self.csv_format = ["text"]
         self.conversions = [str]
@@ -425,19 +369,14 @@ class EngTextStreamTransformer(StreamTransformer):
         self.file_path = file_path
         self.sample_size = sample_size
         self.duration = duration
-        # self.trim_size = trim_size
         self.buffer_size = buffer_size
-        self.priority = lambda entry: 0#len(entry.get("text",0))
-
-
-    def entry_count(self):
-        return self._entry_count + len(self.collect_buffer)
+        self.should_print_entry = should_print_entry
 
     def entry(self, feed_dict):
 
         lang = feed_dict.get("lang", None)
         text = feed_dict.get("text", "")
-        tr = feed_dict.get("display_text_range", [0,len(text)])
+        tr = feed_dict.get("display_text_range", [0,len(text)]) # text ranges
 
         entities = feed_dict.get("entities", {})
         hashtags = entities.get("hashtags", [])
@@ -445,7 +384,6 @@ class EngTextStreamTransformer(StreamTransformer):
         user_mentions = entities.get("user_mentions", [])
         symbols = entities.get("symbols", [])
         media = entities.get("media", [])
-        # print(entities)
 
         replace_ranges = []
 
@@ -474,8 +412,6 @@ class EngTextStreamTransformer(StreamTransformer):
             if mi and mi[0] >= tr[0] and mi[1] <= tr[1]:
                 replace_ranges.append((mi[0],mi[1],"¨"))
 
-        # replace_ranges.sort()
-
         entry = None
         if lang == "en" and text:
             entry = {
@@ -486,9 +422,9 @@ class EngTextStreamTransformer(StreamTransformer):
 
         return entry
 
-    def clean_data(self):
+    def clean_write_buffer(self):
         """Trims data keeping key/value pairs with higher priority."""
-        # print("CLEANING DATA...")
+        print("CLEANING BUFFER...")
 
         def check_char(c):
             a = ord(c)
@@ -499,7 +435,7 @@ class EngTextStreamTransformer(StreamTransformer):
 
 
         new_text = set([])
-        for entry in self.data:
+        for entry in self.write_buffer:
             orig_text = entry.get("text", None)
             replace_ranges = entry.get("replace_ranges", [])
             replace_ranges.sort()
@@ -549,34 +485,11 @@ class EngTextStreamTransformer(StreamTransformer):
                 if orig_text and should_add:
                     new_text.add(orig_text)
 
-        new_data = [{"text" : text} for text in new_text]
-        # self.write_buffer = new_data
-        self.write_buffer = sorted(new_data, key=self.priority, reverse=True)#[0:self.trim_size]
-
-    def read_data(self):
-        """Reads data in file at file_path."""
-        if os.path.isfile(self.file_path):
-            print("CONTINUE FROM: " + self.file_path)
-            with open(self.file_path, "r") as file:
-                # lines = file.readlines()
-                self._entry_count = 0
-                # self.write_buffer = []
-                for _ in file:
-                    self._entry_count += 1
-                # self.write_buffer = [{"text" : line.rstrip('\n')} for line in lines]
-        else:
-            print("NO FILE AT: " + self.file_path)
+        self.write_buffer = [{"text" : text} for text in new_text]
 
 
-    def write_data(self):
-        """Writes data to file_path as a CVS file. """
-        print("WRITING TO: " + self.file_path)
-        print()
-        # save previous write by renaming file with prefix TMP_
-        # path, file_name = os.path.split(self.file_path)
-        # tmppath = os.path.join(path, "TMP_" + file_name)
-        # if os.path.isfile(self.file_path):
-        #     os.rename(self.file_path, tmppath)
+    def write_process(self):
+        self.clean_write_buffer()
 
         with open(self.file_path, "a") as file:
             # write data
@@ -586,13 +499,5 @@ class EngTextStreamTransformer(StreamTransformer):
                 if text:
                     self._entry_count += 1
                     file.write(text + "\n")
-            # self.write_buffer = []
-        # remove temporary file
-        # if os.path.isfile(tmppath):
-        #     os.remove(tmppath)
 
-    def on_connect(self):
-        print("CONNECTED...")
-        print()
-        if not self.start_time:
-            self.start_time = datetime.now()
+            self.write_buffer = []
