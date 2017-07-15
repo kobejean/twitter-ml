@@ -1,65 +1,54 @@
 """
-################################################################################
-#                            - Stream Transformer -                            #
-#                                                                              #
-#   PROGRAMMED BY: Jean Flaherty                                               #
-#   DATE: 04-07-2017                                                           #
-#   DESCRIPTION: Handles collecting data from the Twitter Stream API and       #
-#                passing it to the DataHandler class                           #
-#                                                                              #
-#   Classes:                                                                   #
-#       StreamTransformer: A general class that defines how to operate tweepy  #
-#           stream                                                             #
-#       FHCTStreamTransformer: A subclass of StreamTransformer that reads      #
-#           followers_count, hashtags, created_at, and text tags.              #
-#       FUCTStreamTransformer: Defines how to operate tweepy stream data taken #
-################################################################################
+                         - Stream Transformer -
+
+PROGRAMMED BY: Jean Flaherty
+DATE: 07-14-2017
+DESCRIPTION: Handles collecting data from the Twitter Stream API and
+             passing it to the DataHandler class
+
+Classes:
+    StreamTransformer: A general class that defines how to operate tweepy
+        stream
+    FHCTStreamTransformer: A subclass of StreamTransformer that reads
+        followers_count, hashtags, created_at, and text tags.
+    FUCTStreamTransformer: Defines how to operate tweepy stream data taken
 """
+import json, os, csv
 from datetime import datetime, timedelta
-import json
-import os
-import csv
 from tweepy.streaming import StreamListener
 from threading import Thread
-
+# within module
 from ..utils.ansi import ANSI
 
-"""
-#   - StreamTransformer -
-#
-#   Description: This class is a general class used to define how to operate
-#                data taken from the Twitter Stream API. The DataHandler class
-#                is implemented here for data formating
-#
-#   StreamListener Methods:
-#       - on_data(self, data):
-#       - on_connect(self):
-#       - on_disconnect(self):
-#       - on_error(self, status_code):
-#       - keep_alive(self):
-#       - on_limit(self, track):
-#       - on_timeout(self):
-#       - on_warning(self, notice):
-#
-#   Methods:
-#       - entry(self, data):
-#       - scan_file(self):
-#       - write_data(self):
-"""
 
 class StreamTransformer(StreamListener):
+    """
+    This class is a general class used to define how to operate
+    data taken from the Twitter Stream API. The DataHandler class
+    is implemented here for data formating
+    """
     start_time = None
     collect_buffer = []
     write_buffer = []
     _entry_count = 0
 
     def __init__(self, tags, file_path = "STREAM.csv", sample_size = 20,
-                 duration = None, buffer_size = 5, should_print_entry = True):
+                 buffer_size = 5, should_print_entry = True):
+        """
+        Initializer
+
+        ARGUMENTS:
+        tags                - Key names for values to retrieve from the stream.
+        file_path           - The file path to write to.
+        sample_size         - The number of entries to collect.
+        buffer_size         - The max number of entries for the buffer
+        should_print_entry  - Boolean value that determins whether or not the
+                              entries should be printed as they are collected
+        """
         self.csv_format = tags
         self.conversions = len(tags) * [str]
 
         self.sample_size = sample_size
-        self.duration = duration
         self.buffer_size = buffer_size
         self.file_path = file_path
         self.should_print_entry = should_print_entry
@@ -67,22 +56,9 @@ class StreamTransformer(StreamListener):
         if self.file_path:
             self.scan_file()
 
-    """
-    #   - Read Method -
-    #
-    #   DESCRIPTION: Reads data in a specified file.
-    #
-    #   PARAMETERS:
-    #       file_path    - The path of the file to read
-    #       conversions - A list of functions that takes a string and returns
-    #                     a value. This is for converting each string value to
-    #                     the correct type. For example if our CSV format is:
-    #                         volume, hashtag
-    #                     then our conversions should be:
-    #                         [int, str]
-    """
+
     def scan_file(self):
-        """Reads data in file at file_path."""
+        """ Scans file to count the number of entries. """
         if os.path.isfile(self.file_path):
             print("CONTINUE FROM: " + self.file_path)
             with open(self.file_path, "r") as file:
@@ -96,36 +72,22 @@ class StreamTransformer(StreamListener):
             print("NO FILE AT: " + self.file_path)
 
 
-    """"
-    #   - Write Method -
-    #
-    #   DESCRIPTION: Writes data to a specified file path as a CVS file.
-    #
-    #   PARAPERTERS:
-    #       file_path   - The path to write the file.
-    #       csv_format - The cvs format as a list of keys. For example if each
-    #                    entry looks something like:
-    #                        {"hashtag":"some value", "volume":20}
-    #                    and we want the CVS format to look something like:
-    #                        hashtag, volume
-    #                    our csv_format parameter should look like:
-    #                        [hashtag,volume]
-    """
     def write_data(self, async=False):
-        """Writes buffer to file_path as a CVS file. """
+        """" Writes buffer to a specified file path as a CVS file. """
         self.write_buffer += self.collect_buffer
         self.collect_buffer = []
 
         print("WRITING TO: " + self.file_path)
         if async:
-            thread = Thread(target=self.write_process)
+            thread = Thread(target=self._write_process)
             thread.setDaemon(True)
             thread.start()
         else:
-            self.write_process()
+            self._write_process()
 
 
-    def write_process(self):
+    def _write_process(self):
+        """" The writing process that could be called on a different thread. """
         with open(self.file_path, "a") as file:
             writer = csv.writer(file)
             keys = self.csv_format if self.csv_format else list(self.write_buffer[0].keys())
@@ -134,7 +96,8 @@ class StreamTransformer(StreamListener):
             writer.writerow(keys)
 
             # write data
-            for entry in self.write_buffer:
+            while self.write_buffer:
+                entry = self.write_buffer.pop()
                 values = []
                 for key in keys:
                     value = entry.get(key, None)
@@ -150,10 +113,7 @@ class StreamTransformer(StreamListener):
 
 
     def display_data(self):
-        """
-        DESCRIPTION:
-            Prints the data out with colors.
-        """
+        """ Prints the data out with colors. """
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
         # for i, entry in enumerate(self.collect_buffer):
         #     print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
@@ -173,11 +133,12 @@ class StreamTransformer(StreamListener):
 
     def display_entry(self, entry, show_extras=True):
         """
-        DESCRIPTION:
-            Prints an entry out with colors.
+        Prints an entry out with colors.
 
-        ARGS:
-            entry - a dictionary of key/values
+        ARGUMENTS:
+        entry       - A dictionary of key/values
+        show_extras - (optional) A boolean value that determines whether or not
+                      to print values that are not specified in the csv format
         """
         # print in the order of csv_format
         for key in self.csv_format:
@@ -194,12 +155,16 @@ class StreamTransformer(StreamListener):
                 print(text)
 
     def entry_count(self):
+        """ Returns the number of entries that were collected """
         return self._entry_count + len(self.collect_buffer)
 
     def entry(self, feed_dict):
         """
-        A method that takes a dictionary of data and returns a dictionary
-        with the keys we are interested in.
+        Takes a dictionary of data and returns a dictionary with the keys
+        we are interested in.
+
+        ARGUMENTS:
+        feed_dict - The data feed dictionary from the stream
         """
         return { key : feed_dict.get(key, None) for key in self.csv_format }
 
@@ -220,17 +185,12 @@ class StreamTransformer(StreamListener):
                 print(ANSI.CLEAR_LINE+ANSI.BLUE + "ADDED: ENTRY #" + str(self.entry_count()) + ANSI.ENDC, end='\r')
             # print(feed_dict)
 
-            # check if time is up
-            now = datetime.now()
-            end_time = datetime.max if self.duration == None else self.start_time + self.duration
-            time_is_up = now > end_time
-
             # check if collected all
             last_entry = float('inf') if self.sample_size == None else self.sample_size
             collected_all = self.entry_count() >= last_entry
 
             # clean & write when we are done
-            if collected_all or time_is_up:
+            if collected_all:
                 self.write_data(async=False)
                 print("STREAM STOPPED")
                 return False # stops stream
@@ -272,18 +232,15 @@ class StreamTransformer(StreamListener):
         print(ANSI.WARNING + "WARNING:", notice, ANSI.ENDC)
         return
 
-"""
-#                           - FHCTStreamTransformer -
-#
-#   Description: This class is a more specific version of StreamTransformer
-#                that uses the followers_count, hashtags, created_at, and text
-#                keys for the data collection. It also prioritizes entries
-#                with higher followers_count values.
-#
-"""
+
 class FHCTStreamTransformer(StreamTransformer):
+    """
+    This class is a more specific version of StreamTransformer
+    that uses the followers_count, hashtags, created_at, and text
+    keys for the data collection. It also prioritizes entries
+    with higher followers_count values.
+    """
     def __init__(self, file_path = "FHCTStream.csv", sample_size = 10,
-                 duration = None, # trim_size = 5,
                  buffer_size = 5, should_print_entry = True):
 
         self.csv_format = ["followers_count","hashtags","created_at","text"]
@@ -291,11 +248,17 @@ class FHCTStreamTransformer(StreamTransformer):
 
         self.file_path = file_path
         self.sample_size = sample_size
-        self.duration = duration
         self.buffer_size = buffer_size
         self.should_print_entry = should_print_entry
 
     def entry(self, feed_dict):
+        """
+        Takes a dictionary of data and returns a dictionary with the keys
+        we are interested in.
+
+        ARGUMENTS:
+        feed_dict - The data feed dictionary from the stream
+        """
         entry = {}
         entry["followers_count"] = feed_dict.get("user",{}).get("followers_count",0)
         hashtags = feed_dict.get("entities",{}).get("hashtags",[])
@@ -306,29 +269,32 @@ class FHCTStreamTransformer(StreamTransformer):
         return entry
 
 
-"""
-#   - FHCTStreamTransformer -
-#
-#   Description: This class is a more specific version of StreamTransformer
-#                that uses the followers_count, hashtags, created_at, and text
-#                keys for the data collection. It also prioritizes entries
-#                with higher followers_count values.
-#
-"""
 class FUCTStreamTransformer(StreamTransformer):
+    """
+    This class is a more specific version of StreamTransformer
+    that uses the followers_count, hashtags, created_at, and text
+    keys for the data collection. It also prioritizes entries
+    with higher followers_count values.
+    """
     def __init__(self, file_path = "FUCTStream.csv", sample_size = 10,
-                 duration = None, buffer_size = 5, should_print_entry = True):
+                 buffer_size = 5, should_print_entry = True):
 
         self.csv_format = ["followers_count","urls","created_at","text"]
         self.conversions = [int,eval,str,str]
 
         self.file_path = file_path
         self.sample_size = sample_size
-        self.duration = duration
         self.buffer_size = buffer_size
         self.should_print_entry = should_print_entry
 
     def entry(self, feed_dict):
+        """
+        Takes a dictionary of data and returns a dictionary with the keys
+        we are interested in.
+
+        ARGUMENTS:
+        feed_dict - The data feed dictionary from the stream
+        """
         entry = {}
         entry["followers_count"] = feed_dict.get("user",{}).get("followers_count",0)
 
@@ -346,32 +312,36 @@ class FUCTStreamTransformer(StreamTransformer):
         entry["text"] = feed_dict.get("text", None)
         return entry
 
-"""
-#                           - FHCTStreamTransformer -
-#
-#   Description: This class is a more specific version of StreamTransformer
-#                that uses the followers_count, hashtags, created_at, and text
-#                keys for the data collection. It also prioritizes entries
-#                with higher followers_count values.
-#
-"""
+
 class EngTextStreamTransformer(StreamTransformer):
+    """
+    This class is a more specific version of StreamTransformer
+    that uses the followers_count, hashtags, created_at, and text
+    keys for the data collection. It also prioritizes entries
+    with higher followers_count values.
+    """
     _entry_count = 0
     write_buffer = []
 
     def __init__(self, file_path = "EngTextStream.csv", sample_size = 1000,
-                 duration = None, buffer_size = 100, should_print_entry = False):
+                 buffer_size = 100, should_print_entry = False):
 
         self.csv_format = ["text"]
         self.conversions = [str]
 
         self.file_path = file_path
         self.sample_size = sample_size
-        self.duration = duration
         self.buffer_size = buffer_size
         self.should_print_entry = should_print_entry
 
     def entry(self, feed_dict):
+        """
+        Takes a dictionary of data and returns a dictionary with the keys
+        we are interested in.
+
+        ARGUMENTS:
+        feed_dict - The data feed dictionary from the stream
+        """
 
         lang = feed_dict.get("lang", None)
         text = feed_dict.get("text", "")
@@ -422,7 +392,10 @@ class EngTextStreamTransformer(StreamTransformer):
         return entry
 
     def clean_write_buffer(self):
-        """Trims data keeping key/value pairs with higher priority."""
+        """
+        Cleans the buffer, preventing duplicates and replacing
+        entities with characters.
+        """
         print("CLEANING BUFFER...")
 
         def check_char(c):
@@ -442,11 +415,11 @@ class EngTextStreamTransformer(StreamTransformer):
             should_add = True
             text = ""
 
+            # replace ranges
             if replace_ranges:
                 r = 0
                 text = ""
                 for i in range(tr[0], tr[1]):
-
                     if not r in range(len(replace_ranges)):
                         for c in orig_text[i:tr[1]]:
                             if check_char(c):
@@ -487,7 +460,8 @@ class EngTextStreamTransformer(StreamTransformer):
         self.write_buffer = [{"text" : text} for text in new_text]
 
 
-    def write_process(self):
+    def _write_process(self):
+        """" The writing process that could be called on a different thread. """
         self.clean_write_buffer()
 
         with open(self.file_path, "a") as file:
