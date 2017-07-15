@@ -2,16 +2,20 @@
                          - Stream Transformer -
 
 PROGRAMMED BY: Jean Flaherty
-DATE: 07-14-2017
+DATE: 07/15/2017
 DESCRIPTION: Handles collecting data from the Twitter Stream API and
-             passing it to the DataHandler class
+             writing it to a file.
 
-Classes:
+CLASSES:
     StreamTransformer: A general class that defines how to operate tweepy
         stream
     FHCTStreamTransformer: A subclass of StreamTransformer that reads
         followers_count, hashtags, created_at, and text tags.
-    FUCTStreamTransformer: Defines how to operate tweepy stream data taken
+    FUCTStreamTransformer: A subclass of StreamTransformer that reads
+        followers_count, urls, created_at, and text tags.
+    EngTextStreamTransformer: A subclass of StreamTransformer that reads
+        takes only english text. It will also replace entities with special
+        characters to make the text machine learning friendly.
 """
 import json, os, csv
 from datetime import datetime, timedelta
@@ -27,7 +31,6 @@ class StreamTransformer(StreamListener):
     data taken from the Twitter Stream API. The DataHandler class
     is implemented here for data formating
     """
-    start_time = None
     collect_buffer = []
     write_buffer = []
     _entry_count = 0
@@ -41,9 +44,9 @@ class StreamTransformer(StreamListener):
         tags                - Key names for values to retrieve from the stream.
         file_path           - The file path to write to.
         sample_size         - The number of entries to collect.
-        buffer_size         - The max number of entries for the buffer
+        buffer_size         - The max number of entries for the buffer.
         should_print_entry  - Boolean value that determins whether or not the
-                              entries should be printed as they are collected
+                              entries should be printed as they are collected.
         """
         self.csv_format = tags
         self.conversions = len(tags) * [str]
@@ -107,9 +110,11 @@ class StreamTransformer(StreamListener):
                         # value looks like b"\x00" so remove the b" and " w/ [2:-1]
                         value = str(value)[2:-1]
                     values.append(value)
+                    del value
                 writer.writerow(values)
+                del entry, values
                 self._entry_count += 1
-            del self.write_buffer[:] # don't need reference after write
+            # del self.write_buffer[:] # don't need reference after write
 
 
     def display_data(self):
@@ -201,8 +206,6 @@ class StreamTransformer(StreamListener):
 
     def on_connect(self):
         print("CONNECTED...")
-        if not self.start_time:
-            self.start_time = datetime.now()
 
 
     def on_disconnect(self, notice):
@@ -245,7 +248,6 @@ class FHCTStreamTransformer(StreamTransformer):
 
         self.csv_format = ["followers_count","hashtags","created_at","text"]
         self.conversions = [int,eval,str,str]
-
         self.file_path = file_path
         self.sample_size = sample_size
         self.buffer_size = buffer_size
@@ -281,7 +283,6 @@ class FUCTStreamTransformer(StreamTransformer):
 
         self.csv_format = ["followers_count","urls","created_at","text"]
         self.conversions = [int,eval,str,str]
-
         self.file_path = file_path
         self.sample_size = sample_size
         self.buffer_size = buffer_size
@@ -307,7 +308,6 @@ class FUCTStreamTransformer(StreamTransformer):
                 urls.append(expanded_url)
 
         entry["urls"] = urls
-
         entry["created_at"] = feed_dict.get("created_at", None)
         entry["text"] = feed_dict.get("text", None)
         return entry
@@ -320,15 +320,12 @@ class EngTextStreamTransformer(StreamTransformer):
     keys for the data collection. It also prioritizes entries
     with higher followers_count values.
     """
-    _entry_count = 0
-    write_buffer = []
 
     def __init__(self, file_path = "EngTextStream.csv", sample_size = 1000,
                  buffer_size = 100, should_print_entry = False):
 
         self.csv_format = ["text"]
         self.conversions = [str]
-
         self.file_path = file_path
         self.sample_size = sample_size
         self.buffer_size = buffer_size
@@ -391,9 +388,10 @@ class EngTextStreamTransformer(StreamTransformer):
 
         return entry
 
+
     def clean_write_buffer(self):
         """
-        Cleans the buffer, preventing duplicates and replacing
+        Cleans the write buffer, preventing duplicates and replacing
         entities with characters.
         """
         print("CLEANING BUFFER...")
@@ -407,7 +405,8 @@ class EngTextStreamTransformer(StreamTransformer):
 
 
         new_text = set([])
-        for entry in self.write_buffer:
+        while self.write_buffer:
+            entry = self.write_buffer.pop()
             orig_text = entry.get("text", None)
             replace_ranges = entry.get("replace_ranges", [])
             replace_ranges.sort()
@@ -472,6 +471,3 @@ class EngTextStreamTransformer(StreamTransformer):
                 if text:
                     self._entry_count += 1
                     file.write(text + "\n")
-
-
-            del self.write_buffer[:] # don't need reference after write

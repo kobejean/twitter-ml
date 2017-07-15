@@ -1,3 +1,16 @@
+"""
+                        - Random or Not Neural Net -
+
+PROGRAMMED BY: Jean Flaherty
+DATE: 07/15/2017
+DESCRIPTION:
+    Contains a function that constructs and runs a nueral net that learns word
+    embeddings by trying to guess whether or not the word in the middle is
+    random or not.
+FUNCTIONS:
+    run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None)
+"""
+
 import tensorflow as tf
 import numpy as np
 from tensorflow.contrib.tensorboard.plugins import projector
@@ -20,9 +33,14 @@ CHECKPOINT_PERIOD = 500
 
 def run_random_or_not_nn(data_package_path, log_path, meta_graph_path=None):
     """
-    description: generates sub sequences given the sequence reader
-    args:
-        seqs_reader: a generator that produces sequences of word indices
+    Constructs and runs a nueral net that learns word embeddings by trying to
+    guess whether or not the word in the middle is random or not.
+
+    ARGUMENTS:
+    data_package_path - The path to the data package.
+    log_path          - The path to the directory for logging.
+    meta_graph_path   - (optional) If specified will restore the session from
+                        this file path.
     """
     RESTORE_SESSION = (meta_graph_path != None)
 

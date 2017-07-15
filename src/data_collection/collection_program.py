@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+"""
+                            - Collection Program -
+
+PROGRAMMED BY: Jean Flaherty
+DATE: 07/15/2017
+DESCRIPTION:
+    A script collects twitter data
+"""
 from datetime import datetime, timedelta
 import os
 import time
@@ -21,7 +30,6 @@ st_num = int(input("ENTER CORRESPONDING NUMBER: ")) if not TEST_MODE else 2
 filters_str = input("ENTER FILTER: ")               if not TEST_MODE else "the"
 sample_size = int(input("ENTER SAMPLE SIZE: "))     if not TEST_MODE else 100000000
 hours = float(input("ENTER DURATION IN HOURS: "))   if not TEST_MODE else 24*30
-# trim_size = int(input("ENTER TRIM SIZE: "))         if not TEST_MODE else 500000
 buffer_size = int(input("ENTER BUFFER SIZE: "))     if not TEST_MODE else 10000
 should_print_entry = bool(int(input("SHOULD PRINT ENTRY (0 or 1): ")))\
                                                     if not TEST_MODE else False
@@ -39,12 +47,19 @@ ChosenStreamTransformer = st_types[st_num][1]
 this_path = os.path.abspath(os.path.dirname(__file__))
 parent_path = os.path.abspath(os.path.join(this_path, os.pardir))
 data_path = os.path.join(parent_path, "shared_data")
+if not os.path.exists(data_path):
+    os.mkdir(data_path)
+
 file_name = ("" if not TEST_MODE else "TEST ") + filters_str.upper() + " STREAM.csv"
 file_path = os.path.join(data_path, file_name)
 print("FILE PATH: " + file_path)
 # convert comma separated filters into list
 filters = filters_str.split(",")
 print("FILTERS: " + str(filters))
+
+
+
+
 
 # set up stream transformer
 st = ChosenStreamTransformer()

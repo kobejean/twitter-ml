@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+"""
+               - Character Recurrent Neural Net Player -
+
+PROGRAMMED BY: Jean Flaherty
+DATE: 07/15/2017
+DESCRIPTION:
+    Prints text that the character recurrent nueral net generates.
+"""
+
 import os
 from context import tml
 import tml.learning.character_prediction.rnn_play as play

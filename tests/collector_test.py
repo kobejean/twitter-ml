@@ -1,10 +1,10 @@
-############################################################################################
-# PROGRAMMED BY: Jean Flaherty                                                             #
-# DATE: 4-07-2017                                                                          #
-# DESCRIPTION: This script tests the data collection tools defined in the tml package      #
-#                                                                                          #
-############################################################################################
-
+"""
+                             - Collector Test -
+PROGRAMMED BY: Jean Flaherty
+DATE: 07/15/2017
+DESCRIPTION:
+    This script tests the data collection tools defined in the tml package.
+"""
 import time
 from context import tml
 from tml.collection.data_collector import DataCollector
@@ -79,7 +79,7 @@ collector.stream([filter], st4)
 # st3.display_data()
 # st4.display_data()
 
-os.remove(st1.file_path)
-os.remove(st2.file_path)
-os.remove(st3.file_path)
-os.remove(st4.file_path)
+remove_paths = [st1.file_path, st2.file_path, st3.file_path, st4.file_path]
+for path in remove_paths:
+    if os.path.exists(path):
+        os.remove(path)
