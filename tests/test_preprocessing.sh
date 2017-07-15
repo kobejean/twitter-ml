@@ -18,7 +18,7 @@ local status2=$?
 
 rm -r data/THE\ STREAM/
 
-if [status1 == 0 && status2 == 0];
+if [status1 == 0] && [status2 == 0];
     then
         exit 0
     else
