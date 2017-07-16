@@ -3,8 +3,7 @@ python:
     - "3.5"
 # command to install dependencies
 install:
-    - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then wget https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.7.1-cp34-none-linux_x86_64.whl -O tensorflow-0.7.1-cp35-none-linux_x86_64.whl; TENSORFLOW_PACKAGE_LOC="tensorflow-0.7.1-cp35-none-linux_x86_64.whl"; fi
-    - python setup.py install		    - python setup.py install
+    - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then wget https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.2.1-cp35-cp35m-linux_x86_64.whl -O tensorflow-1.2.1-cp35-cp35m-linux_x86_64.whl; TENSORFLOW_PACKAGE_LOC="tensorflow-1.2.1-cp35-cp35m-linux_x86_64.whl"; fi
     - pip install -r requirements.txt
 # commands to run tests
 script:
