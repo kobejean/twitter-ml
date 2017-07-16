@@ -30,5 +30,9 @@ if len(sys.argv) == 2:
 
 text_files = os.path.join(text_path, "*.txt") # default src/character_prediction/data/THE TEXT/*.txt
 
+# create directories if they do not exist
+if not os.path.exists(checkpoints_path):
+    os.mkdir(checkpoints_path)
+
 print("TRAINING WILL START ...")
 train.train(text_files, checkpoints_path, log_path)

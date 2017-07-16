@@ -14,7 +14,7 @@ DESCRIPTION:
         $ python3 random_or_not_word_embedding_nn.py path/to/data_package_dir/
 """
 
-import os
+import os, sys
 from context import tml
 from tml.learning.word_embeddings.random_or_not_nn import *
 

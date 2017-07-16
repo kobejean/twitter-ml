@@ -19,6 +19,8 @@ import sys
 import re
 import copy
 
+from .generators import print_progress_generator
+
 # size of the alphabet that we work with
 ALPHASIZE = 99
 
@@ -378,16 +380,21 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
     # pick the smallest
     nb_books = min(nb_books1, nb_books2, nb_books3)
 
-    # if nb_books == 0 or not validation:
-    #     cutoff = len(codetext)
-    # else:
-    #     cutoff = bookranges[-nb_books]["start"]
+    cutoff = 0
+    if nb_books == 0 or not validation:
+        cutoff = len(codetext)
+    else:
+        cutoff = bookranges[-nb_books]["start"]
 
     print("LOADING INTO MEMORY...")
     valipaths = [d["path"] for d in bookranges[-nb_books:]]
     textpaths = [d["path"] for d in bookranges[:-nb_books]]
-    valitext = [code for code in codetext_gen(valipaths, 1)]
-    codetext = [code for code in codetext_gen(textpaths, 1)]
+    valigen = print_progress_generator("LOADING VALIDATION: ",\
+        codetext_gen(valipaths, 1), codecount-cutoff, period=10000)
+    textgen = print_progress_generator("LOADING TRAINING: ",\
+        codetext_gen(textpaths, 1), cutoff, period=10000)
+    valitext = [code for code in valigen]
+    codetext = [code for code in textgen]
     return codecount, codetext, valitext, bookranges
 
 
