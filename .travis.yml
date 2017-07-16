@@ -1,12 +1,16 @@
 language: python
 python:
-  - "3.5"
-  - "3.6"
+    - "3.5"
+    - "3.6"
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update
+    - sudo apt-get install gcc-4.9 g++-4.9
+    - sudo apt-get install libstdc++6
+    - pip install -r requirements.txt
 # commands to run tests
 script:
-  - cd tests
-  - python3 collector_test.py
-  - ./test_preprocessing.sh
+    - cd tests
+    - python3 collector_test.py
+    - ./test_preprocessing.sh
