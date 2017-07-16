@@ -16,10 +16,10 @@ if [ $# -eq 0 ]
         exit 1
     else
         echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-        python3 character_prediction/create_text.py $1
+        python3 character_prediction/create_text.py "$1"
 
         echo "PREPROCESSING FOR WORD EMBEDDINGS..."
-        python3 word_embeddings/create_data_package.py $1
+        python3 word_embeddings/create_data_package.py "$1"
 
         exit 0
 fi
