@@ -1,28 +1,10 @@
 language: python
 python:
     - "3.5"
-    - "3.6"
 # command to install dependencies
 install:
-    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    - sudo apt-get update
-    - sudo apt-get install gcc-4.9 g++-4.9
-    - sudo apt-get install libstdc++6
-    - sudo apt-get install libc6
-    - sudo pip install --upgrade virtualenv
-    - virtualenv --system-site-packages ~/tensorflow
-    - cd ~/tensorflow
-    - source bin/activate
-    - pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.5.0-cp27-none-linux_x86_64.whl
-    - cd /tmp
-    - wget http://launchpadlibrarian.net/137699828/libc6_2.17-0ubuntu5_amd64.deb
-    - wget http://launchpadlibrarian.net/137699829/libc6-dev_2.17-0ubuntu5_amd64.deb
-    - mkdir libc6_2.17
-    - cd libc6_2.17
-    - ar p ../libc6_2.17-0ubuntu5_amd64.deb data.tar.gz | tar zx
-    - ar p ../libc6-dev_2.17-0ubuntu5_amd64.deb data.tar.gz | tar zx
-    - cd -
-    - LD_LIBRARY_PATH=/tmp/libc6_2.17/lib/x86_64-linux-gnu/ /tmp/libc6_2.17/lib/x86_64-linux-gnu/ld-2.17.so bin/python local/lib/python2.7/site-packages/tensorflow/models/image/mnist/convolutional.py
+    - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then wget https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.7.1-cp34-none-linux_x86_64.whl -O tensorflow-0.7.1-cp35-none-linux_x86_64.whl; TENSORFLOW_PACKAGE_LOC="tensorflow-0.7.1-cp35-none-linux_x86_64.whl"; fi
+    - python setup.py install		    - python setup.py install
     - pip install -r requirements.txt
 # commands to run tests
 script:
