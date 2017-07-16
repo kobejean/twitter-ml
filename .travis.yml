@@ -7,6 +7,5 @@ install:
 # commands to run tests
 script:
   - cd tests
-  # - python collector_test.py
-  # - python handler_test.py
-  - python test_all.py
+  - python3 collector_test.py
+  - ./test_preprocessing.sh
