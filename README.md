@@ -6,7 +6,7 @@ develop: [![Build Status](https://travis-ci.org/kobejean/TwitterML.svg?branch=de
 
 #### Dependencies
 
-- tensorflow (1.1.0)
+- tensorflow (1.2.0)
 - tweepy (3.5.0)
 - keras (2.0.5)
 
