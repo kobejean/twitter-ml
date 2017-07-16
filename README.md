@@ -35,7 +35,7 @@ $ python3 src/data_collection/collection_program.py
 ```
 For twitter text collection pick the `EngTextStreamTransformer` by typing in `2`.
 For the filter, using `the` will give you a steady stream of tweets.
-The sample size is the number of tweets to collect, `500000000` would be roughly
+The sample size is the number of tweets to collect, `50000000` would be roughly
 5GB of data and will take a long time to collect, but you can stop the program at any time.
 
 Here are all the options that I use for running collection on a small server:
@@ -47,7 +47,7 @@ PICK STREAM TRANSFORMER TYPE:
      2 EngTextStreamTransformer
 ENTER CORRESPONDING NUMBER: 2
 ENTER FILTER: the
-ENTER SAMPLE SIZE: 500000000
+ENTER SAMPLE SIZE: 50000000
 ENTER DURATION IN HOURS: 720
 ENTER BUFFER SIZE: 25000
 SHOULD PRINT ENTRY (0 or 1): 0
