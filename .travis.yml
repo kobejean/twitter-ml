@@ -1,11 +1,8 @@
 language: python
 python:
   - "3.5"
-  - "3.6"
 # command to install dependencies
 install:
-  - sudo apt-get update
-  - sudo apt-get install libc6
   - pip install -r requirements.txt
 # commands to run tests
 script:
