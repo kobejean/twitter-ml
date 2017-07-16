@@ -4,8 +4,9 @@ python:
   - "3.6"
 # command to install dependencies
 install:
+  - sudo apt-get update
+  - sudo apt-get install libc6
   - pip install -r requirements.txt
-  - pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.2.1-cp35-cp35m-linux_x86_64.whl
 # commands to run tests
 script:
   - cd tests
