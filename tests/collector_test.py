@@ -27,7 +27,6 @@ st1 = StreamTransformer(tags=["text"])
 filename1 =  filter.upper() + " 1ST STREAM.csv"
 st1.file_path = os.path.join(datapath, filename1)
 st1.sample_size = 100 # number of entries to collect before stopping stream
-# st1.trim_size = 50 # the threshold of data size where the data is trimmed
 st1.buffer_size = 10 # number of entries between cleaning/writing files
 st1.should_print_entry = True
 st1.scan_file()
@@ -40,7 +39,6 @@ st2 = FHCTStreamTransformer()
 filename2 =  filter.upper() + " 2ND STREAM.csv"
 st2.file_path = os.path.join(datapath, filename2)
 st2.sample_size = 100 # number of entries to collect before stopping stream
-# st2.trim_size = 50 # the threshold of data size where the data is trimmed
 st2.buffer_size = 10 # number of entries between cleaning/writing files
 st2.should_print_entry = True
 st2.scan_file()
@@ -53,7 +51,6 @@ st3 = FUCTStreamTransformer()
 filename3 =  filter.upper() + " 3RD STREAM.csv"
 st3.file_path = os.path.join(datapath, filename3)
 st3.sample_size = 100 # number of entries to collect before stopping stream
-# st3.trim_size = 50 # the threshold of data size where the data is trimmed
 st3.buffer_size = 10 # number of entries between cleaning/writing files
 st3.should_print_entry = True
 st3.scan_file()
@@ -66,7 +63,6 @@ st4 = EngTextStreamTransformer()
 filename4 =  filter.upper() + " 4TH STREAM.csv"
 st4.file_path = os.path.join(datapath, filename4)
 st4.sample_size = 100 # number of entries to collect before stopping stream
-# st4.trim_size = 50 # the threshold of data size where the data is trimmed
 st4.buffer_size = 10 # number of entries between cleaning/writing files
 st4.should_print_entry = True
 st4.scan_file()
@@ -74,10 +70,10 @@ print("FILTER: " + filter.upper())
 collector.stream([filter], st4)
 
 
-# st1.display_data()
-# st2.display_data()
-# st3.display_data()
-# st4.display_data()
+st1.display_data()
+st2.display_data()
+st3.display_data()
+st4.display_data()
 
 remove_paths = [st1.file_path, st2.file_path, st3.file_path, st4.file_path]
 for path in remove_paths:

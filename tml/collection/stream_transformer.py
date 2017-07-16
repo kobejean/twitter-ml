@@ -27,9 +27,8 @@ from ..utils.ansi import ANSI
 
 class StreamTransformer(StreamListener):
     """
-    This class is a general class used to define how to operate
-    data taken from the Twitter Stream API. The DataHandler class
-    is implemented here for data formating
+    This class is a general class used to define how to transform
+    data taken from the Twitter Stream API.
     """
     collect_buffer = []
     write_buffer = []
@@ -91,12 +90,14 @@ class StreamTransformer(StreamListener):
 
     def _write_process(self):
         """" The writing process that could be called on a different thread. """
+        should_write_header = not os.path.exists(self.file_path)
         with open(self.file_path, "a") as file:
             writer = csv.writer(file)
             keys = self.csv_format if self.csv_format else list(self.write_buffer[0].keys())
 
             # write header
-            writer.writerow(keys)
+            if should_write_header:
+                writer.writerow(keys)
 
             # write data
             while self.write_buffer:
@@ -120,21 +121,45 @@ class StreamTransformer(StreamListener):
     def display_data(self):
         """ Prints the data out with colors. """
         print(ANSI.RED + "DATA:" + ANSI.ENDC)
-        # for i, entry in enumerate(self.collect_buffer):
-        #     print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
-        #     # print in the order of csv_format
-        #     for key in self.csv_format:
-        #         key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
-        #         text = key_text + str(entry.get(key, None))
-        #         print(text)
-        #
-        #     # print key/value pairs not included in csv_format
-        #     neglected_keys = entry.keys() - set(self.csv_format)
-        #     for key in neglected_keys:
-        #         key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
-        #         text = key_text + str(entry.get(key, None))
-        #         print(text)
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r") as file:
+                reader = csv.reader(file)
+                keys = list(next(reader)) # first line has keys/format
 
+                if self.csv_format == None:
+                    self.csv_format = keys
+                else:
+                    # include keys not includes in csv_format
+                    keys = self.csv_format + list(set(keys) - set(self.csv_format))
+
+                conversions = self.conversions if self.conversions else [str] * len(keys)
+
+                for i, values in enumerate(reader):
+                    entry = {}
+                    for key, value, conversion in zip(keys, values, conversions):
+                        if value != "":
+                            # unescape value
+                            value = value.encode('utf-8')\
+                                    .decode("unicode_escape")\
+                                    .encode('latin1')\
+                                    .decode('utf-8')
+                            entry[key] = conversion(value)
+
+                    print(ANSI.GREEN + "ENTRY #"+ str(i+1) + ANSI.ENDC)
+                    # print in the order of csv_format
+                    for key in self.csv_format:
+                        key_text = ANSI.CYAN + str(key).upper() + ": " + ANSI.ENDC
+                        text = key_text + str(entry.get(key, None))
+                        print(text)
+
+                    # print key/value pairs not included in csv_format
+                    neglected_keys = entry.keys() - set(self.csv_format)
+                    for key in neglected_keys:
+                        key_text = ANSI.LIGHT_GREY + str(key).upper() + ": " + ANSI.ENDC
+                        text = key_text + str(entry.get(key, None))
+                        print(text)
+        else:
+            print("NO FILE AT PATH", self.file_path)
 
     def display_entry(self, entry, show_extras=True):
         """
@@ -206,6 +231,8 @@ class StreamTransformer(StreamListener):
 
     def on_connect(self):
         print("CONNECTED...")
+        self.write_buffer = []
+        self.collect_buffer = []
 
 
     def on_disconnect(self, notice):

@@ -17,7 +17,7 @@ Character Prediction Adapted from: [tensorflow-rnn-shakespeare](https://github.c
 ## Table of Contents
 
 - [Data Collection](#data-collection)
-- [Data Preprocessing](#data-processing)
+- [Data Preprocessing](#data-preprocessing)
 - [Machine Learning](#machine-learning)
     - [Character Prediction](#character-prediction)
     - [Word Embeddings](#word-embeddings)
@@ -26,7 +26,7 @@ Character Prediction Adapted from: [tensorflow-rnn-shakespeare](https://github.c
 First of all if you want to get started with the machine learning part you can
 skip data collection by downloading twitter text data
 [here](https://drive.google.com/open?id=0By-CMfnYF6bZWjY1VjNLazAtb2c).
-Drop that file into `src/shared_data`, [preprocess](#data-processing) the data,
+Drop that file into `src/shared_data`, [preprocess](#data-preprocessing) the data,
 and start messing with [machine learning](#machine-learning).
 
 To start collecting twitter text, run [collection_program.py](src/data_collection/collection_program.py) :
@@ -76,7 +76,7 @@ $ cd ../ # back to project root directory
 ## Machine Learning
 
 #### Character Prediction
-After [collecting](#data-collection) and [preprocessing](#data-processing)
+After [collecting](#data-collection) and [preprocessing](#data-preprocessing)
 twitter text data, run the character prediction training program with:
 ``` bash
 $ python3 src/character_prediction/char_rnn_train.py src/character_prediction/data/THE\ STREAM
@@ -91,7 +91,7 @@ $ python3 src/character_prediction/char_rnn_play.py
 
 
 #### Word Embeddings
-After [collecting](#data-collection) and [preprocessing](#data-processing)
+After [collecting](#data-collection) and [preprocessing](#data-preprocessing)
 twitter text data, run the random or not word embeddings neural net training program with:
 ``` bash
 $ python3 src/word_embeddings/random_or_not_word_embedding_nn.py
