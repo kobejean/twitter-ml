@@ -54,24 +54,25 @@ SHOULD PRINT ENTRY (0 or 1): 0
 ```
 
 ## Data Preprocessing
-For using these examples replace `src/shared_data/THE\ STREAM.csv` with the path
+For using these examples replace `../shared_data/THE\ STREAM.csv` with the path
 to your text file.
 
 Preprocessing for character prediction:
 ``` bash
-$ python3 src/character_prediction/create_text.py src/shared_data/THE\ STREAM.csv
+$ cd src/character_prediction # needs to run in the character_prediction directory
+$ python3 create_text.py ../shared_data/THE\ STREAM.csv
 ```
 
 Preprocessing for word embeddings:
 ``` bash
-$ python3 src/word_embeddings/create_data_package.py src/shared_data/THE\ STREAM.csv
+$ cd src/word_embeddings # needs to run in the word_embeddings directory
+$ python3 create_data_package.py ../shared_data/THE\ STREAM.csv
 ```
 
 A convenient script for preprocessing for both cases:
 ``` bash
 $ cd src # neeeds to run in the src directory
 $ ./preprocessing.sh shared_data/THE\ STREAM.csv
-$ cd ../ # back to project root directory
 ```
 ## Machine Learning
 
@@ -79,14 +80,16 @@ $ cd ../ # back to project root directory
 After [collecting](#data-collection) and [preprocessing](#data-preprocessing)
 twitter text data, run the character prediction training program with:
 ``` bash
-$ python3 src/character_prediction/char_rnn_train.py src/character_prediction/data/THE\ STREAM
+$ cd src/character_prediction # needs to run in the character_prediction directory
+$ python3 char_rnn_train.py data/THE\ STREAM
 ```
-Replace `src/character_prediction/data/THE\ STREAM` with the path to the
+Replace `data/THE\ STREAM` with the path to the
 directory of all the text batch files.
 
 After a bit of training you can watch the model generate text by running:
 ``` bash
-$ python3 src/character_prediction/char_rnn_play.py
+$ cd src/character_prediction # needs to run in the character_prediction directory
+$ python3 char_rnn_play.py
 ```
 
 
@@ -94,10 +97,13 @@ $ python3 src/character_prediction/char_rnn_play.py
 After [collecting](#data-collection) and [preprocessing](#data-preprocessing)
 twitter text data, run the random or not word embeddings neural net training program with:
 ``` bash
-$ python3 src/word_embeddings/random_or_not_word_embedding_nn.py
+$ cd src/word_embeddings # needs to run in the word_embeddings directory
+$ ./run_random_or_not_nn.sh data/THE\ STREAM # relative path to the data package
 ```
+Replace `data/THE\ STREAM` with the relative path to your data package directory
 
 To see the word embeddings in tensorboard run the command:
 ``` bash
-$ tensorboard --logdir=src/word_embeddings/log/1/
+$ cd src/word_embeddings # needs to run in the word_embeddings directory
+$ tensorboard --logdir=log
 ```

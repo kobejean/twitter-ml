@@ -15,11 +15,12 @@ if [ $# -eq 0 ]
 
         exit 1
     else
+        ABS_PATH=`cd "$1"; pwd`
         echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-        python3 character_prediction/create_text.py "$1"
+        python3 character_prediction/create_text.py "$ABS_PATH"
 
         echo "PREPROCESSING FOR WORD EMBEDDINGS..."
-        python3 word_embeddings/create_data_package.py "$1"
+        python3 word_embeddings/create_data_package.py "$ABS_PATH"
 
         exit 0
 fi
