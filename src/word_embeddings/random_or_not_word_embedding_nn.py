@@ -5,7 +5,7 @@
 PROGRAMMED BY: Jean Flaherty
 DATE: 07/15/2017
 DESCRIPTION:
-    Runs a nueral net that learns word embeddings by trying to guess whether
+    Runs a neural net that learns word embeddings by trying to guess whether
     or not the word in the middle is random or not.
 
     The path to the data package can be passed as an argumant in

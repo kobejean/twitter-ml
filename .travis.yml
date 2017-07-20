@@ -5,6 +5,8 @@ matrix:
     include:
         - python: 3.5
           env: KERAS_BACKEND=tensorflow
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow
 # Setup anaconda
 before_install:
   - sudo apt-get update
@@ -29,5 +31,4 @@ install:
 # commands to run tests
 script:
     - cd tests
-    - python3 collector_test.py
-    - ./test_preprocessing.sh
+    - ./test_all.sh
