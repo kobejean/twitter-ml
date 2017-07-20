@@ -242,7 +242,7 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
                     sess.run(train_step, feed_dict=feed_dict)
 
                     # save checkpoint
-                    if i % checkpoint_period == 0:
+                    if i % cp_period == 0:
                         # sess.run(assign_word_embedding)
                         save_path = saver.save(sess, os.path.join(log_path, "{}.ckpt".format(PREFIX)))#, global_step=global_step)
                         print(save_path)
