@@ -2,7 +2,7 @@
                         - Random or Not Neural Net -
 
 PROGRAMMED BY: Jean Flaherty
-DATE: 07/15/2017
+DATE: 07/20/2017
 DESCRIPTION:
     Contains a function that constructs and runs a neural net that learns word
     embeddings by trying to guess whether or not the word in the middle is
@@ -18,7 +18,7 @@ import os, random, time, math, sys, getopt
 from itertools import islice, count as itercount
 
 from ...utils.ansi import ANSI
-from ...utils.word_preprocessing import read_data_package, random_word_index, VOCABULARY_FILENAME
+from .preprocessing import read_data_package, random_word_index, VOCABULARY_FILENAME
 
 def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = None, epochs = None, batches = None,
                          val_period = 200,  # how often to validate in batches per validation
@@ -302,10 +302,11 @@ def sub_seqs_gen(seqs_reader, vocab_size, seq_size):
 if __name__ == "__main__":
     data_package_path = None
     options = {}
-    usage_str = "usage: python3 -m tml.learning.word_embeddings.random_or_not_nn [-d <data_package_dir>] [options]"
+    usage_str = "usage: python3 -m tml.learning.word_embeddings.random_or_not_nn <data_package_dir> [options]"
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hd:l:g:e:b:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr="])
-    except getopt.GetoptError:
+        data_package_path = sys.argv[1]
+        opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr="])
+    except (IndexError, getopt.GetoptError):
         print(usage_str)
         sys.exit(2)
 
@@ -320,8 +321,8 @@ if __name__ == "__main__":
             -e <epochs>             number of epochs the nn should run
             -b <batches>            number of batches the nn should run
 
-            --vp <val_period>       how often to validate in batches per validation
-            --cp <cp_period>        how often to save checkpoints in number of batches per checkpoint
+            -v <val_period>         how often to validate in batches per validation
+            -c <cp_period>          how often to save checkpoints in number of batches per checkpoint
 
             --bs <batch_size>       batch size
             --vs <val_size>         validation set size in number of batches
@@ -332,8 +333,6 @@ if __name__ == "__main__":
             --lr <learning_rate>    learning rate
             """)
             sys.exit()
-        elif opt == "-d":
-            data_package_path = os.path.abspath(arg)
         elif opt == "-l":
             options["log_path"] = os.path.abspath(arg)
         elif opt == "-g":
@@ -344,10 +343,11 @@ if __name__ == "__main__":
             options["batches"] = int(arg)
 
 
-        elif opt == "--vp":
+        elif opt == "-v":
             options["val_period"] = int(arg)
-        elif opt == "--cp":
+        elif opt == "-c":
             options["cp_period"] = int(arg)
+
         elif opt == "--bs":
             options["batch_size"] = int(arg)
         elif opt == "--vs":
@@ -363,8 +363,4 @@ if __name__ == "__main__":
         elif opt == "--lr":
             options["learning_rate"] = int(arg)
 
-
-    if data_package_path:
-        run_random_or_not_nn(data_package_path, **options)
-    else:
-        print(usage_str)
+    run_random_or_not_nn(data_package_path, **options)

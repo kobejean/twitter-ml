@@ -4,17 +4,18 @@
 # PROGRAMMED BY: Jean Flaherty                                                 #
 # DATE: 07/20/2017                                                             #
 # DESCRIPTION:                                                                 #
-#   A script for creating the preprocessed data from a text file               #
+#   A script for creating the data package.                                    #
 ################################################################################
 
 if [ $# -eq 0 ]
     then
         echo "NO ARGUMENTS SUPPLIES"
-        echo "SHOULD INCLUDE THE FILE PATH TO THE TEXT FILE"
-        echo "./preprocessing file/to/text_file.csv"
+        echo "SHOULD INCLUDE THE PATH TO THE TEXT FILE"
+        echo "./create_data_package.sh path/to/text_file.txt"
 
         exit 1
     else
+
         DIRPATH="${1%/*}"
         DIRPATH="$(cd "$DIRPATH"; pwd)"
         BASENAME="${1##*/}"
@@ -22,14 +23,17 @@ if [ $# -eq 0 ]
         EXTENSION="${1##*.}"
 
         TEXTPATH="$DIRPATH/$BASENAME.$EXTENSION" # absolute path
+        DATAPATH="$(pwd)/data/$BASENAME"
 
-        echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-        python3 character_prediction/create_text.py "$TEXTPATH"
 
-        echo "PREPROCESSING FOR WORD EMBEDDINGS..."
-        cd word_embeddings
-        ./create_data_package.sh "$TEXTPATH"
-        cd ../
+        cd ../../
 
-        exit 0
+        echo "CREATING DATA PACKAGE..."
+        # assuming preprocessing has completed
+        python3 -m tml.learning.word_embeddings.create_data_package "$TEXTPATH" "$DATAPATH" --ws 10000
+        status=$?
+
+        cd src/word_embeddings
+
+        exit $status
 fi

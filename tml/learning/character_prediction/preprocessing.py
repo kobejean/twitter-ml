@@ -19,7 +19,7 @@ import sys
 import re
 import copy
 
-from .generators import print_progress_generator
+from ...utils.generators import print_progress_generator
 
 # size of the alphabet that we work with
 ALPHASIZE = 99
@@ -338,7 +338,7 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
                             yield char
 
     for shakefile in shakelist:
-        print("Scan file " + shakefile)
+        print("Scan file " + shakefile, end="\r")
         start = codecount
         with open(shakefile, "r") as shaketext:
             for line in shaketext:
@@ -347,7 +347,7 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
         end = codecount
         bookranges.append({"start": start, "end": end,
          "name": shakefile.rsplit("/", 1)[-1], "path": shakefile})
-
+    print()
     if len(bookranges) == 0:
         sys.exit("No training data has been found. Aborting.")
 
@@ -382,7 +382,7 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
 
     cutoff = 0
     if nb_books == 0 or not validation:
-        cutoff = len(codetext)
+        cutoff = codecount
     else:
         cutoff = bookranges[-nb_books]["start"]
 

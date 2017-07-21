@@ -2,7 +2,7 @@
                          - Word Processing -
 
 PROGRAMMED BY: Jean Flaherty
-DATE: 07/15/2017
+DATE: 07/20/2017
 DESCRIPTION:
     A host of word preprocessing functions.
 
@@ -23,8 +23,7 @@ import csv, random, os
 import numpy as np
 from numpy.random import choice
 from contextlib import contextmanager
-from ..utils.ansi import ANSI
-from ..utils.generators import print_generator
+from ...utils.generators import print_generator
 
 SEQUENCE_FILENAME = "SEQUENCES.tsv"
 VOCABULARY_FILENAME = "VOCABULARY.tsv"
@@ -97,57 +96,6 @@ def random_word_index(probs, exclude=None):
         c = choice(i, 1, p=p).item(0)
         # c = random.choice(i) # without considering probability
     return c
-
-
-def create_data_package(text_path, package_path, vocabulary_size=10000, show_progress=False):
-    import keras
-    from keras.preprocessing.text import Tokenizer
-    # paths
-    sequence_path = os.path.join(package_path, SEQUENCE_FILENAME)
-    vocab_path = os.path.join(package_path, VOCABULARY_FILENAME)
-    probs_path = os.path.join(package_path, PROBABILITIES_FILENAME)
-
-    # read txt file
-    with open(text_path, "r") as file:
-        texts = (line.rstrip('\n') for line in file)
-        texts = print_generator("TEXT:", texts, 100, "\r")
-
-        print("TOKENIZING...")
-        # keras text preprocessing
-        tk = Tokenizer(
-            num_words=vocabulary_size,
-            filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
-            lower=True,
-            split=' ',
-            char_level=False
-        )
-        tk.fit_on_texts(texts)
-
-    with open(text_path, "r") as file:
-        texts = (line.rstrip('\n') for line in file)
-        texts = print_generator("TEXT:", texts, 100, "\r")
-
-        # create dicts
-        print("CREATING VOCABULARY...")
-        vocab = {v-1: k for k,v in tk.word_index.items()}
-        # for normalizing probability distribution so they add up to 1
-        print("CREATING PROBABILITIES...")
-        word_count_sum = sum(sorted([v for k,v in tk.word_counts.items()], reverse=True)[:vocabulary_size])
-        probs = dict(sorted([(tk.word_index[k]-1, float(v) / float(word_count_sum)) \
-                        for k,v in tk.word_counts.items()])[:vocabulary_size])
-        print("CREATING SEQUENCES...")
-        # i - 1 so that index z
-        text_seq = ([i-1 for i in seq] for seq in tk.texts_to_sequences(texts))
-        text_seq = print_generator("SEQUENCE:", text_seq, 100, "\r")
-
-        # write files
-        print("WRITING SEQUENCES...")
-        write_sequences(text_seq, sequence_path)
-        print("WRITING VOCABULARY...")
-        write_vocabulary(vocab, vocab_path, vocabulary_size)
-        print("WRITING PROBABILITIES...")
-        write_probabilities(probs, probs_path)
-        print("DONE!")
 
 
 @contextmanager

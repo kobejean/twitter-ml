@@ -66,7 +66,7 @@ $ python3 create_text.py ../shared_data/THE\ STREAM.csv
 Preprocessing for word embeddings:
 ``` bash
 $ cd src/word_embeddings # needs to run in the word_embeddings directory
-$ python3 create_data_package.py ../shared_data/THE\ STREAM.csv
+$ ./create_data_package.sh ../shared_data/THE\ STREAM.csv
 ```
 
 A convenient script for preprocessing for both cases:

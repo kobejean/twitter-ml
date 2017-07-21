@@ -22,7 +22,7 @@ data_path = os.path.join(this_path, "data")
 checkpoints_path = os.path.join(this_path, "checkpoints")
 log_path = os.path.join(this_path, "log/1")
 
-text_path = os.path.join(data_path, "THE TEXT") # default
+text_path = os.path.join(data_path, "THE STREAM") # default
 
 # get path from command line arguments if passed
 if len(sys.argv) == 2:

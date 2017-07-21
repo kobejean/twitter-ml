@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 import numpy as np
-from ...utils import character_preprocessing as txt
+from . import preprocessing as txt
 
 import os
 
