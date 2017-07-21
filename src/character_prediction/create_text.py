@@ -33,10 +33,8 @@ if len(sys.argv) >= 3:
     write_path = os.path.abspath(sys.argv[2])
 
 # create directories if they do not exist
-if not os.path.exists(data_path):
-    os.mkdir(data_path)
 if not os.path.exists(write_path):
-    os.mkdir(write_path)
+    os.makedirs(write_path)
 
 print("READ PATH:", read_path)
 print("WRITE PATH:", write_path)
