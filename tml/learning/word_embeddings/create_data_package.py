@@ -79,7 +79,7 @@ if __name__ == "__main__":
     text_file_path = None
     data_package_path = None
     options = {}
-    usage_str = "usage: python3 -m tml.learning.word_embeddings.preprocessing <text_file_path> <data_package_dir> [options]"
+    usage_str = "usage: python3 -m tml.learning.word_embeddings.create_data_package <text_file_path> <data_package_dir> [options]"
     try:
         text_file_path    = os.path.abspath(sys.argv[1])
         data_package_path = os.path.abspath(sys.argv[2])

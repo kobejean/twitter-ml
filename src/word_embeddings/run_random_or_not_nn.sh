@@ -20,7 +20,7 @@ if [ $# -eq 0 ]
 
         echo "RUNNING RANDOM OR NOT NEURAL NET..."
         # assuming preprocessing has completed
-        python3 -m tml.learning.word_embeddings.random_or_not_nn -d "$ABS_PATH" -l src/word_embeddings/log -e 1
+        python3 -m tml.learning.word_embeddings.random_or_not_nn "$ABS_PATH" -l src/word_embeddings/log -e 1
         status=$?
 
         cd src/word_embeddings

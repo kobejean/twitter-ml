@@ -7,8 +7,8 @@
 #   A script for testing the preprocessed scripts.                             #
 ################################################################################
 
-TEXTPATH="../../tests/data/THE STREAM.txt" # absolute path
-OUTPATH="../../tests/data/THE STREAM/"
+TEXTPATH="tests/data/THE STREAM.txt" # absolute path
+OUTPATH="tests/data/THE STREAM/"
 
 echo "$TEXTPATH"
 
@@ -19,21 +19,19 @@ echo "$TEXTPATH"
 # echo "PREPROCESSING FOR WORD EMBEDDINGS..."
 # python3 ../src/word_embeddings/create_data_package.py data/THE\ STREAM.txt data/THE\ STREAM/
 # status2=$?
-cd ../src/character_prediction
+cd ../
 
 echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-python3 create_text.py "$TEXTPATH" "$OUTPATH"
+python3 -m tml.learning.character_prediction.create_text "$TEXTPATH" "$OUTPATH"
 status1=$?
 
-cd ../word_embeddings
-
 echo "PREPROCESSING FOR WORD EMBEDDINGS..."
-./create_data_package.sh "$TEXTPATH" "$OUTPATH"
+python3 -m tml.learning.word_embeddings.create_data_package "$TEXTPATH" "$OUTPATH"
 status2=$?
-cd ../../tests
+
+cd tests
 
 if [ $status1 -eq 0 ] && [ $status2 -eq 0 ]
-# if [ $status1 -eq 0 ]
     then
         exit 0
     else

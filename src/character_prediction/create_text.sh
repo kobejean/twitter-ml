@@ -2,16 +2,16 @@
 
 ################################################################################
 # PROGRAMMED BY: Jean Flaherty                                                 #
-# DATE: 07/20/2017                                                             #
+# DATE: 07/21/2017                                                             #
 # DESCRIPTION:                                                                 #
-#   A script for creating the data package.                                    #
+#   A script for creating the text batches.                                    #
 ################################################################################
 
 if [ $# -eq 0 ]
     then
         echo "NO ARGUMENTS SUPPLIES"
         echo "SHOULD INCLUDE THE PATH TO THE TEXT FILE"
-        echo "./create_data_package.sh path/to/text_file.txt"
+        echo "./create_text.sh path/to/text_file.txt"
 
         exit 1
     else
@@ -23,11 +23,11 @@ if [ $# -eq 0 ]
         EXTENSION="${1##*.}"
 
         TEXTPATH="$DIRPATH/$BASENAME.$EXTENSION" # absolute path
-        DATAPATH="$(pwd)/data/$BASENAME"
+        BATCHESPATH="$(pwd)/data/test/$BASENAME"
 
-        if [ $# -ge 2 ]
+        if [ $# -ge 2 ] # if second arg is passed use as output path
             then
-                DATAPATH="$(pwd)/$2"
+                BATCHESPATH="$(pwd)/$2"
         fi
 
 
@@ -35,10 +35,10 @@ if [ $# -eq 0 ]
 
         echo "CREATING DATA PACKAGE..."
         # assuming preprocessing has completed
-        python3 -m tml.learning.word_embeddings.create_data_package "$TEXTPATH" "$DATAPATH" --ws 10000
+        python3 -m tml.learning.character_prediction.create_text "$TEXTPATH" "$BATCHESPATH"
         status=$?
 
-        cd src/word_embeddings
+        cd src/character_prediction
 
         exit $status
 fi

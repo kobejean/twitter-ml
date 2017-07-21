@@ -11,7 +11,7 @@ cd ../
 
 echo "RUNNING RANDOM OR NOT NEURAL NET..."
 # assuming preprocessing has completed
-python3 -m tml.learning.word_embeddings.random_or_not_nn -d tests/data/THE\ STREAM -l tests/log/word_embeddings/ -b 1000
+python3 -m tml.learning.word_embeddings.random_or_not_nn tests/data/THE\ STREAM -l tests/log/word_embeddings/ -b 1000
 status=$?
 
 cd tests

@@ -24,7 +24,9 @@ if [ $# -eq 0 ]
         TEXTPATH="$DIRPATH/$BASENAME.$EXTENSION" # absolute path
 
         echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-        python3 character_prediction/create_text.py "$TEXTPATH"
+        cd character_prediction
+        ./create_text.sh "$TEXTPATH"
+        cd ../
 
         echo "PREPROCESSING FOR WORD EMBEDDINGS..."
         cd word_embeddings
