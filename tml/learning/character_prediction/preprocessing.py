@@ -109,7 +109,7 @@ def sample_from_probabilities(probabilities, topn=ALPHASIZE):
     return np.random.choice(ALPHASIZE, 1, p=p)[0]
 
 
-def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs, nb_batches):
+def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_epochs):
     """
     Divides the data into batches of sequences so that all the sequences in one batch
     continue in the next batch. This is a generator that will keep returning batches
@@ -125,22 +125,38 @@ def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs, nb_b
         y: on batch of target sequences, i.e. training sequences shifted by 1
         epoch: the current epoch number (starting at 0)
     """
-    data = np.array(raw_data)
-    data_len = data.shape[0]
-    # using (data_len-1) because we must provide for the sequence shifted by 1 too
-    nb_batches = (data_len - 1) // (batch_size * sequence_size)
-    assert nb_batches > 0, "Not enough data, even for a single batch. Try using a smaller batch_size."
-    rounded_data_len = nb_batches * batch_size * sequence_size
-    xdata = np.reshape(data[0:rounded_data_len], [batch_size, nb_batches * sequence_size])
-    ydata = np.reshape(data[1:rounded_data_len + 1], [batch_size, nb_batches * sequence_size])
+    def data_loader():
+        while True:
+            data = []
+            for i in range(batch_size*sequence_size*50):
+                data.append(next(iter(raw_data)))
+            yield np.array(data)
 
-    for epoch in range(nb_epochs):
+    loader = data_loader()
+    # for epoch in range(nb_epochs):
+    batch_count = 0
+    for data in loader:
+        data_len = data.shape[0]
+        # using (data_len-1) because we must provide for the sequence shifted by 1 too
+        nb_batches = (data_len - 1) // (batch_size * sequence_size)
+        assert nb_batches > 0, "Not enough data, even for a single batch. Try using a smaller batch_size."
+        rounded_data_len = nb_batches * batch_size * sequence_size
+        xdata = np.reshape(data[0:rounded_data_len], [batch_size, nb_batches * sequence_size])
+        ydata = np.reshape(data[1:rounded_data_len + 1], [batch_size, nb_batches * sequence_size])
+
+        try:
+            epoch = batch_count // (epoch_size//(batch_size*sequence_size))
+        except ZeroDivisionError:
+            epoch = 0
+
         for batch in range(nb_batches):
             x = xdata[:, batch * sequence_size:(batch + 1) * sequence_size]
             y = ydata[:, batch * sequence_size:(batch + 1) * sequence_size]
-            x = np.roll(x, -epoch, axis=0)  # to continue the text from epoch to epoch (do not reset rnn state!)
-            y = np.roll(y, -epoch, axis=0)
+            x = np.roll(x, 0, axis=0)  # to continue the text from epoch to epoch (do not reset rnn state!)
+            y = np.roll(y, 0, axis=0)
             yield x, y, epoch
+            batch_count += 1
+
 
 # def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs, nb_batches):
 #     """
@@ -317,7 +333,7 @@ class Progress:
         return print_progress
 
 
-def read_data_files(directory, validation=True, epoch_size=1000000000):
+def read_data_files(directory, validation=True, nb_epochs=1000000000):
     """Read data files according to the specified glob pattern
     Optionnaly set aside the last file as validation data.
     No validation data is returned if there are 5 files or less.
@@ -329,8 +345,8 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
     codecount = 0
     bookranges = []
     shakelist = glob.glob(directory, recursive=True)
-    def codetext_gen(shakelist, epoch_size):
-        for i in range(epoch_size):
+    def codetext_gen(shakelist, nb_epochs):
+        for i in range(nb_epochs):
             for shakefile in shakelist:
                 with open(shakefile, "r") as shaketext:
                     for line in shaketext:
@@ -391,11 +407,10 @@ def read_data_files(directory, validation=True, epoch_size=1000000000):
     textpaths = [d["path"] for d in bookranges[:-nb_books]]
     valigen = print_progress_generator("LOADING VALIDATION: ",\
         codetext_gen(valipaths, 1), codecount-cutoff, period=10000)
-    textgen = print_progress_generator("LOADING TRAINING: ",\
-        codetext_gen(textpaths, 1), cutoff, period=10000)
+    textgen = codetext_gen(textpaths, nb_epochs)
     valitext = [code for code in valigen]
-    codetext = [code for code in textgen]
-    return codecount, codetext, valitext, bookranges
+    codetext = (code for code in textgen)
+    return cutoff, codecount-cutoff, codetext, valitext, bookranges
 
 
 def print_data_stats(datalen, valilen, epoch_size):

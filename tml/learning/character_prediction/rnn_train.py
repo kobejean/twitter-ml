@@ -48,9 +48,7 @@ def train(text_files, log_path, checkpoints_path):
     print("TEXT FILES:", text_files)
     print("LOG PATH:", log_path)
     print("CHECKPOINTS PATH:", checkpoints_path)
-    codelen, codetext, valitext, bookranges = txt.read_data_files(text_files, validation=True)
-    vallen = len(valitext)
-    testlen = codelen - vallen
+    testlen, vallen, codetext, valitext, bookranges = txt.read_data_files(text_files, validation=True)
     nb_batches = (testlen//BATCHSIZE)
     print("NUM BATCHES:", nb_batches)
     # display some stats on the data
@@ -134,8 +132,13 @@ def train(text_files, log_path, checkpoints_path):
     sess.run(init)
     step = 0
 
+    VALI_SEQSIZE = 1*1024  # Sequence length for validation. State will be wrong at the start of each sequence.
+    bsize = vallen // VALI_SEQSIZE
+    vali_x, vali_y, _ = next(txt.rnn_minibatch_sequencer(valitext, epoch_size, bsize, VALI_SEQSIZE, 1))  # all data in 1 batch
+
+
     # training loop
-    for x, y_, epoch in txt.rnn_minibatch_sequencer(codetext, BATCHSIZE, SEQSIZE, nb_epochs=1000000000, nb_batches=nb_batches):
+    for x, y_, epoch in txt.rnn_minibatch_sequencer(codetext, epoch_size, BATCHSIZE, SEQSIZE, nb_epochs=1000000000):
 
         # train on one minibatch
         feed_dict = {X: x, Y_: y_, Hin: istate, lr: learning_rate, pkeep: dropout_pkeep, batchsize: BATCHSIZE}
@@ -155,10 +158,7 @@ def train(text_files, log_path, checkpoints_path):
         # so we cut it up and batch the pieces (slightly inaccurate)
         # tested: validating with 5K sequences instead of 1K is only slightly more accurate, but a lot slower.
         if step % _50_BATCHES == 0 and len(valitext) > 0:
-            VALI_SEQSIZE = 1*1024  # Sequence length for validation. State will be wrong at the start of each sequence.
-            bsize = len(valitext) // VALI_SEQSIZE
             txt.print_validation_header(testlen, bookranges)
-            vali_x, vali_y, _ = next(txt.rnn_minibatch_sequencer(valitext, bsize, VALI_SEQSIZE, 1, bsize))  # all data in 1 batch
             vali_nullstate = np.zeros([bsize, INTERNALSIZE*NLAYERS])
             feed_dict = {X: vali_x, Y_: vali_y, Hin: vali_nullstate, pkeep: 1.0,  # no dropout for validation
                          batchsize: bsize}
