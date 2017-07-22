@@ -1,7 +1,10 @@
 test_data_out.csv
-tests/data/*STREAM.csv
 __pycache__
-AuthInfo_kobejean.py
 auth_info_kobejean.py
 auth_info.py
 src/learning_example/log/*
+private*
+src/**/data
+src/**/log
+src/**/checkpoints
+src/shared_data

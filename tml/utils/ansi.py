@@ -30,6 +30,8 @@ class ANSI:
     BOLD_PURPLE = '\033[1;35m'
     BOLD_CYAN = '\033[1;36m'
     WHITE = '\033[1;37m'
+    CURSOR_UP = '\033[F'
+    CLEAR_LINE = '\033[K'
 
 if __name__ == "__main__":
     print(ANSI.GREEN + "TEST" + ANSI.ENDC)
