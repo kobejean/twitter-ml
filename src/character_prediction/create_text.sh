@@ -23,7 +23,7 @@ if [ $# -eq 0 ]
         EXTENSION="${1##*.}"
 
         TEXTPATH="$DIRPATH/$BASENAME.$EXTENSION" # absolute path
-        BATCHESPATH="$(pwd)/data/test/$BASENAME"
+        BATCHESPATH="$(pwd)/data/$BASENAME"
 
         if [ $# -ge 2 ] # if second arg is passed use as output path
             then

@@ -9,7 +9,9 @@ DESCRIPTION:
 """
 
 import os
+import tensorflow as tf
 from context import tml
+from tml.learning.character_prediction.preprocessing import ALPHASIZE
 import tml.learning.character_prediction.rnn_play as play
 
 this_path = os.path.abspath(os.path.dirname(__file__))

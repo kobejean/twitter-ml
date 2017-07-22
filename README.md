@@ -60,7 +60,7 @@ to your text file.
 Preprocessing for character prediction:
 ``` bash
 $ cd src/character_prediction # needs to run in the character_prediction directory
-$ python3 create_text.py ../shared_data/THE\ STREAM.csv
+$ ./create_text.sh ../shared_data/THE\ STREAM.csv
 ```
 
 Preprocessing for word embeddings:
@@ -81,15 +81,20 @@ After [collecting](#data-collection) and [preprocessing](#data-preprocessing)
 twitter text data, run the character prediction training program with:
 ``` bash
 $ cd src/character_prediction # needs to run in the character_prediction directory
-$ python3 char_rnn_train.py data/THE\ STREAM
+$ ./run_rnn_train.sh data/THE\ STREAM/\*.txt
 ```
-Replace `data/THE\ STREAM` with the path to the
-directory of all the text batch files.
+Replace `data/THE\ STREAM/\*.txt` with the paths to the all the text batch files.
 
 After a bit of training you can watch the model generate text by running:
 ``` bash
 $ cd src/character_prediction # needs to run in the character_prediction directory
 $ python3 char_rnn_play.py
+```
+
+To launch tensorboard run the command:
+``` bash
+$ cd src/character_prediction # needs to run in the word_embeddings directory
+$ tensorboard --logdir=log
 ```
 
 
