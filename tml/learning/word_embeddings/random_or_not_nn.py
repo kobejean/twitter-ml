@@ -305,7 +305,7 @@ if __name__ == "__main__":
     usage_str = "usage: python3 -m tml.learning.word_embeddings.random_or_not_nn <data_package_dir> [options]"
     try:
         data_package_path = sys.argv[1]
-        opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr="])
+        opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:v:c:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr="])
     except (IndexError, getopt.GetoptError):
         print(usage_str)
         sys.exit(2)
