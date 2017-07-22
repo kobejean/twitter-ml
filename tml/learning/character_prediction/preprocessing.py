@@ -14,10 +14,7 @@
 # limitations under the License.
 
 import numpy as np
-import glob
-import sys
-import re
-import copy
+import glob, sys, re, copy
 
 from ...utils.generators import print_progress_generator
 
@@ -109,7 +106,7 @@ def sample_from_probabilities(probabilities, topn=ALPHASIZE):
     return np.random.choice(ALPHASIZE, 1, p=p)[0]
 
 
-def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_epochs):
+def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_epochs, nb_batches=None):
     """
     Divides the data into batches of sequences so that all the sequences in one batch
     continue in the next batch. This is a generator that will keep returning batches
@@ -126,10 +123,15 @@ def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_
         epoch: the current epoch number (starting at 0)
     """
     def data_loader():
+        """load data in parts"""
+        if type(raw_data) == list: # data is already loaded
+            yield np.array(raw_data)
+            raise StopIteration
+
         while True:
             data = []
-            for i in range(batch_size*sequence_size*50):
-                data.append(next(iter(raw_data)))
+            for i in range(50 * batch_size * sequence_size):
+                data.append(next(raw_data))
             yield np.array(data)
 
     loader = data_loader()
@@ -138,96 +140,28 @@ def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_
     for data in loader:
         data_len = data.shape[0]
         # using (data_len-1) because we must provide for the sequence shifted by 1 too
-        nb_batches = (data_len - 1) // (batch_size * sequence_size)
-        assert nb_batches > 0, "Not enough data, even for a single batch. Try using a smaller batch_size."
-        rounded_data_len = nb_batches * batch_size * sequence_size
-        xdata = np.reshape(data[0:rounded_data_len], [batch_size, nb_batches * sequence_size])
-        ydata = np.reshape(data[1:rounded_data_len + 1], [batch_size, nb_batches * sequence_size])
+        nb_loaded_batches = (data_len - 1) // (batch_size * sequence_size)
+        assert nb_loaded_batches > 0, "Not enough data, even for a single batch. Try using a smaller batch_size."
+        rounded_data_len = nb_loaded_batches * batch_size * sequence_size
+        xdata = np.reshape(data[0:rounded_data_len], [batch_size, nb_loaded_batches * sequence_size])
+        ydata = np.reshape(data[1:rounded_data_len + 1], [batch_size, nb_loaded_batches * sequence_size])
 
         try:
-            epoch = batch_count // (epoch_size//(batch_size*sequence_size))
+            epoch = batch_count // (epoch_size // (batch_size*sequence_size))
         except ZeroDivisionError:
             epoch = 0
 
-        for batch in range(nb_batches):
+        for batch in range(nb_loaded_batches):
             x = xdata[:, batch * sequence_size:(batch + 1) * sequence_size]
             y = ydata[:, batch * sequence_size:(batch + 1) * sequence_size]
             x = np.roll(x, 0, axis=0)  # to continue the text from epoch to epoch (do not reset rnn state!)
             y = np.roll(y, 0, axis=0)
             yield x, y, epoch
+
+            if nb_batches and batch_count >= nb_batches:
+                raise StopIteration
+
             batch_count += 1
-
-
-# def rnn_minibatch_sequencer(raw_data, batch_size, sequence_size, nb_epochs, nb_batches):
-#     """
-#     Divides the data into batches of sequences so that all the sequences in one batch
-#     continue in the next batch. This is a generator that will keep returning batches
-#     until the input data has been seen nb_epochs times. Sequences are continued even
-#     between epochs, apart from one, the one corresponding to the end of raw_data.
-#     The remainder at the end of raw_data that does not fit in an full batch is ignored.
-#     :param raw_data: the training text
-#     :param batch_size: the size of a training minibatch
-#     :param sequence_size: the unroll size of the RNN
-#     :param nb_epochs: number of epochs to train on
-#     :return:
-#         x: one batch of training sequences
-#         y: on batch of target sequences, i.e. training sequences shifted by 1
-#         epoch: the current epoch number (starting at 0)
-#     """
-#     # def xygen(raw_data):
-#     #     x = None
-#     #     for y in raw_data:
-#     #         if x != None:
-#     #             yield x, y
-#     #         x = y
-#     #
-#     # gen = xygen(raw_data)
-#     # for epoch in range(nb_epochs):
-#     #     for batch in range(nb_batches):
-#     #         X=[]
-#     #         Y=[]
-#     #         for i in range(sequence_size):
-#     #             x, y = next(gen)
-#     #             X.append(x)
-#     #             Y.append(y)
-#     #         batchx=[X]
-#     #         batchy=[Y]
-#     #         while len(batchx) < batch_size:
-#     #             X.pop(0)
-#     #             Y.pop(0)
-#     #             x, y = next(gen)
-#     #             X.append(x)
-#     #             Y.append(y)
-#     #             batchx.append(copy.copy(X))
-#     #             batchy.append(copy.copy(Y))
-#     #
-#     #         print("{0: <40}".format(str(X))[:40], end="\r")
-#             #
-#             # npx = np.array(batchx)
-#             # npy = np.array(batchy)
-#             # yield npx, npy, epoch
-#     batchcount = 0
-#     it_raw_data = iter(raw_data)
-#     while True:
-#         print("Loading more batches into memory...", end="n")
-#         loaded_raw_data = [next(raw_data) for _ in range(batch_size*sequence_size*1000)]
-#         data = np.array(loaded_raw_data)
-#         data_len = data.shape[0]
-#         # using (data_len-1) because we must provide for the sequence shifted by 1 too
-#         snb_batches = (data_len - 1) // (batch_size * sequence_size)
-#         assert snb_batches > 0, "Not enough data, even for a single batch. Try using a smaller batch_size."
-#         rounded_data_len = snb_batches * batch_size * sequence_size
-#         xdata = np.reshape(data[0:rounded_data_len], [batch_size, snb_batches * sequence_size])
-#         ydata = np.reshape(data[1:rounded_data_len + 1], [batch_size, snb_batches * sequence_size])
-#
-#         # for epoch in range(nb_epochs):
-#         for batch in range(snb_batches):
-#             x = xdata[:, batch * sequence_size:(batch + 1) * sequence_size]
-#             y = ydata[:, batch * sequence_size:(batch + 1) * sequence_size]
-#             # x = np.roll(x, -batchcount//nb_batches, axis=0)  # to continue the text from epoch to epoch (do not reset rnn state!)
-#             # y = np.roll(y, -batchcount//nb_batches, axis=0)
-#             batchcount += 1
-#             yield x, y, batchcount//nb_batches
 
 
 def find_book(index, bookranges):

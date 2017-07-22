@@ -10,7 +10,7 @@
 cd ../
 
 # assuming preprocessing has completed
-python3 -m tml.learning.word_embeddings.random_or_not_nn tests/data/THE\ STREAM -l tests/log/word_embeddings/ -b 1000
+python3 -m tml.learning.character_prediction.rnn_train tests/data/THE\ STREAM/\*.txt tests/log/character_prediction/ tests/checkpoints -e 1 -b 200
 status=$?
 
 cd tests
