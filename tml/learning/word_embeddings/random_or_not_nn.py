@@ -31,6 +31,8 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
                          h1_size = 200,         # 1st hidden layer size
                          h2_size = 100,         # 2nd hidden layer size
                          learning_rate = 0.003, # learning rate
+
+                         start_batch = 0
                          ):
     """
     DESCRIPTION:
@@ -184,6 +186,11 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
             with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
                 batch_gen = batch_generator(seqs_reader, probs, batch_size, vocab_size, seq_size)
                 # create validation sets
+
+                for i in range(start_batch):
+                    print("SKIPPING ", i)
+                    next(batch_gen) # skip to start_batch
+
                 validation_set = [next(batch_gen) for i in range(val_size)]
                 validation_set = {  "indices": np.vstack([b["indices"] for b in validation_set]),
                                     "Y_": np.vstack([b["Y_"] for b in validation_set]),
@@ -305,7 +312,7 @@ if __name__ == "__main__":
     usage_str = "usage: python3 -m tml.learning.word_embeddings.random_or_not_nn <data_package_dir> [options]"
     try:
         data_package_path = sys.argv[1]
-        opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:v:c:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr="])
+        opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:v:c:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr=","sb="])
     except (IndexError, getopt.GetoptError):
         print(usage_str)
         sys.exit(2)
@@ -362,5 +369,8 @@ if __name__ == "__main__":
             options["h2_size"] = int(arg)
         elif opt == "--lr":
             options["learning_rate"] = int(arg)
+
+        elif opt == "--sb":
+            options["start_batch"] = int(arg)
 
     run_random_or_not_nn(data_package_path, **options)
