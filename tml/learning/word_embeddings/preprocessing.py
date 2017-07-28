@@ -86,15 +86,10 @@ def read_probabilities(filepath):
         return {int(index) : float(prob) for index, prob in reader}
 
 
-def random_word_index(probs, exclude=None):
-    i = np.array(list(probs.keys()))
-    p = np.array(list(probs.values()))
-    c = choice(i, 1, p=p).item(0)
-    # i = list(probs.keys())
-    # c = random.choice(i) # without considering probability
+def random_word_index(wi, wp, exclude=None):
+    c = choice(wi, 1, p=wp).item(0)
     while c == exclude:
-        c = choice(i, 1, p=p).item(0)
-        # c = random.choice(i) # without considering probability
+        c = choice(wi, 1, p=wp).item(0)
     return c
 
 

@@ -185,9 +185,10 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
         for epoch in epochscount:
             with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
                 for i in range(start_batch):
-                    print("SKIPPING ", i)
+                    print("SKIPPING ", i, end="\r")
                     for j in range(batch_size):
                         next(seqs_reader) # skip to start_batch
+                print()
 
                 batch_gen = batch_generator(seqs_reader, probs, batch_size, vocab_size, seq_size)
 
@@ -264,12 +265,14 @@ def batch_generator(seqs_reader, probs, n, vocab_size, seq_size):
     ARGUMENTS:
         seqs_reader     A generator that produces sequences of word indices
         probs           A dictionary of probabilities of ocurance associated with word indices
-        n               The desired size of the subsequences
+        n               The desired size of the batches
         vocab_size      The vocabulary size
         seq_size        The size of the sub sequences
     """
 
     i = iter(sub_seqs_gen(seqs_reader, vocab_size, seq_size))
+    wi = np.array(list(probs.keys())) # word indices
+    wp = np.array(list(probs.values())) # word probabilities
     while True:
         indices = np.array(list(islice(i, n)))
         size = indices.shape[0]
@@ -278,7 +281,7 @@ def batch_generator(seqs_reader, probs, n, vocab_size, seq_size):
             if bool(random.getrandbits(1)):
                 Y_[j] = [0,1] # set y to false
                 # replace middle index with random index
-                rand_i = random_word_index(probs, indices[j][seq_size//2])
+                rand_i = random_word_index(wi, wp, indices[j][seq_size//2])
                 indices[j][seq_size//2] = rand_i
         Y_ = np.array(Y_)
 
@@ -304,7 +307,7 @@ def sub_seqs_gen(seqs_reader, vocab_size, seq_size):
                 sub_seq = seq[i : i + seq_size]
                 assert len(sub_seq) == seq_size, "not len(sub_seq) == seq_size"
                 # make sure all words are in vocabulary of size vocab_size before appending
-                all_in_vocab = True
+                all_in_vocab = True # make sure all words are in the vocabulary
                 for wi in sub_seq:
                     if wi >= vocab_size:
                         all_in_vocab = False
