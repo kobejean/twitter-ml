@@ -184,13 +184,14 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
 
         for epoch in epochscount:
             with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
-                batch_gen = batch_generator(seqs_reader, probs, batch_size, vocab_size, seq_size)
-                # create validation sets
-
                 for i in range(start_batch):
                     print("SKIPPING ", i)
-                    next(batch_gen) # skip to start_batch
+                    for j in range(batch_size):
+                        next(seqs_reader) # skip to start_batch
 
+                batch_gen = batch_generator(seqs_reader, probs, batch_size, vocab_size, seq_size)
+
+                # create validation sets
                 validation_set = [next(batch_gen) for i in range(val_size)]
                 validation_set = {  "indices": np.vstack([b["indices"] for b in validation_set]),
                                     "Y_": np.vstack([b["Y_"] for b in validation_set]),
@@ -303,7 +304,13 @@ def sub_seqs_gen(seqs_reader, vocab_size, seq_size):
                 sub_seq = seq[i : i + seq_size]
                 assert len(sub_seq) == seq_size, "not len(sub_seq) == seq_size"
                 # make sure all words are in vocabulary of size vocab_size before appending
-                if all([wi < vocab_size for wi in sub_seq]):
+                all_in_vocab = True
+                for wi in sub_seq:
+                    if wi >= vocab_size:
+                        all_in_vocab = False
+                        break
+
+                if all_in_vocab:
                     yield sub_seq
 
 if __name__ == "__main__":
