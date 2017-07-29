@@ -184,10 +184,11 @@ def run_random_or_not_nn(data_package_path, log_path = None, meta_graph_path = N
 
         for epoch in epochscount:
             with read_data_package(data_package_path) as (seqs_reader, vocab, probs):
-                for i in range(start_batch):
+                for i in range(start_batch-batch_count):
                     print("SKIPPING ", i, end="\r")
                     for j in range(batch_size):
                         next(seqs_reader) # skip to start_batch
+                    batch_count += 1
                 print()
 
                 batch_gen = batch_generator(seqs_reader, probs, batch_size, vocab_size, seq_size)

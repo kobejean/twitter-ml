@@ -8,3 +8,4 @@ src/**/data
 src/**/log
 src/**/checkpoints
 src/shared_data
+log
