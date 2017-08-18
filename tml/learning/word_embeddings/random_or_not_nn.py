@@ -321,6 +321,25 @@ if __name__ == "__main__":
     data_package_path = None
     options = {}
     usage_str = "usage: python3 -m tml.learning.word_embeddings.random_or_not_nn <data_package_dir> [options]"
+    help_str = usage_str + "\n" + """options:
+    -h                      show help menu
+    -l <log_dir>            the path to the log directory
+    -g <graph_path>         the checkpoint date the nn should restore from
+    -e <epochs>             number of epochs the nn should run
+    -b <batches>            number of batches the nn should run
+
+    -v <val_period>         how often to validate in batches per validation
+    -c <cp_period>          how often to save checkpoints in number of batches per checkpoint
+
+    --bs <batch_size>       batch size
+    --vs <val_size>         validation set size in number of batches
+    --ws <vocab_size>       vocabulary/word size
+    --ss <seq_size>         sub sequence size
+    --h1 <h1_size>          1st hidden layer size
+    --h2 <h2_size>          2nd hidden layer size
+    --lr <learning_rate>    learning rate
+    """
+
     try:
         data_package_path = sys.argv[1]
         opts, args = getopt.getopt(sys.argv[2:],"hl:g:e:b:v:c:",["vp=","cp=","bs=","vs=","ws=","ss=","h1=","h2=","lr=","sb="])
@@ -330,26 +349,7 @@ if __name__ == "__main__":
 
     for opt, arg in opts:
         if opt == '-h':
-            print(usage_str + "\n" +
-            """
-            options:
-            -h                      show help menu
-            -l <log_dir>            the path to the log directory
-            -g <graph_path>         the checkpoint date the nn should restore from
-            -e <epochs>             number of epochs the nn should run
-            -b <batches>            number of batches the nn should run
-
-            -v <val_period>         how often to validate in batches per validation
-            -c <cp_period>          how often to save checkpoints in number of batches per checkpoint
-
-            --bs <batch_size>       batch size
-            --vs <val_size>         validation set size in number of batches
-            --ws <vocab_size>       vocabulary/word size
-            --ss <seq_size>         sub sequence size
-            --h1 <h1_size>          1st hidden layer size
-            --h2 <h2_size>          2nd hidden layer size
-            --lr <learning_rate>    learning rate
-            """)
+            print(help_str)
             sys.exit()
         elif opt == "-l":
             options["log_path"] = os.path.abspath(arg)

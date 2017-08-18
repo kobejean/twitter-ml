@@ -80,22 +80,22 @@ if __name__ == "__main__":
     data_package_path = None
     options = {}
     usage_str = "usage: python3 -m tml.learning.word_embeddings.create_data_package <text_file_path> <data_package_dir> [options]"
+    help_str = usage_str + "\n" + """
+    options:
+    -h                      show help menu
+    --ws <vocab_size>       vocabulary/word size (10000 by default)
+    """
     try:
         text_file_path    = os.path.abspath(sys.argv[1])
         data_package_path = os.path.abspath(sys.argv[2])
         opts, args = getopt.getopt(sys.argv[3:],"h",["ws="])
     except (IndexError, getopt.GetoptError):
-        print(usage_str)
+        print(help_str)
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print(usage_str + "\n" +
-            """
-            options:
-            -h                      show help menu
-            --ws <vocab_size>       vocabulary/word size (10000 by default)
-            """)
+            print(usage_str)
             sys.exit()
         elif opt == "-ws":
             options["vocabulary_size"] = int(arg)

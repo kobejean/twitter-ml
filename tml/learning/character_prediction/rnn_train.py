@@ -53,7 +53,7 @@ def train(text_files, log_path, checkpoints_path,
     print("LOG PATH:", log_path)
     print("CHECKPOINTS PATH:", checkpoints_path)
     testlen, vali_len, codetext, vali_text, bookranges = txt.read_data_files(text_files, validation=True, nb_epochs=nb_epochs)
-    
+
     # display some stats on the data
     epoch_size = testlen // (batch_size * sequence_size)
     txt.print_data_stats(testlen, vali_len, epoch_size)
@@ -222,31 +222,30 @@ if __name__ == "__main__":
 
     options = {}
     usage_str = "usage: python3 -m tml.learning.character_prediction.rnn_train <text_files> <log_path> <checkpoints_path> [options]"
+    help_str = usage_str + "\n" + """options:
+    -h                      show help menu
+    -e <epochs>             number of epochs the nn should run
+    -b <batches>            number of batches the nn should run
+
+    --bs <batch_size>       batch size
+    --ss <seq_size>         sub sequence size
+    --is <internal_size>    number of neurons per hidden layer
+    --nl <n_layers>         number of hidden layers
+    --lr <learning_rate>    learning rate
+    --dp <dropout_pkeep>    dropout probability
+    """
     try:
         text_files = sys.argv[1]
         log_path = sys.argv[2]
         checkpoints_path = sys.argv[3]
         opts, args = getopt.getopt(sys.argv[4:],"he:b:",["bs=","ss=","is=","nl=","lr=","dp="])
     except (IndexError, getopt.GetoptError):
-        print(usage_str)
+        print(help_str)
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print(usage_str + "\n" +
-            """
-            options:
-            -h                      show help menu
-            -e <epochs>             number of epochs the nn should run
-            -b <batches>            number of batches the nn should run
-
-            --bs <batch_size>       batch size
-            --ss <seq_size>         sub sequence size
-            --is <internal_size>    number of neurons per hidden layer
-            --nl <n_layers>         number of hidden layers
-            --lr <learning_rate>    learning rate
-            --dp <dropout_pkeep>    dropout probability
-            """)
+            print()
             sys.exit()
         elif opt == "-e":
             options["nb_epochs"] = int(arg)
