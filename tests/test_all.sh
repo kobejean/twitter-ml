@@ -28,7 +28,7 @@ status4=$?
 echo "EXITED WITH STATUS CODE: $status4"
 
 echo "CLEANING UP..."
-rm -r data/THE\ STREAM
+rm -r data/TEST\ STREAM
 rm -r log
 rm -r checkpoints
 

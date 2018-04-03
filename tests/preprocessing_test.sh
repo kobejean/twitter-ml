@@ -7,17 +7,17 @@
 #   A script for testing the preprocessed scripts.                             #
 ################################################################################
 
-TEXTPATH="tests/data/THE STREAM.txt" # absolute path
-OUTPATH="tests/data/THE STREAM/"
+TEXTPATH="tests/data/TEST STREAM.txt" # absolute path
+OUTPATH="tests/data/TEST STREAM/"
 
 echo "$TEXTPATH"
 
 # echo "PREPROCESSING FOR CHARACTER PREDICTION..."
-# python3 ../src/character_prediction/create_text.py data/THE\ STREAM.txt data/THE\ STREAM/
+# python3 ../src/character_prediction/create_text.py data/TEST\ STREAM.txt data/TEST\ STREAM/
 # status1=$?
 #
 # echo "PREPROCESSING FOR WORD EMBEDDINGS..."
-# python3 ../src/word_embeddings/create_data_package.py data/THE\ STREAM.txt data/THE\ STREAM/
+# python3 ../src/word_embeddings/create_data_package.py data/TEST\ STREAM.txt data/TEST\ STREAM/
 # status2=$?
 cd ../
 
