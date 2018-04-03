@@ -1,28 +1,9 @@
-"""
-                         - Stream Transformer -
-
-PROGRAMMED BY: Jean Flaherty
-DATE: 07/15/2017
-DESCRIPTION: Handles collecting data from the Twitter Stream API and
-             writing it to a file.
-
-CLASSES:
-    StreamTransformer: A general class that defines how to operate tweepy
-        stream
-    FHCTStreamTransformer: A subclass of StreamTransformer that reads
-        followers_count, hashtags, created_at, and text tags.
-    FUCTStreamTransformer: A subclass of StreamTransformer that reads
-        followers_count, urls, created_at, and text tags.
-    EngTextStreamTransformer: A subclass of StreamTransformer that reads
-        takes only english text. It will also replace entities with special
-        characters to make the text machine learning friendly.
-"""
 import json, os, csv
 from datetime import datetime, timedelta
 from tweepy.streaming import StreamListener
 from threading import Thread
 # within module
-from ..utils.ansi import ANSI
+from .. utils.ansi import ANSI
 
 
 class StreamTransformer(StreamListener):
@@ -35,7 +16,7 @@ class StreamTransformer(StreamListener):
     _entry_count = 0
 
     def __init__(self, tags, file_path = "STREAM.csv", sample_size = 20,
-                 buffer_size = 5, should_print_entry = True):
+                 buffer_size = 5, should_print_entry = False):
         """
         Initializer
 

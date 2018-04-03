@@ -1,20 +1,12 @@
-"""
-                              - DataCollector -
-
-PROGRAMMED BY: Jake Jongewaard
-DATE: 03/18/2017
-DESCRIPTION: Handles collecting data from the Twitter Stream API and
-             passing it to the DataHandler class
-
-CLASSES:
-    DataCollector: collects useful formated data from various Twitter APIs
-"""
-
 import datetime
 import json
 import os
+import time
 
 from tweepy import Stream, OAuthHandler, API
+from .stream_transformer import StreamTransformer
+from .auth_info import *
+
 
 class DataCollector(object):
 
@@ -55,9 +47,9 @@ class DataCollector(object):
         # buffer with the specified tags from that trend
         for trend in all_trends:
             for tag in tags:
-                buffer[buffPos] = {tag : all_trends[tag]}
+                buffer[buffPos] = {tag: all_trends[tag]}
 
-    def stream(self, filters, streamListener):
+    def stream(self, filters, stream_listener):
         """
                                   - Stream Method -
 
@@ -67,5 +59,40 @@ class DataCollector(object):
             filters - the types of tweet subjects the user would like the get
             streamListener - The delegate for StreamListener
         """
-        stream = Stream(auth=self.api.auth, listener=streamListener)
+        stream = Stream(auth=self.api.auth, listener=stream_listener)
         stream.filter(track=filters)
+
+
+def get_live_tweets(filters, tags, output_file='STREAM.csv', sample_size=100, buffer_size=100):
+    '''
+    Builder method that simplifies the data gathering processes from the twitter
+    stream API
+
+    :param filters: Words that will be contained in each tweet collected
+    :param tags: Tweet parameters that will be retrieved
+    :param output_file: Name of the file to write tweets to
+    :param sample_size: Number of tweets to collect
+    :param buffer_size: Size of the tweet buffer
+    :return:
+    '''
+    st = StreamTransformer(tags, output_file, sample_size, buffer_size)
+    st.scan_file()
+
+    try_again = True
+    while try_again:
+        try:
+            # set up collector
+            collector = DataCollector(access_token, access_token_secret, consumer_key, consumer_secret)
+            collector.authenticate()
+            collector.stream(filters, st)
+        except Exception as e:
+            print(e)
+            print("SAVING CURRENT BUFFER...")
+            st.write_data()
+            print("TRY AGAIN IN 1MIN...")
+            time.sleep(60)
+        else:
+            try_again = False
+
+
+get_live_tweets('the', ['text'])
