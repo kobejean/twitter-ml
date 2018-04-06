@@ -22,7 +22,7 @@ import os
 # these must match what was saved !
 ALPHASIZE = txt.ALPHASIZE
 NLAYERS = 3
-INTERNALSIZE = 1024
+INTERNALSIZE = 512
 
 # use topn=10 for all but the last which works with topn=2 for Shakespeare and topn=3 for Python
 
@@ -39,7 +39,7 @@ def play(meta_graph_path, author, count=1000000000, topn=ALPHASIZE):
         y = x
         h = np.zeros([1, INTERNALSIZE * NLAYERS], dtype=np.float32)  # [ BATCHSIZE, INTERNALSIZE * NLAYERS]
         for i in range(count):
-            yo, h = sess.run(['Yo:0', 'H:0'], feed_dict={'X:0': y, 'pkeep:0': 1., 'Hin:0': h, 'batchsize:0': 1})
+            yo, h = sess.run(['Yo:0', 'H:0'], feed_dict={'X:0': y, 'pkeep:0': 1., 'Hin:0': h, 'dynamic_batch_size:0': 1})
 
             # If sampling is be done from the topn most likely characters, the generated text
             # is more credible and more "english". If topn is not set, it defaults to the full
