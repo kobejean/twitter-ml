@@ -27,6 +27,8 @@ before_install:
   - conda info -a
 # command to install dependencies
 install:
+    - pip install --upgrade pip
+    - pip install --upgrade tensorflow
     - pip install -r requirements.txt
 # commands to run tests
 script:
