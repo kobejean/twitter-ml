@@ -18,6 +18,7 @@ env:
 
 # command to install dependencies
 install:
+    - python -m pip install -r requirements.txt
     - |
       if [ -z "_TF_VERSION" ]
       then
@@ -25,7 +26,6 @@ install:
       else
         python -m pip install tensorflow==$_TF_VERSION
       fi
-    - python -m pip install -r requirements.txt
 # commands to run tests
 script:
     - cd tests
