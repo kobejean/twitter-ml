@@ -1,9 +1,27 @@
 sudo: required
 dist: trusty
 language: python
+python:
+  - "3.6"
+  - "3.5"
+
+env:
+
+  # Backward Compatibility in insured for release less than 1 year old.
+  # https://pypi.org/project/tensorflow/#history
+  matrix:
+#     - _TF_VERSION=1.10.1 # Remove on Apr 28, 2019
+#     - _TF_VERSION=1.9.0 # Remove on Apr 28, 2019
+#     - _TF_VERSION=1.8.0 # Remove on Apr 28, 2019
+#     - _TF_VERSION=1.7.1 # Remove on May 08, 2019
+#     - _TF_VERSION=1.7.0 # Remove on Mar 29, 2019
+    - _TF_VERSION=1.6.0 # Remove on Mar 01, 2019
 matrix:
     include:
         - python: 3.6
+          env: KERAS_BACKEND=tensorflow
+          env: _NO_VERSION=True
+        - python: 3.5
           env: KERAS_BACKEND=tensorflow
 # Setup anaconda
 before_install:
@@ -25,7 +43,12 @@ before_install:
   - conda info -a
 # command to install dependencies
 install:
-    - python -m pip install "https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.10.1-cp36-cp36m-linux_x86_64.whl"
+    - |
+      if [[ -v _NO_VERSION ]]; then
+          pip install tensorflow 
+      else
+          pip install tensorflow==$_TF_VERSION
+      fi
     - python -m pip install -r requirements.txt
 # commands to run tests
 script:
