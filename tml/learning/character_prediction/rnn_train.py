@@ -137,6 +137,7 @@ def train(text_files, log_path, checkpoints_path,
 
     # create validation minibatch
     vali_sequence_size = 1*1024  # Sequence length for validation. State will be wrong at the start of each sequence.
+    assert vali_len > vali_sequence_size, "Not enough data. "
     vali_batch_size = vali_len // vali_sequence_size
     vali_x, vali_y, _ = next(txt.rnn_minibatch_sequencer(vali_text, epoch_size, vali_batch_size, vali_sequence_size, 1))  # all data in 1 batch
 

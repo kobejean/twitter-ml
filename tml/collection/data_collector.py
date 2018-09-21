@@ -95,4 +95,4 @@ def get_live_tweets(filters, tags, output_file='STREAM.csv', sample_size=100, bu
             try_again = False
 
 
-get_live_tweets('the', ['text'])
+# get_live_tweets('the', ['text'])

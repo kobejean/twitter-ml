@@ -134,6 +134,7 @@ def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_
                 data.append(next(raw_data))
             yield np.array(data)
 
+    assert batch_size > 0, "Not enough data."
     loader = data_loader()
     # for epoch in range(nb_epochs):
     batch_count = 0
@@ -298,8 +299,8 @@ def read_data_files(directory, validation=True, nb_epochs=1000000000):
         bookranges.append({"start": start, "end": end,
          "name": shakefile.rsplit("/", 1)[-1], "path": shakefile})
     print()
-    if len(bookranges) == 0:
-        sys.exit("No training data has been found. Aborting.")
+    if len(bookranges) < 5:
+        sys.exit("Not enough training data. Need at least 5 text files. Aborting.")
 
     # For validation, use roughly 90K of text,
     # but no more than 10% of the entire text

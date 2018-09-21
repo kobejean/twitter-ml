@@ -47,7 +47,7 @@ def print_progress_generator(label, gen, total, period=1):
     try:
         i = 0
         while True:
-            if i % period == 0 or i+1 == total:
+            if (i % period == 0 or i+1 == total) and total > 0:
                 print(label + "{:.2f}%".format(100.0*float(i+1)/float(total)), end="\r")
             yield next(gen)
             i += 1
