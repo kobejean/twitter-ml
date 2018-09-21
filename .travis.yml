@@ -7,7 +7,6 @@ python:
 
 env:
   matrix:
-    - _TF_VERSION=1.11.0 # Remove on Sept 11, 2019
     - _TF_VERSION=1.10.1 # Remove on Apr 28, 2019
     - _TF_VERSION=1.9.0 # Remove on Apr 28, 2019
     - _TF_VERSION=1.8.0 # Remove on Apr 28, 2019
