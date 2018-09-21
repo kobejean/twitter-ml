@@ -25,8 +25,8 @@ before_install:
   - conda info -a
 # command to install dependencies
 install:
-    - pip install "https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.10.1-cp36-cp36m-linux_x86_64.whl"
-    - pip install -r requirements.txt
+    - python -m pip install "https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.10.1-cp36-cp36m-linux_x86_64.whl"
+    - python -m pip install -r requirements.txt
 # commands to run tests
 script:
     - cd tests
