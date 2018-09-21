@@ -79,3 +79,5 @@ remove_paths = [st1.file_path, st2.file_path, st3.file_path, st4.file_path]
 for path in remove_paths:
     if os.path.exists(path):
         os.remove(path)
+    else: 
+        exit(1)
