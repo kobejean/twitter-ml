@@ -1,14 +1,14 @@
-sudo: required
-dist: trusty
+sudo: yes
+dist: xenial
 language: python
 python:
-  - "3.7"
+  # - "3.7"
   - "3.6"
 
 env:
   matrix:
     - _TF_VERSION=1.13.1
-    - _TF_VERSION=1.12.2
+    # - _TF_VERSION=1.12.2
   global:
     - KERAS_BACKEND=tensorflow
 
@@ -26,3 +26,15 @@ install:
 script:
     - cd tests
     - ./test_all.sh
+jobs:
+  include:
+    - stage: GitHub Release
+      python: 3.6
+      script: echo "Deploying to GitHub releases ..."
+      before_deploy: python3 setup.py sdist bdist_wheel
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        skip_cleanup: true
+        on:
+          tags: true
