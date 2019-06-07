@@ -9,8 +9,8 @@ jobs:
     - name: Integration Tests
 
   include:
-    # - stage: Tests
-    - name: test
+    - stage: test
+    - name: Unit Tests
       script:
           - cd tests
           - ./test_all.sh
