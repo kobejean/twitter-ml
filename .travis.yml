@@ -1,5 +1,5 @@
-sudo: required
-dist: trusty
+sudo: yes
+dist: xenial
 language: python
 python:
   - "3.7"
@@ -26,3 +26,15 @@ install:
 script:
     - cd tests
     - ./test_all.sh
+jobs:
+  include:
+    - stage: GitHub Release
+      python: 3.7
+      script: echo "Deploying to GitHub releases ..."
+      before_deploy: python3 setup.py sdist bdist_wheel
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        skip_cleanup: true
+        on:
+          tags: true
