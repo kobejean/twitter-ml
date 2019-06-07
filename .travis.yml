@@ -16,7 +16,7 @@ jobs:
           - ./test_all.sh
 
     - stage: GitHub Release
-      if: (tag IS present) AND branch = master
+      if: tag IS present
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
