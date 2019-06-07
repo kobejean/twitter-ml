@@ -126,7 +126,7 @@ def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_
         """load data in parts"""
         if type(raw_data) == list: # data is already loaded
             yield np.array(raw_data)
-            raise StopIteration
+            return
 
         while True:
             data = []
@@ -160,7 +160,7 @@ def rnn_minibatch_sequencer(raw_data, epoch_size, batch_size, sequence_size, nb_
             yield x, y, epoch
 
             if nb_batches and batch_count >= nb_batches:
-                raise StopIteration
+                return
 
             batch_count += 1
 

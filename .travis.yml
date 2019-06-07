@@ -2,13 +2,12 @@ sudo: yes
 dist: xenial
 language: python
 python:
-  # - "3.7"
+  - "3.7"
   - "3.6"
 
 env:
   matrix:
     - _TF_VERSION=1.13.1
-    # - _TF_VERSION=1.12.2
   global:
     - KERAS_BACKEND=tensorflow
 
@@ -35,6 +34,9 @@ jobs:
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
+        file:
+          - "dist/tml-*-py3-none-any.whl"
+          - "dist/tml-*.tar.gz"
         skip_cleanup: true
         on:
           tags: true
