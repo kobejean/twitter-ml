@@ -9,15 +9,10 @@ python:
   - 3.6
 env:
   - TEST_TYPE=UNIT_TEST
-  # - TEST_TYPE=INTEGRATION_TEST
+if: type != pull
+  - env: TEST_TYPE=INTEGRATION_TEST
 
 matrix:
-  include:
-    - env: TEST_TYPE=INTEGRATION_TEST
-      if: type != pull
-      python:
-        - 3.7
-        - 3.6
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
