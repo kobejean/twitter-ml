@@ -9,10 +9,11 @@ python:
   - 3.6
 env:
   - TEST_TYPE=UNIT_TEST
-    if: type != push
-  - TEST_TYPE=INTEGRATION_TEST
+  # - TEST_TYPE=INTEGRATION_TEST
 
 matrix:
+  include:
+    - env: TEST_TYPE=INTEGRATION_TEST
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
@@ -24,6 +25,8 @@ script:
 # release
 jobs:
   include:
+    - if: type != push
+      env: TEST_TYPE=INTEGRATION_TEST
     - stage: deploy
       if: tag IS present AND branch = master
       script: echo "Deploying to GitHub releases ..."
