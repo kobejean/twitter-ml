@@ -2,30 +2,24 @@ sudo: yes
 dist: xenial
 language: python
 install: python -m pip install -r requirements.txt
+python: 3.6
 
 jobs:
   allow_failures:
     - name: Integration Tests
-    
+
   include:
-    - stage: Tests
-    - name: Unit Tests
-      python:
-        - 3.6
-        - 3.5
+    # - stage: Tests
+    - name: test
       script:
           - cd tests
           - ./test_all.sh
     - name: Integration Tests
-      python:
-        - 3.6
-        - 3.5
       script:
           - cd tests
           - ./test_all.sh
 
     - stage: GitHub Release
-      python: 3.6
       if: tag IS present
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
