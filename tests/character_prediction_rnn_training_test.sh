@@ -10,7 +10,7 @@
 cd ../
 
 # assuming preprocessing has completed
-python3 -m tml.learning.character_prediction.rnn_train tests/data/TEST\ STREAM/\*.txt tests/log/character_prediction/ tests/checkpoints -e 1 -b 50
+python3 -m tml.learning.character_prediction.rnn_train tests/data/TEST\ STREAM/\*.txt tests/log/character_prediction/ tests/checkpoints -e 1 -b 25
 status=$?
 
 cd tests

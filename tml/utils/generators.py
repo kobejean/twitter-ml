@@ -24,7 +24,10 @@ def print_generator(label, gen, period=1, end="\n"):
     try:
         i = 0
         while True:
-            value = next(gen)
+            try:
+                value = next(gen)
+            except StopIteration:
+                return
             if i % period == 0:
                 print(label + "{0: <40}".format(str(value).rstrip("\n"))[:40], end=end)
             yield value
@@ -49,7 +52,10 @@ def print_progress_generator(label, gen, total, period=1):
         while True:
             if (i % period == 0 or i+1 == total) and total > 0:
                 print(label + "{:.2f}%".format(100.0*float(i+1)/float(total)), end="\r")
-            yield next(gen)
+            try:
+                yield next(gen)
+            except StopIteration:
+                return
             i += 1
     finally:
         print()
