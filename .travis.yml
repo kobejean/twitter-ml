@@ -9,12 +9,10 @@ python:
   - 3.6
 env:
   - TEST_TYPE=UNIT_TEST
+    if: type != push
   - TEST_TYPE=INTEGRATION_TEST
 
 matrix:
-  exclude:
-    - env: TEST_TYPE=INTEGRATION_TEST
-      type: push # wait for pull request to run integration tests
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
