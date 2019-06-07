@@ -24,7 +24,7 @@ script:
 # release
 jobs:
   include:
-    - stage: GitHub Release
+    - stage: deploy
       # if: tag IS present AND branch = master
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
