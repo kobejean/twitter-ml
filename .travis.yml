@@ -8,7 +8,6 @@ python:
 env:
   matrix:
     - _TF_VERSION=1.13.1
-    # - _TF_VERSION=1.12.2
   global:
     - KERAS_BACKEND=tensorflow
 
@@ -35,6 +34,10 @@ jobs:
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
+        file_glob: true
+        file:
+          - "dist/tml-*.whl"
+          - "dist/tml-*.tar.gz"
         skip_cleanup: true
         on:
           tags: true
