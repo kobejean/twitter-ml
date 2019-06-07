@@ -9,3 +9,6 @@ src/**/log
 src/**/checkpoints
 src/shared_data
 log
+/*.egg-info
+/build
+/dist
