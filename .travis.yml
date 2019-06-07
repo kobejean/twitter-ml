@@ -2,13 +2,13 @@ sudo: yes
 dist: xenial
 language: python
 python:
-  - "3.7"
+  # - "3.7"
   - "3.6"
 
 env:
   matrix:
     - _TF_VERSION=1.13.1
-    - _TF_VERSION=1.12.2
+    # - _TF_VERSION=1.12.2
   global:
     - KERAS_BACKEND=tensorflow
 
@@ -29,7 +29,7 @@ script:
 jobs:
   include:
     - stage: GitHub Release
-      python: 3.7
+      python: 3.6
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
