@@ -28,6 +28,7 @@ script:
 jobs:
   include:
     - stage: GitHub Release
+      if: tag IS present
       python: 3.6
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
