@@ -1,34 +1,22 @@
 sudo: yes
 dist: xenial
 language: python
-python:
-  - "3.6"
-  - "3.5"
+install: python -m pip install -r requirements.txt
+python: 3.6
 
-env:
-  matrix:
-    - _TF_VERSION=1.13.1
-  global:
-    - KERAS_BACKEND=tensorflow
-
-# command to install dependencies
-install:
-    - python -m pip install -r requirements.txt
-    - |
-      if [ -z "_TF_VERSION" ]
-      then
-        python -m pip install tensorflow
-      else
-        python -m pip install tensorflow==$_TF_VERSION
-      fi
-# commands to run tests
-script:
-    - cd tests
-    - ./test_all.sh
 jobs:
   include:
+    - name: Unit Tests
+      script:
+          - cd tests
+          - ./test_all.sh
+    - name: Integration Tests
+      script:
+          - cd tests
+          - ./test_all.sh
+
     - stage: GitHub Release
-      python: 3.6
+      if: (tag IS present) AND branch = master
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
@@ -41,3 +29,5 @@ jobs:
         skip_cleanup: true
         on:
           tags: true
+  allow_failures:
+    - name: Integration Tests
