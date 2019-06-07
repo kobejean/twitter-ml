@@ -29,8 +29,8 @@ echo "EXITED WITH STATUS CODE: $status2"
 
 echo "CLEANING UP..."
 rm -r data/TEST\ STREAM
-rm -r log
-rm -r checkpoints
+# rm -r log
+# rm -r checkpoints
 
 echo "DONE"
 
