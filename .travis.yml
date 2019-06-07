@@ -27,6 +27,16 @@ script:
     - ./test_all.sh
 jobs:
   include:
+    - stage: Tests
+      # commands to run tests
+    - script:
+          - cd tests
+          - ./test_all.sh
+      name: Unit Tests
+    - script:
+          - cd tests
+          - ./test_all.sh
+      name: Integration Tests
     - stage: GitHub Release
       if: tag IS present
       python: 3.6
