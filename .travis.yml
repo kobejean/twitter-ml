@@ -10,8 +10,7 @@ python:
 env:
   - TEST_TYPE=UNIT_TEST
   - TEST_TYPE=INTEGRATION_TEST
-
-# allowed failures
+  
 matrix:
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
@@ -25,7 +24,7 @@ script:
 jobs:
   include:
     - stage: deploy
-      # if: tag IS present AND branch = master
+      if: tag IS present AND branch = master
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
