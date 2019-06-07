@@ -2,7 +2,9 @@ sudo: yes
 dist: xenial
 language: python
 install: python -m pip install -r requirements.txt
-python: 3.6
+python:
+  - 3.6
+  - 3.5
 
 matrix:
   include:
