@@ -9,7 +9,6 @@ jobs:
     - name: Integration Tests
 
   include:
-    - stage: test
     - name: Unit Tests
       script:
           - cd tests
