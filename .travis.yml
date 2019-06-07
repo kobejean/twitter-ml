@@ -2,24 +2,16 @@ sudo: yes
 dist: xenial
 language: python
 python: 3.6
-
 env:
-  matrix:
-    - _TF_VERSION=1.13.1
   global:
     - KERAS_BACKEND=tensorflow
 
 # command to install dependencies
 install:
     - python -m pip install -r requirements.txt
-    - |
-      if [ -z "_TF_VERSION" ]
-      then
-        python -m pip install tensorflow
-      else
-        python -m pip install tensorflow==$_TF_VERSION
-      fi
 jobs:
+  allow_failures:
+    - name: Integration Tests
   include:
     - stage: Tests
       # commands to run tests
