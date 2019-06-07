@@ -10,7 +10,7 @@
 cd ../
 
 # assuming preprocessing has completed
-python3 -m tml.learning.word_embeddings.random_or_not_nn tests/data/TEST\ STREAM -l tests/log/word_embeddings/ -b 200 -v 100 -c 200
+python3 -m tml.learning.word_embeddings.random_or_not_nn tests/data/TEST\ STREAM -l tests/log/word_embeddings/ -b 100 -v 100 -c 200
 status=$?
 
 cd tests
