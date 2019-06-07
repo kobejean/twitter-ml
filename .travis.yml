@@ -4,17 +4,17 @@ language: python
 install: python -m pip install -r requirements.txt
 python: 3.6
 
-name:
-  - Unit Tests
-    script: |
-        cd tests
-        ./test_all.sh
-  - Integration Tests
-    script: |
-        cd tests
-        ./test_all.sh
-
 matrix:
+  include:
+    name:
+      - Unit Tests
+        script: |
+            cd tests
+            ./test_all.sh
+      - Integration Tests
+        script: |
+            cd tests
+            ./test_all.sh
   allow_failures:
     - name: Integration Tests
 
