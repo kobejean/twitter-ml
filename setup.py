@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='tml',
-      version='0.0',
+      version='1.0',
       description='A python module for machine learning with twitter data.',
       url='http://github.com/kobejean/twitter-ml',
       packages=[
