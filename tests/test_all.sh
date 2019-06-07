@@ -17,15 +17,15 @@ echo "RUNNING: preprocessing_test.sh"
 status2=$?
 echo "EXITED WITH STATUS CODE: $status2"
 
-echo "RUNNING: random_or_not_nn_test.sh"
-./random_or_not_nn_test.sh
-status3=$?
-echo "EXITED WITH STATUS CODE: $status3"
-
-echo "RUNNING: character_prediction_rnn_training_test.sh"
-./character_prediction_rnn_training_test.sh
-status4=$?
-echo "EXITED WITH STATUS CODE: $status4"
+# echo "RUNNING: random_or_not_nn_test.sh"
+# ./random_or_not_nn_test.sh
+# status3=$?
+# echo "EXITED WITH STATUS CODE: $status3"
+#
+# echo "RUNNING: character_prediction_rnn_training_test.sh"
+# ./character_prediction_rnn_training_test.sh
+# status4=$?
+# echo "EXITED WITH STATUS CODE: $status4"
 
 echo "CLEANING UP..."
 rm -r data/TEST\ STREAM
@@ -34,7 +34,7 @@ rm -r checkpoints
 
 echo "DONE"
 
-if [ $status1 -eq 0 ] && [ $status2 -eq 0 ] && [ $status3 -eq 0 ] && [ $status4 -eq 0 ]
+if [ $status1 -eq 0 ] && [ $status2 -eq 0 ] # && [ $status3 -eq 0 ] && [ $status4 -eq 0 ]
     then
         exit 0
     else
