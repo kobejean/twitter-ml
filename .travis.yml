@@ -34,8 +34,9 @@ jobs:
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
+        file_glob: true
         file:
-          - "dist/tml-*-py3-none-any.whl"
+          - "dist/tml-*.whl"
           - "dist/tml-*.tar.gz"
         skip_cleanup: true
         on:
