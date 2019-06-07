@@ -2,30 +2,17 @@ sudo: yes
 dist: xenial
 language: python
 install: python -m pip install -r requirements.txt
-
-# matrix
-python:
-  - 3.7
-  - 3.6
-
-# test scripts
-script: cd tests; ./test_all.sh
-
-stages:
-  - name: Unit Tests
-  - name: Integration Tests
-    if: type != pull
-  - name: Deploy
+python: 3.7
 
 # release
 jobs:
   allow_failures:
-    - stage: Integration Tests
+    - name: Integration Tests
   include:
-    - stage: Unit Tests
+    - name: Unit Tests
       script: cd tests; ./test_all.sh
-
-    - stage: Integration Testss
+    - name: Integration Tests
+      if: type != pull
       script: cd tests; ./test_all.sh
 
     - stage: Deploy
