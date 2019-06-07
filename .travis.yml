@@ -9,26 +9,22 @@ python:
   - 3.6
 env:
   - TEST_TYPE=UNIT_TEST
-    script: |
-      cd tests
-      ./test_all.sh
   - TEST_TYPE=INTEGRATION_TEST
-    script: |
-      cd tests
-      ./test_all.sh
 
 matrix:
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
 script:
+  - if [ "$TEST_TYPE" = "UNIT_TEST" ]; then cd tests; ./test_all.sh; fi
+  - if [ "$TEST_TYPE" = "INTEGRATION_TEST" ]; then cd tests; ./test_all.sh; fi
 
 jobs:
   include:
     # - if: env(TEST_TYPE) = UNIT_TEST
-    #   script: |
-    #     cd tests
-    #     ./test_all.sh
+      # script: |
+      #   cd tests
+      #   ./test_all.sh
     #
     # - if: env(TEST_TYPE) = INTEGRATION_TEST
     #   script: |
