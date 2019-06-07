@@ -1,10 +1,6 @@
 sudo: yes
 dist: xenial
 language: python
-python: 3.6
-env:
-  global:
-    - KERAS_BACKEND=tensorflow
 
 # command to install dependencies
 install:
@@ -13,18 +9,21 @@ jobs:
   allow_failures:
     - name: Integration Tests
   include:
-    - stage: Tests
+    # - stage: Tests
       # commands to run tests
     - script:
           - cd tests
           - ./test_all.sh
       name: Unit Tests
+      python: 3.6
     - script:
           - cd tests
           - ./test_all.sh
       name: Integration Tests
+      python: 3.6
     - stage: GitHub Release
       if: tag IS present
+      python: 3.6
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
