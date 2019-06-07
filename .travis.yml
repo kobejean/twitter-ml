@@ -10,8 +10,11 @@ python:
 env:
   - TEST_TYPE=UNIT_TEST
   - TEST_TYPE=INTEGRATION_TEST
-  
+
 matrix:
+  exclude:
+    - env: TEST_TYPE=INTEGRATION_TEST
+      if: type = push # wait for pull request to run integration tests
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
