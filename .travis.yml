@@ -6,15 +6,14 @@ python: 3.6
 
 matrix:
   include:
-    name:
-      - Unit Tests
-        script: |
-            cd tests
-            ./test_all.sh
-      - Integration Tests
-        script: |
-            cd tests
-            ./test_all.sh
+    - name: Unit Tests
+      script: |
+          cd tests
+          ./test_all.sh
+    - name: Integration Tests
+      script: |
+          cd tests
+          ./test_all.sh
   allow_failures:
     - name: Integration Tests
 
