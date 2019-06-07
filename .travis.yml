@@ -11,28 +11,21 @@ env:
   - TEST_TYPE=UNIT_TEST
   - TEST_TYPE=INTEGRATION_TEST
 
+# allowed failures
 matrix:
   allow_failures:
     - env: TEST_TYPE=INTEGRATION_TEST
 
+# test scripts
 script:
   - if [ "$TEST_TYPE" = "UNIT_TEST" ]; then cd tests; ./test_all.sh; fi
   - if [ "$TEST_TYPE" = "INTEGRATION_TEST" ]; then cd tests; ./test_all.sh; fi
 
+# release
 jobs:
   include:
-    # - if: env(TEST_TYPE) = UNIT_TEST
-      # script: |
-      #   cd tests
-      #   ./test_all.sh
-    #
-    # - if: env(TEST_TYPE) = INTEGRATION_TEST
-    #   script: |
-    #     cd tests
-    #     ./test_all.sh
-
     - stage: GitHub Release
-      if: tag IS present AND branch = master
+      # if: tag IS present AND branch = master
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
