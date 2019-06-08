@@ -4,19 +4,19 @@ language: python
 install: python -m pip install -r requirements.txt
 python: 3.6
 
+# release
 jobs:
+  allow_failures:
+    - name: Integration Tests
   include:
     - name: Unit Tests
-      script:
-          - cd tests
-          - ./test_all.sh
+      script: cd tests; ./test_all.sh
     - name: Integration Tests
-      script:
-          - cd tests
-          - ./test_all.sh
+      if: type != push
+      script: cd tests; ./test_all.sh
 
-    - stage: GitHub Release
-      if: (tag IS present) AND branch = master
+    - stage: Deploy
+      if: tag IS present AND branch = master
       script: echo "Deploying to GitHub releases ..."
       before_deploy: python3 setup.py sdist bdist_wheel
       deploy:
@@ -29,5 +29,3 @@ jobs:
         skip_cleanup: true
         on:
           tags: true
-  allow_failures:
-    - name: Integration Tests
